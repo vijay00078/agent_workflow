@@ -50,7 +50,7 @@ You reuse the four credentials from your first workflow.
 ### 1. Import the file
 
 1. In n8n, go to **Workflows** and click **Create Workflow** (or **Create** > **Workflow**, or **+**).
-2. Click the **...** menu at the top right and choose **Import from File...**.
+2. Open the workflow menu, the **...** button (next to the workflow name in n8n 2.x, at the top right in n8n 1.x), and choose **Import from File...**.
 3. Choose a file from the `workflows` folder, for example `client-finder-seo.json`.
 4. Click **Save**.
 
@@ -192,7 +192,7 @@ After the last follow-up, the lead stays **Contacted** until you set it to **Los
 
 > **Tip:** Changed **yourOffer** in a Client Finder workflow? Follow-ups still use the niche default offer, unless you fill in **yourOffer** here.
 
-To change the time, open *Every Morning* and change **Trigger at Hour**. For another time zone, click **...** > **Settings** and change **Timezone**.
+To change the time, open *Every Morning* and change **Trigger at Hour**. For another time zone, open the workflow menu (**...**), choose **Settings** and change **Timezone**.
 
 > **Cost:** Each follow-up is one Claude request, similar in cost to a pitch. Gmail searches are free.
 
@@ -240,14 +240,14 @@ Changing `needsWebsiteCheck` or `needsPageSpeed` does not add or remove nodes. L
 
 ### 2. Duplicate it and change the form path
 
-1. Open the workflow, click **...** > **Duplicate** and name the copy.
+1. Open the workflow, open the workflow menu (**...**), choose **Duplicate** and name the copy.
 2. In the copy, open *Find Clients Form*. Under **Options**, change **Form Path**, for example to `client-finder-wedding-photographers`. You can also change **Form Title** and **Form Description**.
 3. Click **Save**.
 
 ### 3. Edit NICHE_PACK
 
 1. Double-click *Prepare Search*. It holds a lot of code; you change only the end.
-2. Scroll to the bottom. Find `const NICHE_PACK = {`, just above the last line, which starts with `return`.
+2. Scroll to the bottom. Find the block that starts with `const NICHE_PACK = {`. It ends just above the last line, which starts with `return`.
 3. Change these values, close the node and click **Save**.
 
 | Field | What it does |
@@ -257,7 +257,7 @@ Changing `needsWebsiteCheck` or `needsPageSpeed` does not add or remove nodes. L
 | `weights` | The checks that run and their points. Delete a line or set it to 0 to switch a check off. |
 | `thresholds` | Your own limits, for example `{ "lowRating": 4.3 }`. `{}` = the defaults. |
 | `pitchAngle` | Plain-English guidance for Claude: who you are and why the problem matters |
-| `defaultService`, `defaultOffer` | Used only when **yourService** or **yourOffer** in *⚙️ Settings* is empty, and by the Autopilot |
+| `defaultService`, `defaultOffer` | Used only when **yourService** or **yourOffer** in *⚙️ Settings* is empty. The Autopilot uses them too once you add your pack to it (see "Teach the Autopilot your niche") |
 | `fallback` | The template pitch's subject and "why it matters" sentence, used when Claude fails |
 
 ### 4. Update ⚙️ Settings, test and publish

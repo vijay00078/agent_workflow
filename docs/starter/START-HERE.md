@@ -34,7 +34,9 @@ Follow SETUP-GUIDE.pdf from start to finish. In the *⚙️ Settings* node, put 
 
 ### 2. Run your first search (about 5 minutes)
 
-Open the form from the *Find Clients Form* node. Try `dentists` in your own city, and choose **20** businesses. A run takes about 2-6 minutes, so keep the browser tab open.
+Open the form from the *Find Clients Form* node. Try `dentists` in your own city, and choose **20** businesses. A run takes about 2-8 minutes, so keep the browser tab open, and don't submit another search until it is done.
+
+Each run saves every lead to your sheet first. Then it creates the Gmail drafts and writes each draft's ID back to the sheet.
 
 ![The results page after a run](img/results-page.png)
 *Example results page. Your numbers will differ.*
@@ -46,19 +48,23 @@ Open the form from the *Find Clients Form* node. Try `dentists` in your own city
 3. Change anything that does not sound like you, then click **Send**.
 4. In the sheet, change their **Status** to **Contacted**.
 
-Leads with the status **Pitch ready** usually have no public email. Use the **DM Message** or **Call Opener** columns to reach them by phone or social media.
+Leads with the status **Pitch ready** usually have no public email (if a Gmail draft failed, **Notes** says why). Use the **DM Message** or **Call Opener** columns to reach them by phone or social media.
+
+Leads with the status **New** got no pitch. Their score was too low, or their email address or website was already pitched under another listing (a chain location or a duplicate listing). The **Notes** column then says "Same email as …" or "Same website as …".
 
 ### 4. Tune your offer with PROMPTS (about 10 minutes)
 
-Use PROMPTS.pdf to adjust your service, offer and tone in *⚙️ Settings*, so your next pitches sound more like you.
+Use PROMPTS.pdf to adjust your service, offer, sign-off and tone in *⚙️ Settings*, so your next pitches sound more like you.
 
 ## The 3 golden rules
 
 1. **Read every draft before you send it.** You are the sender. Make sure each email is true, polite and sounds like you.
 2. **Start with 10-20 emails a day from your own inbox.** Sending many emails at once can get you marked as spam. Grow slowly.
-3. **Respect every "no thanks".** Every first email ends with an opt-out line. When someone says no, set their **Status** to **Do not contact** and never email them again. Keep their row: future searches skip businesses that are already in your sheet.
+3. **Respect every "no thanks".** Every first email ends with an opt-out line. When someone says no, set their **Status** to **Do not contact** (or **Not interested**) and never email them again. Keep their row: future searches skip businesses that are already in your sheet, and never pitch that email address or website again, even under another listing.
 
-> **Tip:** Some laws, such as the US CAN-SPAM Act, require a postal address in business email. Add yours in **yourAddress** in *⚙️ Settings*.
+> **Tip:** Some laws, such as the US CAN-SPAM Act, require a postal address in business email. Add yours in **yourAddress** in *⚙️ Settings*. The results page reminds you while it is empty.
+
+> **Tip:** Anyone with your form's Production URL can run searches on your accounts. Keep it private, and lock it with n8n's Basic Auth (*Find Clients Form* → **Authentication** → **Basic Auth**) or a hard-to-guess form path.
 
 ## Need help?
 

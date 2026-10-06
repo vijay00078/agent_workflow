@@ -50,6 +50,8 @@ Gumroad's description box is a rich-text editor. It does not understand Markdown
 - Example data in this file comes from the test businesses in `tests/fixtures/businesses.js` (for example "Sunrise Family Dental" in Austin, TX). These businesses are made up. Always label them as example data.
 - When you have real results, add them only in the places marked `[ADD LATER: ...]`, with numbers you measured yourself and quotes you have written permission to use.
 - Do not write that the product is "compliant with Google's terms". Google Maps Platform terms limit how Places data may be stored and used. Read them yourself and word any claim carefully.
+- Do not suggest that Google, n8n, Anthropic or Meta made, approved or endorse the product. Naming them to say what the product uses is fine.
+- Do not call the outreach "legal everywhere" or "compliant". The opt-out line and address field help, but the buyer is responsible for the rules where they send.
 
 ---
 
@@ -111,7 +113,7 @@ It does not scrape Google Maps. It uses the Places API, Google's official servic
 **What you need**
 
 - **n8n**, the automation tool the workflow runs in. n8n Cloud (the free trial works) or self-hosted n8n version 1.123 or newer, including n8n 2.x.
-- **A Google account** and a Google Cloud project with billing turned on. Google asks for a payment card before it turns on Maps services, even inside its free monthly usage. The guide explains why.
+- **A Google account** and a Google Cloud project with billing turned on. Google asks for a billing account (usually a payment card) before it turns on Maps services, even inside its free monthly usage. The guide explains why.
 - **A Google API key** with **Places API (New)** turned on. The guide shows you how.
 - No AI account, no Gmail connection and no coding.
 
@@ -123,16 +125,18 @@ Lite only uses the Google Places API. Google gives a free monthly usage allowanc
 
 1. **Create a Google API key** with Places API (New) turned on.
 2. **Import the workflow into n8n** and add your key as a Header Auth credential (the name is `X-Goog-Api-Key`).
-3. **Turn the workflow on and open its form.** Type a business type and a city, click **Find leads**, and your CSV downloads.
+3. **Turn the workflow on and open its form.** In n8n 1.x, switch it to **Active**; in n8n 2.x, click **Publish**. Type a business type and a city, click **Find leads**, and your CSV downloads.
 
 **Want more than a list?**
 
-Lite tells you who has no website. The paid version, **Client Finder Agent**, goes further. It opens each business's website and checks it: speed on mobile, security certificate, mobile-friendly or not, outdated or not, and more. It scores every lead from 0 to 100 and shows the proof. Then Claude (an AI model) writes a short pitch based on the facts it verified. Everything is saved to a Google Sheet, and pitches become Gmail drafts that you read and send yourself.
+Lite tells you who has no website. The paid version, **Client Finder Agent**, goes further. It opens each business's website and checks it: speed on mobile, security certificate, mobile-friendly or not, outdated or not, and more. It scores every lead from 0 to 100 and shows the proof. Then Claude (an AI model) writes a short pitch based only on the facts the workflow verified. Everything is saved to a Google Sheet. For businesses with a public email, pitches become Gmail drafts that you read and send yourself.
 
 - **Starter, $49:** the Web Design workflow.
 - **Pro, $99:** five niches (web design, local SEO, Google reviews, social media and ads, AI chatbots and booking) plus a Follow-up Autopilot.
 
 See the paid version: {{storeUrl}}
+
+Client Finder Lite is an independent product. It is not made by, or affiliated with, Google or n8n.
 
 ---
 
@@ -228,7 +232,7 @@ Set up two versions on the same product.
 
 **Starter ($49)**
 
-> The Web Design workflow. Finds local businesses with a missing, broken, slow or outdated website, scores them, writes a pitch for each with Claude and saves Gmail drafts for you to review. Includes the setup guide, pitch guide and Google Sheet CRM template.
+> The Web Design workflow. Finds local businesses with a missing, broken, slow or outdated website, scores them, writes a pitch with Claude for each lead above your minimum score, and saves Gmail drafts (for businesses with a public email) for you to review. Includes the setup guide, pitch guide and Google Sheet CRM template.
 
 **Pro ($99)**
 
@@ -238,8 +242,8 @@ Set up two versions on the same product.
 
 Gumroad does not upgrade a one-time purchase to another version by itself. Choose your policy before launch. One fair option:
 
-- Create a discount code worth the price difference, for example `[UPGRADE CODE]` for $49 off the Pro version.
-- Give it to Starter buyers who email you their receipt.
+- Create a discount code worth what they already paid, for example `[UPGRADE CODE]` for $49 off the Pro version, so they pay only the $50 difference.
+- Give it to Starter buyers who email you their receipt. If your Gumroad editor lets you limit a code to one product version or to one use, do that, so the code can't make Starter free or be shared.
 - Starter buyers keep their workflow, credentials and sheet. The Pro web-design file is identical to Starter's, so they skip it.
 
 Write your choice into the FAQ answer "Starter or Pro?" below, or remove that sentence.
@@ -254,13 +258,13 @@ Copy everything between the two lines below.
 
 ---
 
-**Find local businesses that need what you sell. See the proof. Get a pitch for each.**
+**Find local businesses with a problem you can fix. See the proof. Get a pitch for the best ones.**
 
 You type a business type and a city. Client Finder Agent finds up to 60 local businesses through Google's official Places API. It checks each one for a problem your service can fix, and it shows you the evidence, for example: "Google PageSpeed scores the mobile site 23/100". Then Claude, an AI model, writes a short pitch based on those verified facts.
 
 Every lead is saved to your Google Sheet. Pitches for businesses with a public email become Gmail drafts. Nothing is sent until you read it and click **Send**.
 
-It runs in **n8n**, an automation tool where small steps (called *nodes*) are joined into a *workflow*. You do not need to code. You import a file, connect four accounts and fill in your details. The guide walks you through every click.
+It runs in **n8n**, an automation tool where small steps (called *nodes*) are joined into a *workflow*. You do not need to code. You import a file, add four connections (two API keys, Google Sheets and Gmail) and fill in your details. The guide walks you through every click.
 
 **What one lead looks like**
 
@@ -319,7 +323,7 @@ It runs every morning at 9:00 (in your n8n time zone). For every lead with an em
 
 - If the business replied, it sets the status to **Replied** and never follows up with them again.
 - If you sent the pitch and got no reply after 3 days, it drafts follow-up #1 in the same Gmail thread.
-- 7 days after that, it drafts a short, polite last note. Then it stops.
+- If you sent that follow-up and still have no reply 7 days later, it drafts a short, polite last note. Then it stops.
 - It never touches leads marked Replied, Meeting booked, Won, Lost or Do not contact.
 
 Like everything else, follow-ups are drafts. You read them and send them yourself.
@@ -341,7 +345,7 @@ Like everything else, follow-ups are drafts. You read them and send them yoursel
 
 **What you need**
 
-- **n8n 1.123 or newer**, on n8n Cloud or self-hosted. It works on n8n 1.x and 2.x.
+- **n8n 1.123 or newer**, on n8n Cloud or self-hosted. It works on n8n 1.123+ and 2.x.
 - **A Google Cloud project** with billing turned on, and an API key with **Places API (New)** and **PageSpeed Insights API** turned on.
 - **An Anthropic API key** (for Claude) with prepaid credits. A Claude.ai chat subscription does not include API credits.
 - **Gmail or Google Workspace**, for the drafts and the Google Sheet.
@@ -361,7 +365,7 @@ You pay each service directly for what you use. There are no extra fees from us.
 
 **Works on n8n 1.123 and 2.x**
 
-Every workflow uses only node versions that exist in n8n 1.123 and newer. Before release, every workflow was imported exactly as shipped into n8n 1.123.83 and n8n 2.42.3 and run end to end in automated tests.
+Every workflow uses only node versions that exist in n8n 1.123 and newer. Before release, every workflow was imported exactly as shipped into n8n 1.123.83 and n8n 2.42.3 and run end to end in automated tests. In those tests, test versions of the Google, Gmail and Claude services stood in for the real ones.
 
 **What it does not do**
 
@@ -383,7 +387,7 @@ Every workflow uses only node versions that exist in n8n 1.123 and newer. Before
 No. It creates Gmail drafts. You open each one, check it against the evidence in your sheet, change anything you like and click Send. The Follow-up Autopilot in Pro also only creates drafts.
 
 **Is it scraping Google Maps?**
-No. It uses the Places API, Google's official service for Google Maps data, through your own Google API key. You can see every request in your own Google Cloud account.
+No. It uses the Places API, Google's official service for Google Maps data, through your own Google API key. You can see how many requests you made in your own Google Cloud console.
 
 **How many leads do I get?**
 Up to 60 businesses per search. That is the most Google's Places API gives for one search (3 pages of 20). You can run as many searches as you like: a nearby area, another part of the city or a related business type. Every new run skips businesses that are already in your sheet. How many leads have a problem worth pitching depends on the area and the niche, so we cannot promise a number.
@@ -398,13 +402,13 @@ No coding. You import a file, connect four accounts (Google API key, Anthropic A
 Apart from your n8n plan, you pay Google and Anthropic directly. With the default AI model, one pitch costs roughly 1-2 US cents. Google gives a free monthly usage allowance for Maps searches, then charges per request; set a budget alert. PageSpeed tests are free. See "Honest running costs" above.
 
 **Does it work outside the US, and in other languages?**
-Yes. It works wherever Google Maps lists businesses. You can set the country and language of the search, and Claude can write the pitch in any language it writes, for example English, Spanish or Hindi. The rules for business email are different in every country; check the ones that apply to you.
+Yes. It works wherever Google Maps lists businesses. You can set the country and language of the search, and Claude can write the pitch in any language it writes, for example English, Spanish or Hindi. A few fixed parts are not translated for you ("Thanks," before your signature, the opt-out line you type and the backup template pitch), so check each draft. The rules for business email are different in every country; check the ones that apply to you.
 
 **Is cold email allowed?**
-That depends on where you and the business are. This is not legal advice. The workflow helps you stay polite and within common rules: every first email ends with an opt-out line, there is a field for your postal address (required in commercial email in the US), you can mark a lead **Do not contact**, and nobody in your sheet is pitched twice. You review and send every message, so you are responsible for what you send.
+That depends on where you and the business are. This is not legal advice. The workflow gives you tools that help: every first email ends with an opt-out line, there is a field for your postal address (required in commercial email in the US), you can mark a lead **Do not contact**, and nobody in your sheet is pitched twice. These tools do not make every email legal everywhere. In some places, for example Canada, Australia, Germany, or UK sole traders, you may need consent first or must meet extra conditions. Pro includes an outreach playbook with a plain-English overview of the main rules. You review and send every message, so you are responsible for what you send.
 
 **Starter or Pro? Can I upgrade later?**
-Choose Starter if you only sell web design. Choose Pro if you sell another service from the list, more than one service, or you want follow-ups drafted for you. If you upgrade later, you keep your Starter workflow, accounts and sheet. [YOUR UPGRADE POLICY, for example: "Email {{supportEmail}} with your Starter receipt and we will send you a code for the price difference."]
+Choose Starter if you only sell web design. Choose Pro if you sell another service from the list, more than one service, or you want follow-ups drafted for you. If you upgrade later, you keep your Starter workflow, accounts and sheet. [YOUR UPGRADE POLICY, for example: "Email {{supportEmail}} with your Starter receipt and we will send you a code, so you pay only the difference."]
 
 **What is your refund policy?**
 [YOUR REFUND POLICY. Suggested: "If the workflow does not work on your n8n after you follow the setup guide, email {{supportEmail}} within 14 days of purchase. We will try to fix it with you, and if we can't, we will refund you in full."]
@@ -413,7 +417,9 @@ Choose Starter if you only sell web design. Choose Pro if you sell another servi
 
 Email {{supportEmail}} with your n8n version, whether you use n8n Cloud or self-hosted, and the exact error message. Never send your API keys.
 
-You may use the workflows for your own business and to find and serve your own clients, including setting them up for a client. You may not resell, share or publish the files. The full license is in the download.
+You may use the workflows for your own business and to find and serve your own clients, including setting them up for a client. You may not resell, share or publish the files. One license is for one person; for a team, email {{supportEmail}}. The full license is in the download.
+
+Client Finder Agent is an independent product. It is not made by, or affiliated with, Google, n8n or Anthropic.
 
 ---
 
@@ -505,6 +511,8 @@ Paste this into Gumroad's custom receipt message for the product. If you do not 
 > 5. Run your first search with **20** businesses. Keep the browser tab open; a run takes a few minutes.
 > 6. Read every Gmail draft before you send it. Start with a small number of emails a day from your own inbox.
 >
+> Keep the form's address private: anyone who has it can run searches on your Google and Anthropic accounts and add leads and drafts to your sheet and Gmail.
+>
 > **Pro buyers:** set up one niche first. Then use PRO-GUIDE.pdf to add the other niches and the Follow-up Autopilot.
 >
 > **Upgrading from Starter to Pro?** Keep your Starter workflow, credentials and sheet. Skip the Pro copy of `client-finder-web-design.json`: it is the same workflow, and two copies would clash on the same form address.
@@ -526,3 +534,4 @@ Paste this into Gumroad's custom receipt message for the product. If you do not 
 6. A test purchase of each product (and each version) downloads the right file.
 7. The refund policy in Gumroad matches the FAQ answer.
 8. Nothing on either page promises income, clients, replies or a number of leads, and there are no reviews or numbers you did not collect yourself.
+9. Nothing suggests that Google, n8n, Anthropic or Meta endorse the product, and nothing calls the outreach "legal" or "compliant".

@@ -23,7 +23,9 @@ Every number in these posts is a placeholder in square brackets, for example `[X
 - They use Google's official Places API. They do not scrape Google Maps.
 - They find an email only when a business publishes one on its homepage.
 - Up to 60 businesses per search. Lite gives a CSV; Starter and Pro check websites, score leads, write pitches with Claude and save to a Google Sheet.
-- Prices: Lite free, Starter $49, Pro $99.
+- Prices: Lite free, Starter $49 (Web Design only), Pro $99 (5 niches and the Follow-up Autopilot).
+- It works on n8n 1.123 or newer, including n8n 2.x, Cloud or self-hosted.
+- Never suggest that Google, n8n, Anthropic or Meta made or endorse the product.
 
 ### Placeholders
 
@@ -90,7 +92,7 @@ Every number in these posts is a placeholder in square brackets, for example `[X
 >
 > **Download:** [LITE LINK]
 >
-> One sticky note in the workflow links to the paid version. Delete it if you like; the workflow works the same without it.
+> A sticky note in the workflow and the message on the last form page link to the paid version. Delete the note, or edit the message in the *Download CSV* node, if you like; the workflow works the same.
 >
 > If you try it, I'd like to hear what breaks or what you would add.
 >
@@ -166,15 +168,15 @@ Seven posts. Each one is under 280 characters (X counts every link as 23 charact
 
 > 5. Everything lands in a Google Sheet. Leads with a public email get a Gmail draft.
 >
-> Nothing is sent automatically. You read every draft, change what you like, and hit send yourself.
+> Nothing is sent automatically. You read every draft, edit it, and send it yourself.
 >
 > My test: [BUSINESS TYPE] in [CITY], [N] businesses, [M] worth pitching. Full run in the video.
 
 **7/**
 
-> There's a free version that does step 1 and gives you a CSV with no-website businesses first: [LITE LINK]
+> Free version: just the Google Maps search, as a CSV with no-website businesses first: [LITE LINK]
 >
-> The full agent (5 niches + follow-up drafts) is here if it's useful: {{storeUrl}}
+> Full agent: Starter $49 (web design) or Pro $99 (5 niches + follow-up drafts): {{storeUrl}}
 >
 > Happy to answer questions about how any part is built.
 
@@ -214,7 +216,7 @@ Pick one:
 | 2-7 s | 1. Business type + city | Type into the form, choose **20**, click **Find clients** | "I type a business type and a city." |
 | 7-11 s | 2. It checks every website (sped up) | Waiting page, then the results page: "Done: [N] new leads found" | "It finds businesses on Google Maps, opens each website and runs Google's speed test." |
 | 11-19 s | 3. A score and the proof | The Google Sheet: scroll the new rows, then zoom in on Score, Priority, Problems and Evidence, for example "PageSpeed 23/100" | "Every lead gets a score and the proof, like a mobile speed score of 23 out of 100." |
-| 19-26 s | 4. A pitch draft for each. You review. You send. | Gmail **Drafts**: open one, highlight the first line that names the problem, edit one word | "Claude writes a short pitch from those facts. It's only a draft. I read it and send it myself." |
+| 19-26 s | 4. A pitch draft for the best leads. You review. You send. | Gmail **Drafts**: open one, highlight the first line that names the problem, edit one word | "Claude writes a short pitch from those facts. It's only a draft. I read it and send it myself." |
 | 26-30 s | Comment CLIENT for the free version | End card with the cover image. Small text: "Free version = Google Maps list, no-website businesses first. Full agent: link in bio." | "Comment CLIENT and I'll send you the free version." |
 
 > **Be clear about what is free.** The video shows the paid agent (checks, scores, drafts). The free version only builds the Google Maps list. Say this on the end card and in the caption, so nobody feels tricked.
@@ -239,26 +241,32 @@ Pick one:
 - `Just sent it to you.`
 - `It's in your messages now.`
 
-**DM 1 (sent right away, with a button)**
+**DM 1 (sent right away, as the private reply to their comment, with a button)**
 
-> Hi [first name], thanks for commenting! Here's the free Client Finder Lite workflow for n8n. Tap the button and Gumroad will send you the file. You can pay $0.
+> Hi [first name], thanks for commenting! Tap the button and I'll send you the free Client Finder Lite workflow for n8n.
+>
+> Button: **Send me the link**
+
+**DM 2 (sent only after they tap the button)**
+
+> Here it is. Gumroad will send you the file, and you can pay $0.
 >
 > Button: **Get the free workflow** → [LITE LINK]
-
-**DM 2 (sent right after DM 1)**
-
+>
 > Quick tips: setup takes about 10 minutes with the guide inside. You'll need a Google Cloud account with billing turned on; Google's free monthly usage applies, and the guide shows you how to set a budget alert. Reply here if you get stuck.
 
 **DM 3 (only if they reply and ask about the full version)**
 
-> The full Client Finder Agent checks each website, scores every lead with the proof, writes a pitch for each with Claude and saves them as Gmail drafts for you to review. Starter is $49 (web design), Pro is $99 (5 niches and follow-up drafts): {{storeUrl}}
+> The full Client Finder Agent checks each website, scores every lead with the proof, writes a pitch with Claude for the best leads and saves them as Gmail drafts for you to review. Starter is $49 (web design), Pro is $99 (5 niches and follow-up drafts): {{storeUrl}}
 
 **Rules for the flow**
 
-- Instagram only allows automated messages within 24 hours of the person's comment or last message. Do not send promotional follow-ups after that.
+- Instagram lets a business send one private reply to a comment. Further messages are allowed only after the person replies or taps a button, and only within 24 hours of their last message. That is why DM 2 waits for the button. Meta's messaging rules change, so check them, or your automation tool's current settings, before you go live.
+- Do not send promotional follow-ups after the 24-hour window ends.
 - Never add people to a list or send them offers they did not ask for.
 - If someone replies "stop" or "no thanks", stop the flow for them.
 - Test the flow from a second account before the Reel goes live.
+- Don't run this Reel as a paid ad with the "Comment CLIENT" ask. Meta's ad rules can treat requests to comment, like or share as engagement bait.
 
 ---
 
@@ -270,7 +278,7 @@ Pick one:
 >
 > 1. It searches Google Maps (Google's official Places API) for a business type in a city.
 > 2. It opens every website and runs Google's mobile speed test.
-> 3. It scores each business from 0 to 100 and writes down the proof: "PageSpeed mobile score 23/100", "footer still says © 2019", "no website at all".
+> 3. It scores each business from 0 to 100 and writes down the proof, for example (from my test data): "PageSpeed mobile score 23/100", "footer still says © 2019", "no website at all".
 > 4. Claude drafts a short pitch from those facts only. It lands in Gmail as a draft. Nothing is sent until I read it.
 >
 > What I've seen so far: [ONLY REAL OBSERVATIONS, for example "[X] replies from [Y] emails over [Z] weeks". Delete this line until you have real numbers.]
@@ -299,7 +307,9 @@ Three variants. Each follows Meta's advertising rules:
 
 - No income or earnings claims, and no before/after money claims.
 - No language that says or suggests you know the viewer's personal attributes (for example their finances, health or situation). Talk about the product, not about the person.
-- Time saved and clients found are described in words, never with promised numbers.
+- Time saved and leads found are described in words, never with numbers or promises. Ads never talk about winning clients.
+- No suggestion that Google, Meta, n8n or Anthropic made or endorse the product. Naming them to say what it uses is fine.
+- No requests to comment, like or share in the ad itself (Meta can treat this as engagement bait).
 - The landing page must match the ad: same product, same price, same "free" or "paid".
 - If an ad says "free", mention that Google API costs may apply.
 - Screenshots in the creative use example data, labelled as such.
@@ -309,15 +319,15 @@ Three variants. Each follows Meta's advertising rules:
 ### Variant A: the free Lite workflow (lead magnet)
 
 - **Primary text:** Free n8n workflow: type a business type and a city, and get a list of local businesses from Google Maps, with the ones that have no website at the top. It uses Google's official Places API, and a step-by-step setup guide is included. Google API costs may apply after the free monthly allowance.
-- **Headline:** Free Google Maps lead list for n8n
+- **Headline:** Free local business lead list for n8n
 - **Description:** CSV download. No coding.
 - **Button:** Download
-- **Creative:** `marketing/cover-lite.png`, or a 10-second screen recording of the form and the CSV.
+- **Creative:** `marketing/cover-lite.png`, or a 10-second screen recording of the form and the CSV, with example data or blurred names and phone numbers.
 - **Landing page:** [LITE LINK]
 
 ### Variant B: the paid agent, "proof" angle
 
-- **Primary text:** Spend less time researching leads. Client Finder Agent searches Google Maps, checks each local business's website and shows the proof: slow on mobile, no HTTPS, outdated, or no website at all. Then it drafts a short pitch for each one in Gmail. Every message waits for your review before it is sent.
+- **Primary text:** Spend less time researching leads. Client Finder Agent searches Google Maps, checks each local business's website and shows the proof: slow on mobile, no HTTPS, outdated, or no website at all. Then it writes a short pitch for the best leads, as a Gmail draft when the business publishes an email. Every message waits for your review before it is sent.
 - **Headline:** Local leads with proof, ready to review
 - **Description:** n8n workflow. Starter $49, Pro $99.
 - **Button:** Learn more
@@ -326,9 +336,9 @@ Three variants. Each follows Meta's advertising rules:
 
 ### Variant C: the paid agent, "five services" angle
 
-- **Primary text:** Research local businesses without the copy-paste. Fill in one form, then get a Google Sheet of scored leads and a Gmail draft for each one with a public email. Checks for web design, local SEO, Google reviews, social media and AI chatbot services. Nothing is sent automatically.
+- **Primary text:** Research local businesses without the copy-paste. Fill in one form, then get a Google Sheet of scored leads and a Gmail draft for each pitched lead with a public email. The Pro version has checks for five services: web design, local SEO, Google reviews, social media and AI chatbots. Nothing is sent automatically.
 - **Headline:** Find local businesses to pitch
-- **Description:** Built for n8n. Drafts only.
+- **Description:** n8n workflows. Starter $49, Pro $99. Drafts only.
 - **Button:** Learn more
 - **Creative:** A 15-second cut of the Reel above, with "example data" or blurred names on screen.
 - **Landing page:** {{storeUrl}}

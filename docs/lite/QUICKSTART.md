@@ -11,7 +11,7 @@ Client Finder Lite is the free version of {{productName}}. You type a business t
 
 Businesses with **no website** come first, so Lite is a good fit for web designers: the businesses at the top may need their first website. Each row has the phone, website (if any), rating, reviews, address and a Maps link. Closed businesses and duplicates are removed.
 
-Lite uses the Places API, Google's official service for Google Maps data. It does not scrape Google Maps, and it never contacts anyone for you.
+Lite uses Google's official Places API with your own key, not a scraper, and it never contacts anyone for you. Google's Maps Platform Terms (section 3.2.3) restrict storing Places content such as business names and addresses outside Google's services (Place IDs may be kept), so read the terms, treat your CSV as a working list and delete leads you don't pursue.
 
 ## What you need
 
@@ -22,7 +22,7 @@ Lite uses the Places API, Google's official service for Google Maps data. It doe
 | A payment card | Google asks for one before it turns on Maps services. Step 1 explains why. |
 | About 10 minutes | Most of it is spent in Google Cloud. |
 
-## Step 1: Get a Google API key
+## Step 1: Get a Google API key in Google Cloud
 
 An API key is like a password that lets a program (here, n8n) use a Google service.
 
@@ -67,7 +67,7 @@ If Google shows these options while you create the key, choose the same settings
 
 1. In n8n, go to your **Workflows** list.
 2. Click **Create Workflow** (in some versions **Create** > **Workflow**, or **+**). An empty canvas opens: the area where the workflow's boxes, called nodes, sit.
-3. Click the **...** menu at the top right and choose **Import from File...**.
+3. Open the workflow menu, the **...** button (next to the workflow name in n8n 2.x, at the top right in n8n 1.x), and choose **Import from File...**.
 4. Select `client-finder-lite.json` from your download. If you see a **Save** button, click it.
 
 Another way: open the JSON file in a text editor, copy everything, click the empty canvas and paste (Ctrl+V or Cmd+V).
@@ -108,12 +108,9 @@ If n8n refuses, look for a node with a red warning icon. Usually *Search Google 
 3. Click the address to copy it. It ends in `/form/client-finder-lite`.
 4. Open it in a new browser tab and bookmark it.
 
-> **Warning:** Anyone with the Production URL can run searches on your Google account. Keep it private.
+> **Warning:** Anyone with the Production URL can run searches on your Google account. Keep it private, and lock the form: in *Find Leads Form*, set **Authentication** to **Basic Auth** and create a credential with a username and password. You can also change **Options** > **Form Path** to something hard to guess (then copy the new Production URL). On n8n 2.x, publish again afterwards.
 
 ### 4.3 Fill in the form
-
-![The Client Finder Lite form](img/lite-form.png)
-*The form you fill in for every search.*
 
 1. **Business type**: for example `dentists` or `hair salons`.
 2. **City or area**: for example `Austin, TX`, `Manchester, UK` or `Pune, India`.
@@ -136,15 +133,18 @@ After a few seconds, the page says **Your leads are ready** and the CSV download
 | Column | What it shows |
 |---|---|
 | Business | The name on Google Maps |
-| Has Website | **NO** if Google lists no website, **Yes** if it does |
-| Opportunity | "No website: pitch a website" for businesses marked NO |
+| Has Website | **NO** if Google lists no website, **Yes** if it does. If Google only links to a social, booking, delivery or directory page, it shows, for example, **NO (Facebook page only)**. Sites made with a site builder (for example Google Sites or square.site) count as **Yes** |
+| Opportunity | "No website: pitch a website" (or, for example, "Only a Facebook page: pitch a website") for businesses marked NO |
 | Phone, Website | As listed on Google Maps (Website is empty if none) |
 | Category | The main category, for example "Dentist" |
 | Rating, Reviews | Google star rating (1 to 5) and number of reviews |
-| Address, Google Maps | Full address and a link to the Maps listing |
+| Address, Google Maps | The address on Google Maps and a link to the Maps listing |
 | Search | The search you ran, for example "dentists in Austin, TX" |
+| Source | Always "Google Maps", where the data came from |
 
-Businesses marked NO come first. Within each group, businesses with more reviews come first.
+Businesses marked NO come first. Within each group, businesses with more reviews come first. The search also includes service-area businesses (plumbers, cleaners, mobile trades without a storefront), so a few rows may have no street address.
+
+A value that starts with `=`, `+`, `-` or `@` (for example a phone number like "+1 512…") gets an apostrophe (') in front, so spreadsheet apps don't run it as a formula. If you see that apostrophe, that is why.
 
 > **Example:** These rows are example data from our test set (made-up businesses in Austin, TX), not real results.
 
@@ -157,7 +157,7 @@ Businesses marked NO come first. Within each group, businesses with more reviews
 
 A business with good reviews but no website is a good place to start: it has happy customers, but nothing for new ones to look at.
 
-1. "NO" means Google Maps lists no website. A few may still have one, so search the name first.
+1. "NO" means Google Maps lists no website of their own (at most a social, booking, delivery or directory page). A few may still have one, so search the name first.
 2. Open the Maps link and note one real detail to mention.
 3. Add a **Status** column to track who you contacted and when.
 
@@ -184,11 +184,12 @@ The message also gives a reason:
 | your Google API key was rejected | Open the Google API Key credential, paste the key again, and check that **Name** is exactly `X-Goog-Api-Key`. |
 | this API is not enabled | Enable **Places API (New)** in the key's project (Step 1.3). Wait 2 minutes and try again. |
 | billing account | Link a billing account to the project (Step 1.2). |
-| an application restriction | Set **Application restrictions** to **None**, and check that **Places API (New)** is ticked under **API restrictions** (Step 1.4). |
+| restricted to other APIs | Open the key in **Credentials** and, under **API restrictions**, tick **Places API (New)** and click **Save** (Step 1.4). The message also names PageSpeed Insights API: only the paid versions use it, and ticking it too does no harm. |
+| an application restriction | Set **Application restrictions** to **None** and keep the key restricted by API instead (Step 1.4). |
 | quota or rate limit | Wait a few minutes and try again. |
 | permission denied | Check the key and that Places API (New) is enabled in the key's project. |
 
-Some messages say "step 2 of the setup guide". In this quick start, that is Step 1.
+Some messages mention the "Google Cloud" step of the setup guide. In this quick start, that is Step 1.
 
 ### "No businesses found"
 
@@ -215,21 +216,23 @@ Still stuck? Email {{supportEmail}} with the exact message and your n8n version.
 
 ## Want the full Client Finder?
 
-The paid versions also research each business and draft your first message. You review and send every email yourself.
+The paid versions also research each business and draft your first message. The checks are careful but not perfect, so you read and send every email yourself.
 
 **Starter ($49 USD)** is the web-design Client Finder. It:
 
-- Checks every website (down, slow on mobile, not mobile-friendly, no HTTPS, outdated and more).
+- Checks each business's website for problems you can fix (down, slow on mobile, not mobile-friendly, no HTTPS, outdated and more). When a check can't be sure, it makes no claim.
 - Scores each business from 0 to 100 (Hot, Warm or Low).
-- Writes a short pitch with Claude (an AI model), using only problems it actually found.
-- Saves everything to a Google Sheet CRM (a simple customer list) and never adds the same business twice.
+- Writes a short pitch with Claude (an AI model), using only problems it actually verified.
+- Saves everything to a Google Sheet CRM (a simple customer list). It skips businesses already in the sheet and never pitches the same email address or website twice.
 - Creates Gmail drafts when a business publishes an email address on its homepage. Nothing is sent until you send it.
 
 **Pro ($99 USD)** adds:
 
 - 5 niche workflows: web design, local SEO, Google reviews, social media and ads, and AI chatbots and booking.
-- Follow-up Autopilot: every morning it checks Gmail, marks replies in your sheet and drafts polite follow-ups in the same thread.
+- Follow-up Autopilot: every morning it checks Gmail, marks replies and bounced emails in your sheet and drafts polite follow-ups in the same thread.
 - An outreach playbook and message templates.
+
+The one-time setup for either version takes about 30 to 45 minutes the first time.
 
 > **Cost:** The paid versions also need an Anthropic API key with prepaid credits, roughly 1 to 2 US cents per pitch with the default settings.
 

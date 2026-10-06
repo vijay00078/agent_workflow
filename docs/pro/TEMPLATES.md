@@ -71,7 +71,7 @@ Below, this ending is shown as [Signature]. Autopilot follow-up drafts include y
 - Send DMs one at a time, by hand, with no links or voice notes. Use WhatsApp only with a number the business shows for customer messages.
 - Follow up a call or DM once at most, by hand.
 
-> **Warning:** Calls and messages have their own rules in many countries, for example the TPS and CTPS do-not-call lists in the UK and the DND (Do Not Disturb) register in India. OUTREACH-PLAYBOOK.pdf explains them. Stop as soon as someone asks you to.
+> **Warning:** Calls and messages have their own rules in many countries, for example the TPS and CTPS do-not-call lists in the UK, US rules on auto-dialers and marketing texts, and the DND (Do Not Disturb) register in India. OUTREACH-PLAYBOOK.pdf explains them. Stop as soon as someone asks you to.
 
 ### Follow-ups
 
@@ -84,13 +84,13 @@ For leads from the Web Design workflow. The default offer is a free 2-minute vid
 ### First email
 
 ```text
-Subject: [Short name] website on phones
+Subject: [Short name]'s website
 
 Hi [Short name] team,
 
-I was looking at [Business type] in [City] on Google Maps and opened your website on my phone. [Evidence]
+I was looking at [Business type] in [City] on Google Maps and checked your website. [Evidence]
 
-Many people check the website before they call. When it is slow or hard to use on a phone, some of them simply call the next business on the list.
+Many people look at the website before they call. When it looks slow, broken or out of date, some of them call the next business on the list instead.
 
 I'm a web designer, and I could send you [Your offer]. No call needed.
 
@@ -101,8 +101,8 @@ Would that be useful?
 
 ### Other subject lines
 
+- `Your homepage on a phone` (for speed and phone problems)
 - `A question about your website`
-- `Your homepage on a phone`
 - `Idea for [Short name]'s website`
 
 ### Evidence in plain words
@@ -152,6 +152,8 @@ Here's a quick way to see what I meant: open your website on your phone using mo
 
 [Signature]
 ```
+
+This test fits speed and phone problems. For other problems, change the test: "look at the year at the bottom of your homepage" (Outdated website) or "look at the left of the address bar in Chrome" (Not secure).
 
 ### Follow-up #2
 
@@ -250,6 +252,8 @@ For leads from the Google Reviews & Reputation workflow. Its checks use only Goo
 
 > **Warning:** Google's review rules forbid fake reviews, paying or rewarding people for reviews, and asking only happy customers. Never offer any of these. Never promise a specific rating, a number of reviews, or to remove bad reviews. Read Google's current policy before you sell a review service.
 
+> **Tip:** This workflow's default **yourService** is "getting more 5-star Google reviews from happy customers". Claude reads it, the backup template pitch uses it word for word, and it can sound like a promise of 5 stars, or like asking only happy customers. We suggest you change it in *⚙️ Settings* to something like `getting more Google reviews from the customers you already have`.
+
 ### First email
 
 ```text
@@ -309,7 +313,7 @@ Hi, this is [Your name] from [Your business]. I help businesses get more Google 
 ```text
 Hi [Short name] team,
 
-Here's one idea from the plan, free: ask every customer for a review at the end of the visit, with a short link or a QR code (a square code people scan with their phone) at the front desk. Asking everyone, not only the happy ones, keeps it inside Google's rules. Would you like the rest of the plan?
+Here's one idea from the plan, free: ask every customer for a review at the end of the visit, with a short link or a QR code (a square code people scan with their phone) at the front desk. Google's rules expect you to ask everyone, not only the happy ones. Would you like the rest of the plan?
 
 [Signature]
 ```
@@ -339,7 +343,7 @@ Hi [Short name] team,
 
 I was looking at [Business type] in [City] and visited your website. [Evidence]
 
-Many customers check Instagram or Facebook before they visit a new place. It's also a simple way to reach people again after they have looked at your website.
+Many customers check Instagram or Facebook before they visit a new place, and a link from your website makes you easy to find there.
 
 I manage social media and ads for local businesses. I could send you [Your offer].
 
@@ -347,6 +351,8 @@ Want me to send them over?
 
 [Signature]
 ```
+
+If the **Top Problem** is "No analytics or ad pixel", change the second paragraph to: "Without it, you can't see how many people visit your website, or show ads later to people who already looked at it."
 
 ### Other subject lines
 
@@ -405,7 +411,7 @@ This is my last note. If social media moves up your list, just reply and I'll se
 
 ## AI chatbots & booking
 
-For leads from the AI Chatbots & Booking workflow. The default offer is a free 5-minute demo of an AI assistant trained on their own website. Never say the assistant replaces staff; say it makes sure no enquiry is missed.
+For leads from the AI Chatbots & Booking workflow. The default offer is a free 5-minute demo of an AI assistant trained on their own website. Never say the assistant replaces staff, and don't promise that no enquiry will ever be missed. Say it helps answer enquiries when nobody is free.
 
 ### First email
 
@@ -418,7 +424,7 @@ I was looking at [Business type] in [City] and visited your website. [Evidence]
 
 That means a question that arrives after hours, or while your team is busy, has to wait. Some people book with whoever answers first.
 
-I build AI assistants that answer questions and take bookings at any hour. They don't replace your staff; they make sure no enquiry is missed. I could make you [Your offer].
+I build AI assistants that answer questions and take bookings at any hour. They don't replace your staff; they answer when nobody is free to reply. I could make you [Your offer].
 
 Would you like to see it?
 
@@ -437,7 +443,7 @@ Would you like to see it?
 |---|---|
 | No online booking | There's no way to book online on your website, so people have to call during opening hours. |
 | No chat or WhatsApp | Your website has no chat or WhatsApp button, so questions after hours wait until you open. |
-| Limited opening hours | Google shows that you close before 6 pm on [Number] weekdays [and are closed at the weekend]. |
+| Limited opening hours | Google shows that you close before 6 pm on [Number] weekdays. Or: Google shows that you are closed all weekend. Use the one the **Evidence** column shows, or both. |
 | No website | Your Google listing has no website. Call or DM these leads. |
 
 > **Example:** Example data. For Westlake Dental Studio in Austin, TX, the **Evidence** column starts: "There's no way to book online on westlake-dental.test; customers have to call during opening hours." Two more problems follow. Use the first one only: "There's no way to book online on your website, so people have to call during opening hours."
@@ -563,7 +569,7 @@ If you'd rather not hear from me, just say so and I won't email again.
 ```text
 Hi [Their name],
 
-Done. I've removed you, and you won't hear from me again.
+Done. I've marked you as "do not contact", and you won't hear from me again.
 
 [Your name]
 ```
@@ -572,7 +578,7 @@ Do these the same day, before anything else:
 
 1. Set **Status** to **Do not contact**.
 2. In Gmail, open **Drafts** and delete any follow-up waiting for them.
-3. Keep the row: it stops future searches from adding the business again.
+3. Keep the row: it stops future searches from adding the business again. If they also ask you to delete their details, clear their **Email** and other personal details, but keep the **Place ID** and the status.
 
 ### "We already have someone"
 
@@ -608,7 +614,7 @@ What to show live in each niche:
 - **Social media & ads:** their website with no social links, their Instagram if they have one, and one post you would make.
 - **AI chatbots & booking:** trying to book on their website at night, then what an assistant could answer.
 
-> **Tip:** Close other tabs and turn off notifications before you record, and never show other clients' data. Upload the video as private or unlisted and send the link. Describe what you would do; don't promise results.
+> **Tip:** Close other tabs and turn off notifications before you record, and never show other clients' data. Upload the video as *unlisted* (only people with the link can watch it) and send the link. Describe what you would do; don't promise results.
 
 ## Discovery call agenda
 
@@ -698,6 +704,7 @@ Then set **Status** to **Won** for a yes, or **Lost** for a no or two weeks of s
 | Avoid | Why | Write instead |
 |---|---|---|
 | "I hope this finds you well" | Filler that every cold email uses | Start with the fact |
+| "I came across your business" | Vague: it could be sent to anyone | Say exactly where you looked: "on Google Maps" |
 | "Loved your work!" or "Big fan" | Fake familiarity: they know you are a stranger | Say honestly how you found them |
 | "Most businesses lose half their customers..." | An invented statistic | Only numbers from the sheet or a test you ran |
 | "Only two spots left this month" | Pressure | No deadlines; let them decide |

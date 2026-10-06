@@ -46,7 +46,9 @@ Follow SETUP-GUIDE.pdf with the niche (type of service) you sell most, or web de
 
 ### 2. Run your first search (about 5 minutes)
 
-Open the form from the *Find Clients Form* node and choose **20** businesses. A run takes about 2-6 minutes.
+Open the form from the *Find Clients Form* node and choose **20** businesses. A run takes about 2-8 minutes, so keep the browser tab open, and don't submit another search until it is done.
+
+Each run saves every lead to your sheet first. Then it creates the Gmail drafts and writes each draft's ID back to the sheet.
 
 ![The results page after a run](img/results-page.png)
 *Example results page. Your numbers will differ.*
@@ -59,15 +61,17 @@ Open the form from the *Find Clients Form* node and choose **20** businesses. A 
 
 ### 4. Tune your offer with PROMPTS (about 10 minutes)
 
-Use PROMPTS.pdf to adjust your service, offer and tone in *⚙️ Settings*.
+Use PROMPTS.pdf to adjust your service, offer, sign-off and tone in *⚙️ Settings*.
 
 ### 5. Import the other niches you sell
 
-Follow PRO-GUIDE.pdf. Use the same credentials and sheet in every workflow, so no business is pitched twice, even by another niche.
+Follow PRO-GUIDE.pdf. Use the same credentials and sheet in every workflow, so no business is pitched twice, even by another niche. The same goes for a lead whose email address or website was already pitched under another listing (chain locations, duplicate listings). It is saved with the note "Same email as …" or "Same website as …", but not pitched again.
 
 ### 6. Turn on the Follow-up Autopilot
 
-Set it up with PRO-GUIDE.pdf. Every morning it checks Gmail, marks leads who replied as **Replied**, and changes sent pitches to **Contacted**. With no answer after 3 days, it drafts a short follow-up in the same thread, then a last polite note 7 days later.
+Set it up with PRO-GUIDE.pdf. Every morning it checks Gmail, marks leads who replied as **Replied**, and changes sent pitches to **Contacted**. With no answer 3 days after you send your pitch, it drafts a short follow-up in the same thread. Then, 7 days after you send that follow-up, it drafts a last polite note. It never sends anything itself.
+
+It reads every message in the Gmail threads your pitches were sent in. So a reply from a colleague or the owner's personal address counts (**Notes** says who replied), and a delivery failure marks the lead **Bounced**. Out-of-office auto-replies don't count. Every follow-up ends with a short opt-out line (**followUpOptOutLine** in its *⚙️ Settings*; leave it on).
 
 ### 7. Read the OUTREACH-PLAYBOOK
 
@@ -77,7 +81,9 @@ Read it before you send more emails. Steps 5-7 can wait for day two.
 
 1. **Read every draft before you send it.** You are the sender. Make sure each email is true, polite and sounds like you.
 2. **Start with 10-20 emails a day from your own inbox.** Sending many emails at once can get you marked as spam. Grow slowly.
-3. **Respect every "no thanks".** When someone says no, set their **Status** to **Do not contact** and keep their row. The Autopilot never touches that status.
+3. **Respect every "no thanks".** Every first email and every follow-up ends with an opt-out line. When someone says no, set their **Status** to **Do not contact** (or **Not interested**) and keep their row. The niche workflows never pitch that email address or website again, and the Autopilot never follows it up.
+
+> **Tip:** Add your postal address in **yourAddress** in *⚙️ Settings* (the US CAN-SPAM Act requires one in business email). Anyone with a form's Production URL can run searches on your accounts. Keep it private, and lock it with n8n's Basic Auth (*Find Clients Form* → **Authentication** → **Basic Auth**) or a hard-to-guess form path.
 
 ## Need help?
 

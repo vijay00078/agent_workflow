@@ -14,8 +14,8 @@ Claude is the AI model that writes your pitches. For each lead that scores high 
 - **Business name**, as on Google Maps.
 - **Short name to use**: the name without endings such as "LLC", "Ltd" or "Pvt Ltd". Claude greets the business with it.
 - **Category**, **address**, and the **Google rating** with the number of reviews.
-- **Website**: only the domain, or "none listed".
-- **Problems found, most important first** (worth the most points in your niche), each with one sentence of evidence.
+- **Website**: only the domain, or "none listed". When Google links to a Facebook, booking, delivery or directory page instead (or a domain that forwards to one), it says "none of their own" and names that page.
+- **Problems found, most important first** (worth the most points in your niche), each with its evidence in a sentence or two. When a check can't be sure (for example, the site blocks automated visits or is built entirely by JavaScript), it makes no claim, so Claude never hears about it.
 
 **About you** (from *⚙️ Settings*): **yourName**, **yourBusinessName**, **yourService** and **yourOffer**.
 
@@ -30,12 +30,12 @@ Google rating: 4.6★ from 212 reviews
 Website: sunrise-dental.test
 
 Problems found, most important first:
-1. Slow on mobile: Google PageSpeed scores the mobile site 23/100; the main content takes 9.8 s to appear on a phone. Real-visitor data from Chrome also rates it slow.
-2. Outdated website: The website footer still says © 2019, which suggests it hasn't been updated in about 7 years.
+1. Slow on mobile: In Google's PageSpeed mobile test (a simulated phone on a 4G connection) the homepage scored 23/100 and the main content took 9.8 s to appear. Chrome's data from real visitors also rates the site slow.
+2. Outdated website: The footer of their homepage still shows © 2019, which suggests the site hasn't been updated in about 7 years.
 
 About the sender:
-Name: Priya Shah
-Business: Brightline Web Studio
+Name: Asha Rao
+Business: Pixel & Pine Studio
 Service: website design and redesign
 Offer: a free 2-minute video showing exactly what I would fix
 ```
@@ -69,12 +69,12 @@ Claude answers with a subject ("2-7 words, specific to this business, no clickba
 ## What the workflow adds automatically
 
 1. It removes a "Subject:" label and leftover placeholders such as [Your Name] or [Company], and keeps the subject on one line (at most 90 characters).
-2. It adds `Thanks,` and your signature, one line each: **yourName**, **yourBusinessName**, **yourWebsite**, **yourPhone**, **yourAddress**. Empty fields are skipped.
+2. It adds your **signOff** (default `Thanks,`) and your signature, one line each: **yourName**, **yourBusinessName**, **yourWebsite**, **yourPhone**, **yourAddress**. Empty fields are skipped.
 3. It adds your **optOutLine** (if not empty) at the end.
 
-The full email goes into the **Email Body** column. If the business shows an email on its homepage and **createGmailDrafts** is `true`, it also becomes a Gmail draft. **DM Message** and **Call Opener** get no signature or opt-out line.
+The full email goes into the **Email Body** column. If the business shows an email on its homepage and **createGmailDrafts** is `true`, it also becomes a Gmail draft (the row is saved to your sheet first, then the draft is created). **DM Message** and **Call Opener** get no signature or opt-out line.
 
-> **Important:** Nothing is sent for you. Read each draft, compare it with the **Evidence** column, then click **Send** yourself.
+> **Important:** Nothing is sent for you. The checks are careful, but they can still be wrong. Read each draft, compare it with the **Evidence** column, then click **Send** yourself.
 
 ## Make it yours in the *⚙️ Settings* node
 
@@ -96,6 +96,10 @@ The small next step in every pitch. Make it something you can send: the template
 
 > **Tip:** Write "your website", not "their website". Claude adapts the words, but template pitches paste your offer exactly.
 
+### signOff
+
+The line before your name (default `Thanks,`). For example `Best regards,` or `Cheers,`. It is used exactly as typed.
+
 ### emailTone
 
 How the email should sound (default `friendly, direct and human`). See "Tone recipes". Bad: `pushy and urgent`, or `fun, with lots of emojis` (it fights the rules).
@@ -104,7 +108,7 @@ How the email should sound (default `friendly, direct and human`). See "Tone rec
 
 Any language Claude writes, for example `Spanish`, `Hindi` or `British English`.
 
-> **Warning:** Only Claude's text changes language. `Thanks,` and the template pitch stay in English, and **optOutLine** is used exactly as typed. Translate it, and check each draft.
+> **Warning:** Only Claude's text changes language. Template pitches stay in English, and **signOff**, **optOutLine** and the Autopilot's **followUpOptOutLine** are used exactly as typed. Translate them, and check each draft.
 
 ### maxEmailWords
 
@@ -113,6 +117,8 @@ The longest body Claude is asked to write, from 50 to 200 words (default 110). T
 ### optOutLine
 
 Added to every first email. Leave it on: laws such as the US CAN-SPAM Act require a way to opt out. Good: `P.S. Not relevant? Reply "no" and I won't contact you again.` Bad: leaving it empty.
+
+> **Tip:** CAN-SPAM also asks for a postal address. Fill **yourAddress** if you email US businesses; the results page reminds you while it is empty.
 
 ### minScoreToPitch
 
@@ -124,7 +130,7 @@ See "Choosing the model".
 
 ## Offers that are easy to say yes to
 
-A first email should ask for very little. Good offers are free, small, tied to the problem you found, and need no meeting. No offer guarantees replies, but these remove reasons to say no. Defaults are shown with "you" instead of "them". Starter has web design; Pro adds the rest.
+A first email should ask for very little. Good offers are free, small, tied to the problem you found, and need no meeting. No offer guarantees replies, but these remove reasons to say no. The defaults already speak to the owner ("you", "your"). Starter has web design; Pro adds the rest.
 
 ### Web design
 
@@ -175,25 +181,25 @@ Paste one into **emailTone**.
 ```text
 Hi Sunrise Family Dental team,
 
-I ran your website through Google's PageSpeed test, and on a phone it scores 23 out of 100. The main content takes about 9.8 seconds to appear, and Google's data from real Chrome visitors also rates it slow.
+I ran your homepage through Google's PageSpeed mobile test, which loads it on a simulated phone over 4G. It scored 23 out of 100, and the main content took about 9.8 seconds to appear. Chrome's data from real visitors also rates the site slow.
 
 On a page that slow, some people looking for a dentist will give up and call the next practice instead. The footer also still says © 2019, which can make the site feel out of date.
 
 I'd be happy to record a free 2-minute video showing exactly what I would fix. Would that be useful?
 
 Thanks,
-Priya Shah
-Brightline Web Studio
-brightline-web.example
+Asha Rao
+Pixel & Pine Studio
+pixelpine.studio
 (512) 555-0199
 100 Example Street, Austin, TX 78701
 
 P.S. If this isn't useful, just reply "no thanks" and I won't email again.
 ```
 
-**DM Message:** Hi Sunrise Family Dental team! I checked your website with Google's PageSpeed test: on phones it scores 23/100 and takes about 9.8 seconds to show its main content. Want a free 2-minute video showing exactly what I'd fix?
+**DM Message:** Hi Sunrise Family Dental team! In Google's PageSpeed mobile test your homepage scored 23/100 and took about 9.8 seconds to show its main content. Want a free 2-minute video showing exactly what I'd fix?
 
-**Call Opener:** Hi, this is Priya from Brightline Web Studio, calling because your website takes nearly 10 seconds to load on a phone; could I speak to whoever looks after it?
+**Call Opener:** Hi, this is Asha from Pixel & Pine Studio, calling because Google's phone test shows your website taking nearly 10 seconds to load; could I speak to whoever looks after it?
 
 ![An example pitch in Gmail Drafts](img/draft-example.png)
 *An example pitch waiting in Gmail Drafts (example data).*
@@ -201,7 +207,9 @@ P.S. If this isn't useful, just reply "no thanks" and I won't email again.
 ## When the AI fails
 
 1. **Temporary errors** (Anthropic is overloaded, too many requests, a timeout): the lead waits 15 seconds in *Wait Before Retry*, then tries once more in *Retry Pitch with Claude*. Only once.
-2. **If the retry fails too**, or the error is permanent (wrong key, no credits, unknown model), the lead gets a plainer **template pitch** from the niche. Polish it before sending.
+2. **If the retry fails too**, or the error is permanent (wrong key, no credits, unknown model), the lead gets a plainer **template pitch** from the niche. It opens "I was looking at how Sunrise Family Dental shows up online, and one thing stood out:" followed by the top problem's evidence, addressed to them ("their homepage" becomes "your homepage"). Polish it before sending.
+
+The workflow sends Claude three requests at a time, every 4 seconds (retries: two every 5 seconds), with max_tokens 4,000 at low effort. That suits new Anthropic accounts, which have low rate limits.
 
 The **AI Status** column tells you what happened:
 
@@ -212,14 +220,16 @@ The **AI Status** column tells you what happened:
 | `Template used (AI error: ...)` | Template pitch; the message says why |
 | `Skipped (score below 20)` | Under **minScoreToPitch** |
 | `Skipped (no problems found)` | Score 0 |
+| `Skipped (already pitched)` | Same email or website as another lead in your sheet or in this search (chain locations, duplicate listings). **Notes** says which one. |
 
 Common messages:
 
 - `Check the "Anthropic API Key" credential.`: the key is wrong (Header Auth, Name `x-api-key`).
 - `Add credits in the Anthropic Console`: your credits ran out.
 - `The AI model name in Settings is not available`: check the spelling of **aiModel**.
+- `Rate limited: lower the batch size on the "Write Pitch with Claude" node.`: your account's rate limit was hit. Open that node, find **Batching** under **Options**, and lower **Items per Batch** (for example to 1).
 
-> **Tip:** Saved rows are skipped next time. To get AI pitches for template rows after a fix, delete those rows and run the search again.
+> **Tip:** Saved rows are skipped next time. To get AI pitches for template rows after a fix, delete those rows and their Gmail drafts, then run the same search again. Do this only for leads you have not contacted yet.
 
 ## Choosing the model
 
@@ -231,7 +241,7 @@ Common messages:
 
 Other Claude model IDs work too (the workflow sends a simpler request to models it does not know).
 
-**aiEffort** sets how much the model thinks before writing: `low` (default) is enough for a short email and cheapest; `medium` is a little more careful and costs more; `high` is rarely needed. Any unknown value counts as `low`.
+**aiEffort** sets how much the model thinks before writing: `low` (default) is enough for a short email and cheapest; `medium` is a little more careful and costs more; `high` is rarely needed. Higher effort also raises max_tokens, which uses more of your rate limit. Any unknown value counts as `low`.
 
 > **Cost:** At the time of writing, `claude-opus-5-5` costs $4 per million input tokens and $20 per million output tokens (a *token* is a piece of a word). Only leads that reach **minScoreToPitch** go to the AI. Check spending in the Anthropic Console.
 
@@ -256,7 +266,7 @@ After (example):
   "pitchAngle": "The sender is a web designer for dental clinics. Explain the cost of the website problem in plain words (patients leave or call another clinic) and position a fast, mobile-friendly website as the fix. Never mention prices.",
 ```
 
-The same block holds `fallback`, the text of the template pitch. Keep words in curly brackets, such as `{shortName}`, unchanged.
+The same block holds `fallback`: the subject and the "impact" sentence of the template pitch. Keep words in curly brackets, such as `{shortName}`, unchanged.
 
 > **Warning:** If *Prepare Search* shows an error, paste back the line you copied.
 
@@ -271,8 +281,8 @@ The Follow-up Autopilot drafts follow-ups in the same Gmail thread ("Re: ..."). 
 - Write in **emailLanguage**. Tone: **emailTone**. No links, no emojis, no signature or sign-off (added automatically). Do not start with "Just following up" or "Bumping this".
 - Niche guidance: the **pitchAngle** of the niche in the lead's **Niche** column.
 
-The workflow adds `Thanks,` and your signature, but no opt-out line: your first email is in the same thread. If the AI fails, a polite template follow-up is used (no retry).
+The workflow adds your **signOff** and signature, then **followUpOptOutLine** (default `If you'd rather I didn't follow up, just reply and I'll stop.`). Leave it on; an empty value turns it off. If the AI fails, a polite template follow-up is used (no retry).
 
-> **Important:** The Follow-up Autopilot has its own *⚙️ Settings*: copy your name, signature fields, **emailTone** and **emailLanguage** there. Empty **yourService** and **yourOffer** use each niche's default. Changed a **pitchAngle**? Change it in *Prepare Follow-ups* (`NICHE_PACKS`) too.
+> **Important:** The Follow-up Autopilot has its own *⚙️ Settings*: copy your name, signature fields, **signOff**, **emailTone** and **emailLanguage** there. Empty **yourService** and **yourOffer** use each niche's default. Changed a **pitchAngle**? Change it in *Prepare Follow-ups* (`NICHE_PACKS`) too.
 
 Using Starter? Pro adds the Follow-up Autopilot and four more niches: {{storeUrl}}. Questions? Email {{supportEmail}}.

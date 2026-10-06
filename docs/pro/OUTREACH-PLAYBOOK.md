@@ -28,7 +28,7 @@ Three ideas hold it together:
 
 1. **Evidence first.** Every pitch starts with one true fact about the business that anyone can check. That makes it different from generic spam.
 2. **A small first step.** The first email asks for no meeting and no money. It offers something free and useful, like a 2-minute video.
-3. **Slow and steady.** 10-20 careful emails every working day beat 200 rushed ones, and protect your inbox.
+3. **Slow and steady.** 10-20 careful emails every working day are better than 200 rushed ones. They protect your inbox and your name.
 
 ![Example rows in the Leads sheet](img/sheet-example.png)
 *Example data from a search for dentists in Austin, TX. Your leads will differ.*
@@ -37,7 +37,7 @@ Three ideas hold it together:
 
 Your *niche* is the service you sell. Pro has five Client Finder workflows, one per niche. Start with one, even if you can do more: one offer, one video style, one set of words to practise. Add a second niche after a month, when your routine works.
 
-### Where the money is
+### Who can afford your service
 
 A business can only pay you well if a new customer is worth a lot to it. Ask four questions:
 
@@ -64,8 +64,8 @@ Type the business type the way customers search: plural and simple (`physiothera
 
 Google returns at most 60 businesses per search.
 
-- **Big cities:** search by neighbourhood or suburb, for example `dentists` in `Brooklyn, NY` or `Koramangala, Bangalore`. Expect competition: other agencies are probably writing to the same businesses.
-- **Smaller towns:** fewer businesses per search, so you move from town to town faster. Owners may get fewer pitches, and a local angle ("I work with businesses around Leeds") can help. Budgets may be smaller.
+- **Big cities:** search by neighbourhood or suburb, for example `dentists` in `Brooklyn, NY` or `Koramangala, Bangalore`. Expect competition: other agencies may already be writing to the same businesses.
+- **Smaller towns:** fewer businesses per search, so you move from town to town faster. Owners may get fewer pitches. A local angle ("I work with businesses around Leeds") can help, but only if it is true. Budgets may be smaller.
 
 A good start is one region you know, split into 5-10 areas, with 3 business types. That gives you weeks of searches.
 
@@ -82,7 +82,7 @@ Many freelancers in India and elsewhere pitch businesses in the US, the UK, Cana
 
 Set *⚙️ Settings* to match the market: **searchCountryCode** (for example `US`, `GB`, `CA`, `AU` or `IN`), **searchLanguage** for Google Maps results, and **emailLanguage** for pitches (for example `British English` for the UK).
 
-> **Important:** Never pretend to be local. Your real name and postal address are in every signature. If someone asks where you are, tell them. Honest remote work is normal; a fake local identity destroys trust.
+> **Important:** Never pretend to be local. Put your real name and postal address in every signature. If someone asks where you are, tell them. Honest remote work is normal; a fake local identity destroys trust.
 
 ## Designing an offer they can say yes to
 
@@ -102,14 +102,14 @@ A specific offer shows that you looked. Link it to the main problem in the **Top
 
 > **Example:** Example data from the product's test businesses. Each offer names the problem the workflow found.
 >
-> - **Sunrise Family Dental** (Web Design): mobile PageSpeed score 23/100, footer says © 2019. Offer: "a 2-minute video showing why your homepage takes about 10 seconds to load on a phone, and the 3 things I would change."
+> - **Sunrise Family Dental** (Web Design): mobile PageSpeed score 23/100, footer says © 2019. Offer: "a 2-minute video showing why the main content of your homepage takes about 10 seconds to appear on a phone, and the 3 things I would change."
 > - **Elm Street Dental** (Local SEO): no page title or meta description, and 8 Google reviews while the median nearby is 133. Offer: "a one-page mini-audit with the 3 fixes that would help you show up in local searches."
 > - **Hillcrest Family Dentistry** (Reviews): 3.6 stars from 48 reviews; similar businesses nearby average 4.6. Offer: "a one-page plan to get more reviews from patients you already have."
 > - **Westlake Dental Studio** (AI Chatbots & Booking): no online booking, no chat, closed all weekend. Offer: "a 5-minute demo of an assistant that answers weekend questions using your own website."
 
 A *median* is the middle value: half of the businesses have more reviews, and half have fewer.
 
-Whatever you offer, make sure you can deliver it within 48 hours, even if 15 people say yes in one week. It should be useful even if they never hire you, and promise nothing you cannot control: no "first page on Google", no "50 new reviews".
+Whatever you offer, make sure you can deliver it within 48 hours, even in a busy week. It should be useful even if they never hire you, and promise nothing you cannot control: no "first page on Google", no "50 new reviews".
 
 ## Setting up your inbox
 
@@ -117,7 +117,7 @@ If your emails land in spam, nothing else matters. This setup takes about an hou
 
 ### Use an address on your own domain
 
-A *domain* is your website's name, like `pixelpine.studio`. An address like `asha@pixelpine.studio` looks like a real business; a free `@gmail.com` address works, but owners may take it less seriously. We suggest Google Workspace, Google's paid business version of Gmail. It looks like normal Gmail, and n8n's Gmail credential works with it. Check Google's website for prices in your country.
+A *domain* is your website's name, like `pixelpine.studio` (a made-up example). An address like `asha@pixelpine.studio` looks like a real business; a free `@gmail.com` address works, but owners may take it less seriously. We suggest Google Workspace, Google's paid business version of Gmail. It looks like normal Gmail, and n8n's Gmail credential works with it. Check Google's website for prices in your country.
 
 > **Important:** Drafts appear in the Gmail account of the credential selected on *Create Gmail Draft*. If you move to a new inbox, connect it in n8n and select it on *Create Gmail Draft*, and on *Search Gmail* and *Create Follow-up Draft* in the Follow-up Autopilot. Always send from the account where the drafts were created, so the Autopilot can see what you sent.
 
@@ -152,9 +152,11 @@ A new address that suddenly writes to many strangers looks suspicious to spam fi
 
 1. **Week 1:** about 10 first emails a day, plus normal emails to people you know.
 2. **Week 2:** about 15 a day.
-3. **Week 3 onward:** about 20 a day. Then grow by a few a day each week, only while bounces and spam complaints stay rare. A *bounce* is an email that comes back undelivered.
+3. **Week 3 onward:** about 20 a day, but only while bounces and spam complaints stay rare. A *bounce* is an email that comes back undelivered. We suggest you stay at about 20-30 new emails a day per inbox. You review each one by hand, so more is rarely practical anyway.
 
-With a brand-new outreach domain, start at about 5 a day. No number is safe for everyone: if you see many bounces, or hear that you landed in spam, slow down.
+With a brand-new outreach domain, start at about 5 a day. Whatever your volume, send a few at a time through the day, not all in one minute.
+
+Google's sender guidelines ask senders to keep spam complaints very low: below 0.3% of messages, and ideally below 0.1%. For a small sender, that means almost nobody should click **Report spam**. No number is safe for everyone: if you see bounces, or hear that you landed in spam, slow down.
 
 ### Plain text, no links, no attachments
 
@@ -162,7 +164,7 @@ The workflow already creates plain-text drafts with no links. In your first emai
 
 ### A real signature and postal address
 
-The workflow adds `Thanks,` and your signature from *⚙️ Settings*: **yourName**, **yourBusinessName**, **yourWebsite**, **yourPhone** and **yourAddress**. Fill in all five. US commercial email must include a valid physical postal address (CAN-SPAM), and a real address builds trust everywhere. Don't want to show your home address? A PO box or a registered mailbox service may be an option; check the rules where you send. Keep **optOutLine** switched on. If Gmail adds your normal signature to a draft too, remove one.
+The workflow adds `Thanks,` and your signature from *⚙️ Settings*: **yourName**, **yourBusinessName**, **yourWebsite**, **yourPhone** and **yourAddress**. Fill in all five. US commercial email must include a valid physical postal address (CAN-SPAM), and a real address builds trust everywhere. A real street or business address in your own country counts, even if you live outside the US. Don't want to show your home address? For CAN-SPAM, a PO box registered with the US Postal Service, or a private mailbox registered under Postal Service rules, is also accepted. Outside the US, ask a local mailbox service what is accepted where you send. Keep **optOutLine** switched on. If Gmail adds your normal signature to a draft too, remove one.
 
 ## Your daily 45-minute routine
 
@@ -174,16 +176,16 @@ Open your bookmarked *Find Clients Form* page. Type one business type and one ar
 
 ### 2. Review and send the best 10-20 (15 minutes)
 
-1. In your sheet, sort by **Score** and look at **Hot** and **Warm** leads with the status **Draft ready**.
+1. In your sheet, click the small filter icon in the **Score** header and choose **Sort Z → A**, so the highest scores come first. Look at **Hot** and **Warm** leads with the status **Draft ready**.
 2. In Gmail, open **Drafts** and use the 30-second checklist below on each one.
-3. Send the best 10-20. Delete any draft you don't believe in.
+3. Send the best 10-20 (about 10 in your first week). Delete any draft you don't believe in.
 4. Follow-up drafts from the Autopilot are here too (subject "Re: ..."). Check them the same way.
 
 > **Tip:** Writing to another time zone? In Gmail, click the small arrow next to **Send** and choose **Schedule send**, so your email arrives in their morning.
 
 ### 3. Calls, DMs and replies (20 minutes)
 
-Filter **Status** for **Pitch ready**: these leads have a pitch but no Gmail draft. Call or message 3-5 of them, using the **Call Opener** and **DM Message** columns. Then answer every reply, even a "no" (see "Handling replies").
+Click the filter icon in the **Status** header and show only **Pitch ready**: these leads have a pitch but no Gmail draft. Call or message 3-5 of them, using the **Call Opener** and **DM Message** columns. Then answer every reply, even a "no" (see "Handling replies").
 
 ### 4. Log statuses (5 minutes)
 
@@ -224,7 +226,7 @@ When someone replies "yes, send the video", send it within 24 hours if you can, 
 
 ### What to show in each niche
 
-- **Web Design:** the homepage on your phone, or in your browser's phone view (in Chrome, press F12, then click the phone icon). Run the test live at pagespeed.web.dev, Google's own tool. Point at the old © year.
+- **Web Design:** the homepage on your phone, or in your browser's phone view (in Chrome, press F12, or Cmd+Option+I on a Mac, then click the phone icon). Run the test live at pagespeed.web.dev, Google's own tool. Point at the old © year.
 - **Local SEO:** search Google as a customer would, for example "dentist near South Congress Austin". Show who appears first and what their listings have that this one lacks.
 - **Google Reviews & Reputation:** their Google Maps listing next to two nearby competitors. Compare ratings and review counts, and show how simple a review request could be.
 - **Social Media & Ads:** their website with no social links, their Instagram if they have one, and one or two posts you would make.
@@ -236,7 +238,7 @@ When someone replies "yes, send the video", send it within 24 hours if you can, 
 - **Record in one take.** Small mistakes are human; don't spend an hour editing.
 - **Prepare your screen.** Close other tabs, turn off notifications and zoom in. Never show other clients' data.
 - **Be kind.** Someone the owner knows may have built the site. Say "this is slowing you down", not "this is terrible".
-- **Send a link.** Upload it as a private or unlisted video and put the link in your reply. A link is fine now, because they asked.
+- **Send a link.** Upload it as an *unlisted* video (only people with the link can watch it) and put the link in your reply. A link is fine now, because they asked.
 
 End your reply with the same next step as the video: a short call.
 
@@ -272,9 +274,9 @@ Use the **DM Message** column. It is short (at most 45 words) and casual.
 
 ### Contact forms
 
-The workflow does not fill in forms. On the website's contact page, paste a short version of the **Email Body** by hand, with your email address. Respect notices like "no sales enquiries".
+The workflow does not fill in forms. On the website's contact page, paste a short version of the **Email Body** by hand, with your email address. Respect notices like "no sales enquiries". In some countries, such a notice also means you may not email them (see "Rules for cold email").
 
-> **Warning:** Calls have their own rules. In the UK, don't make sales calls to numbers registered with the TPS or CTPS (the UK's do-not-call lists for people and businesses). In India, TRAI rules, including the Do Not Disturb register, cover promotional calls and SMS, and operators can act against numbers that make many unsolicited promotional calls. Make a few personal, relevant calls, and stop when asked.
+> **Warning:** Calls and texts have their own rules. This is not legal advice. In the UK, don't make sales calls to numbers registered with the TPS or CTPS (the UK's do-not-call lists for people and businesses); check a number before you call. In the US, federal do-not-call rules mostly cover personal numbers, but never use auto-dialers or pre-recorded messages, never send marketing texts without written consent, and check your state's rules. In India, TRAI rules, including the Do Not Disturb register, cover promotional calls and SMS, and operators can act against numbers that make many unsolicited promotional calls. Make a few personal, relevant calls by hand, and stop when asked.
 
 ## Following up
 
@@ -282,7 +284,7 @@ Busy owners miss emails. One or two polite follow-ups give them a second chance.
 
 ### What the Follow-up Autopilot does
 
-The Follow-up Autopilot runs every morning at 9:00 in your n8n time zone (the *Every Morning* node), or when you click *Run Now*. For every lead with an email address, it reads your Gmail from the last 120 days:
+The Follow-up Autopilot runs every morning at 9:00 in your n8n time zone (the *Every Morning* node), or when you run it by hand (the *Run Now* node). For every lead with an email address, it reads your Gmail from the last 120 days:
 
 - **They replied** after your first email: **Status** becomes **Replied**, and they never get a follow-up.
 - **You never sent the draft:** nothing happens.
@@ -383,15 +385,15 @@ Send it within 48 hours of the call, then follow up once after 2-3 days.
 - **Good, better, best.** Three versions of one package, so the owner chooses an option instead of yes or no.
 - **Setup plus monthly.** A one-time fee plus a smaller monthly fee. It fits chatbots and review systems.
 
-| Niche | Fixed package (illustration only) | Monthly fee (illustration only) |
-|---|---|---|
-| Web Design | small business website: $800-$3,000 | care plan: $50-$200 |
-| Local SEO | setup and fixes: $300-$1,500 | $300-$1,500 |
-| Google Reviews & Reputation | review request system: $200-$800 | $100-$500 |
-| Social Media & Ads | content starter pack: $300-$1,000 | $400-$2,000, plus the ad budget |
-| AI Chatbots & Booking | assistant setup: $500-$3,000 | hosting and updates: $50-$300 |
+| Niche | One-time package (example) | Monthly option (example) | What changes the price |
+|---|---|---|---|
+| Web Design | a small business website | a care plan: hosting, updates, small edits | number of pages, online booking, who writes the text |
+| Local SEO | a setup: fixes to the website and Google profile | ongoing local SEO work and a short monthly report | number of locations, how much content is needed |
+| Google Reviews & Reputation | a review request system: messages, QR code, staff steps | monitoring, and help answering reviews | number of locations, how many reviews they get |
+| Social Media & Ads | a content starter pack | posting and ad management, plus the ad budget they pay | posts per month, number of platforms, ad spend |
+| AI Chatbots & Booking | an assistant set up on their website | hosting, updates and new answers | booking system, languages, number of questions |
 
-> **Important:** These ranges are illustrations in US dollars, only to show the shape of pricing. They are not market data or advice. Prices vary a lot by country, city, niche, scope and experience, and in many markets, including India, they are very different. Check what freelancers in your target market charge.
+> **Important:** We don't give price numbers on purpose. Prices vary a lot by country, city, niche, scope and experience. To set yours, look at what 5-10 freelancers and agencies in your target market publish on their websites, then choose a price you can explain and deliver.
 
 ## Metrics to track with the Pipeline tab
 
@@ -421,9 +423,9 @@ Start with the list (niche, business types, areas): a great offer cannot help bu
 
 ## Rules for cold email
 
-> **Important:** This is a general overview, not legal advice. Laws change. Check the rules for the recipient's country, and get local advice when you are unsure.
+> **Important:** This is a general overview, not legal advice. Laws change, and they have exceptions this page leaves out. Check the rules for the recipient's country, and get local advice when you are unsure.
 
-The rules mostly depend on the recipient's country, not yours.
+The recipient's country usually decides which email rules apply. The laws of your own country can apply too.
 
 ### United States: CAN-SPAM
 
@@ -432,37 +434,39 @@ CAN-SPAM covers all commercial email, including email from one business to anoth
 - Use honest "From" details and an honest subject line.
 - Make clear that the email is a commercial message, such as an offer of your services.
 - Identify yourself and include a valid physical postal address.
-- Include a working way to opt out, and honor opt-outs within 10 business days. You can't charge for opting out or make it harder than a reply.
+- Include a working way to opt out, keep it working for at least 30 days after you send, and honor opt-outs within 10 business days. You can't charge for opting out or ask for more than a reply email or a visit to one web page.
 
 Your signature (with **yourAddress**) and **optOutLine** cover the address and opt-out in first emails. Add an opt-out line to follow-ups yourself.
 
 ### United Kingdom: PECR and UK GDPR
 
-- **Limited companies, LLPs and other corporate bodies:** B2B email to corporate addresses is generally allowed without prior consent, if you say who you are, give a working opt-out and have a *legitimate interest* (a real business reason, balanced against the person's interests).
+- **Limited companies, LLPs and other corporate bodies:** under PECR (the UK's rules on electronic marketing), you can generally email their business addresses without consent first. You must say who you are and give a working way to opt out.
 - **Sole traders and some partnerships** are treated like individuals: you generally need their consent first. Many small local businesses are sole traders, so check for "Ltd" or a company number on their website, or search the Companies House register.
-- **UK GDPR** also applies when an address identifies a person, like `jane.smith@...`. People can object at any time, and you must stop. You should also tell people who you are, where you got their details and how to object; a short privacy notice on your website helps.
+- **UK GDPR** (the data protection law) also applies when an address identifies a person, like `jane.smith@...`. You need a lawful reason to use it, usually *legitimate interests*: a real business reason that is fair to the person. You must also tell them who you are, where you got their details and how to object, at the latest in your first message. A common way: put a short privacy notice on your website, and add one line to your email, such as "You can read how I handle your details on my website." Your website is already in your signature, so you don't need an extra link. If they object, stop.
 
 ### European Union: GDPR and national ePrivacy rules
 
-GDPR applies across the EU, but marketing email rules come from each country's ePrivacy law, and they vary. Some countries allow B2B email with an opt-out; others require consent first, even for businesses. For example, Germany is generally strict, while France generally allows emails to professional addresses about the person's work, with an opt-out.
+GDPR applies across the EU, but marketing email rules come from each country's ePrivacy law, and they vary. Some countries allow B2B email with an opt-out; others require consent first, even for businesses. For example, Germany generally requires consent first, even for business addresses, while France generally allows emails to professional addresses about the person's work, with an opt-out. When an address names a person, the GDPR points above apply too.
 
 ### Canada: CASL
 
-CASL is strict: you need consent first, with limited exceptions. One is *implied consent*: the person conspicuously published their address (for example on their website), with no statement refusing unsolicited messages, and your message is relevant to their business role. Every message must identify you, give your contact details and include a working unsubscribe, honored within 10 business days.
+CASL is strict: you need consent first, with limited exceptions. One is *implied consent* through publication: the person conspicuously published their address (for example on their website), there is no statement nearby saying they don't want unsolicited messages, and your message is relevant to their business role. Every message must identify you, give your mailing address and one other way to reach you (phone, email or website), and include a working unsubscribe. Honor unsubscribes within 10 business days.
 
 ### Australia: Spam Act 2003
 
-You need consent, but it can be *inferred* when someone conspicuously publishes their work address, with no statement refusing unsolicited messages, and your message relates to their work role. Identify yourself and include a working unsubscribe, honored within 5 working days.
+You need consent, but it can be *inferred* when someone, such as an owner or employee, conspicuously publishes their work address, with no statement refusing unsolicited messages, and your message relates to their work role. Identify yourself and include a working unsubscribe. Honor unsubscribes within 5 working days.
 
 ### India
 
-India has no specific anti-spam law for email. The Digital Personal Data Protection Act 2023 covers digital personal data, such as a named person's email address, and its rules are coming into force in stages. Calls and SMS have their own TRAI rules (see "Calls and DMs for leads without email").
+India has no specific anti-spam law for email. The Digital Personal Data Protection Act 2023 (DPDP Act) covers digital personal data, such as a named person's email address, and its rules are coming into force in stages. If you work from India, it may apply to the lead data you keep. The Act does not cover personal data that a person made public themselves, but it is not yet clear how that applies to an email address on a business website. Calls and SMS have their own TRAI rules (see "Calls and DMs for leads without email").
 
 ### Everywhere
 
 - Write to businesses about their business, and be honest about who you are and why you write.
 - Honor every opt-out at once: set **Do not contact** the same day.
-- Keep records. Never delete rows: the sheet shows where each lead came from and when you found it (**Found On**).
+- Keep records. The sheet shows where each lead came from (**Search** and **Google Maps**) and when you found it (**Found On**).
+- Keep the rows of people who opted out. The row is your record that you honored the request, and it stops the business from being added again.
+- If someone asks you to delete their details (a right under GDPR and similar laws), clear their **Email** and other personal details, but keep the **Place ID** and the **Do not contact** status, so they are never added or contacted again.
 
 ## A 30-day launch plan
 
@@ -485,7 +489,7 @@ About 20 emails a day if your inbox is healthy. Hold discovery calls and send pr
 
 Read your **Pipeline** tab and Friday numbers. Which business types and areas got replies? Choose one thing to change next month, and decide whether to add a second niche.
 
-By day 30 you will have a working routine and real numbers from your own market. Some people win a client in the first month; others need longer. Your numbers will show you what to change next.
+By day 30 you will have a working routine and real numbers from your own market. Winning a client can take longer than a month. Your numbers will show you what to change next.
 
 ## Common mistakes
 
