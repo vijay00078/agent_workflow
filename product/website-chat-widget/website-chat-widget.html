@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════════╗
+  ║  AI Website Chatbot – chat bubble for your website (workflow 03)     ║
+  ╚══════════════════════════════════════════════════════════════════════╝
+
+  HOW TO USE (2 minutes)
+  1. In n8n, open workflow "03 · AI Website Chatbot" and make sure it is
+     Published / Active.
+  2. Open the "Chat Trigger" node → copy the Production "Chat URL".
+     It looks like:  https://YOUR-N8N-DOMAIN/webhook/xxxxxxxx-xxxx-.../chat
+  3. Paste it below where it says PASTE-YOUR-CHAT-URL-HERE.
+  4. Double-click this file to try it in your browser (a demo page opens with
+     the chat bubble in the bottom-right corner).
+  5. Copy everything between "COPY FROM HERE" and "COPY TO HERE" and paste it
+     into your website, just before the closing </body> tag:
+       • WordPress: Appearance → Theme File Editor → footer.php, or a plugin
+         like "WPCode – Insert Headers and Footers" (Footer section)
+       • Webflow:  Site settings → Custom code → Footer code
+       • Shopify:  Online Store → Themes → Edit code → theme.liquid
+       • Wix:      Settings → Custom code → Body – end
+       • Framer / Squarespace / Carrd: "Custom code" / "Code injection" → Footer
+  6. Change the colours in the  :root { ... }  block to match your brand.
+
+  Tip: to show the chat as a full page instead of a bubble, set
+  mode: 'fullscreen' and add a <div id="n8n-chat"></div> where it should go.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat widget demo – AI Website Chatbot</title>
+  <style>
+    /* Demo page only – not needed on your website */
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif; color: #1f1b2e; background: #faf9ff; }
+    .demo { max-width: 760px; margin: 0 auto; padding: 72px 24px; }
+    .demo h1 { font-size: 40px; line-height: 1.15; margin: 0 0 16px; }
+    .demo p { font-size: 18px; line-height: 1.6; color: #4b4763; }
+    .demo .badge { display: inline-block; background: #ede9fe; color: #5b21b6; font-weight: 600; font-size: 13px; padding: 6px 12px; border-radius: 999px; margin-bottom: 20px; }
+    .demo .warn { margin-top: 32px; padding: 16px 20px; border-radius: 12px; background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; font-size: 15px; display: none; }
+  </style>
+</head>
+<body>
+  <main class="demo">
+    <span class="badge">Demo page</span>
+    <h1>Your website, now with a 24/7 AI assistant</h1>
+    <p>Click the chat bubble in the bottom-right corner and ask a question about your business. The assistant answers from the pages of your website, which it learned during training.</p>
+    <div class="warn" id="warn">⚠️ Paste your Chat URL into this file first (search for <b>PASTE-YOUR-CHAT-URL-HERE</b>).</div>
+  </main>
+
+  <!-- ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼  COPY FROM HERE  ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ -->
+  <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+  <style>
+    :root {
+      /* 🎨 Your brand colours */
+      --brand: #6d28d9;
+      --brand-dark: #5b21b6;
+      --brand-darker: #4c1d95;
+      --accent: #10b981;
+
+      /* Colour names used by newer versions of the chat widget */
+      --chat--color--primary: var(--brand);
+      --chat--color--primary-shade-50: var(--brand-dark);
+      --chat--color--primary--shade-100: var(--brand-darker);
+      --chat--color--secondary: var(--accent);
+      /* Colour names used by older versions of the chat widget */
+      --chat--color-primary: var(--brand);
+      --chat--color-primary-shade-50: var(--brand-dark);
+      --chat--color-primary-shade-100: var(--brand-darker);
+      --chat--color-secondary: var(--accent);
+      --chat--color-secondary-shade-50: #059669;
+
+      --chat--color-white: #ffffff;
+      --chat--color-light: #f5f3ff;
+      --chat--color-light-shade-50: #ede9fe;
+      --chat--color-light-shade-100: #ddd6fe;
+      --chat--color-medium: #d2d4d9;
+      --chat--color-dark: #1f1b2e;
+      --chat--color-disabled: #777980;
+      --chat--color-typing: #404040;
+      --chat--border-radius: 0.75rem;
+      --chat--window--width: 400px;
+      --chat--window--height: 600px;
+      --chat--header--background: linear-gradient(135deg, var(--brand), #9333ea);
+      --chat--header--color: #ffffff;
+      --chat--heading--font-size: 1.6em;
+      --chat--message--bot--background: #ffffff;
+      --chat--message--bot--color: #1f1b2e;
+      --chat--message--bot--border: 1px solid #ede9fe;
+      --chat--message--user--background: var(--brand);
+      --chat--message--user--color: #ffffff;
+      --chat--toggle--background: var(--brand);
+      --chat--toggle--hover--background: var(--brand-dark);
+      --chat--toggle--active--background: var(--brand-darker);
+      --chat--toggle--color: #ffffff;
+      --chat--toggle--size: 64px;
+    }
+  </style>
+  <script type="module">
+    import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+    const CHAT_URL = 'PASTE-YOUR-CHAT-URL-HERE'; // ← the Chat URL from your n8n Chat Trigger
+
+    if (CHAT_URL.startsWith('http')) {
+      createChat({
+        webhookUrl: CHAT_URL,
+        mode: 'window',              // 'window' = chat bubble · 'fullscreen' = full page
+        loadPreviousSession: true,   // visitors keep their conversation when they change page
+        showWelcomeScreen: false,
+        defaultLanguage: 'en',
+        initialMessages: [
+          'Hi there! 👋',
+          "I'm the AI assistant. Ask me anything about our products, prices or services — I answer instantly, 24/7.",
+        ],
+        i18n: {
+          en: {
+            title: 'Hi there! 👋',
+            subtitle: 'Ask me anything — I reply instantly, 24/7.',
+            footer: '',
+            getStarted: 'New conversation',
+            inputPlaceholder: 'Type your question…',
+          },
+        },
+      });
+    } else {
+      const warn = document.getElementById('warn');
+      if (warn) warn.style.display = 'block';
+      console.warn('n8n chat: paste your Chat URL into CHAT_URL');
+    }
+  </script>
+  <!-- ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲  COPY TO HERE  ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ -->
+</body>
+</html>

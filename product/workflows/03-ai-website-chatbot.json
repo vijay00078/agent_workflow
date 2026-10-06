@@ -3,8 +3,8 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## 🤖 AI Website Chatbot (trained on YOUR website)\n**Paste your website URL → the bot reads your pages and answers visitors 24/7 with accurate, on-brand answers (and links to the right page).**\n\n### ⚡ Setup (≈10 min)\n1. **OpenAI** nodes → add your OpenAI API key (4 nodes: 2 chat, 2 embeddings)\n2. **Config** → your `website_url`, business name, contact info & goal\n3. Click **Execute workflow** → choose **▶️ Train the bot now** (reads your site, ~1 min)\n4. Open the **Chat Trigger** → *Chat URL* → ask it something! 💬\n5. **Activate / Publish** → embed on your site with `website-chat-widget.html` (in the pack)\n\n### 🔄 Always up to date\nThe bot re-learns your site **every night at 3 AM** and **every time n8n restarts** (the knowledge base lives in n8n's memory — no database needed).\n\n### 🎯 Optional: capture leads\nEnable **Save Lead (Google Sheets)** (select it → press **D**), connect Google & paste your sheet URL in Config. The bot then saves name/email/phone of interested visitors.\n\n### 💡 Tips\n- Add FAQs, policies & opening hours to `extra_knowledge` — instant answers.\n- Change colours in the Chat Trigger → *Custom CSS*.\n- Cost: training ≈ $0.01 · each answer ≈ $0.001–0.002.",
-        "height": 517,
+        "content": "## 🤖 AI Website Chatbot (trained on YOUR website)\n**Paste your website URL → the bot reads your pages and answers visitors 24/7 with accurate, on-brand answers (and links to the right page).**\n\n### ⚡ Setup (≈10 min)\n1. **OpenAI** nodes → add your OpenAI API key (4 nodes: 2 chat, 2 embeddings)\n2. **Config** → your `website_url`, business name, contact info & goal\n3. Click **Execute workflow** → choose **▶️ Train the bot now** (reads your site, ~1 min)\n4. Open the **Chat Trigger** → *Chat URL* → ask it something! 💬\n5. **Activate / Publish** → embed on your site with `website-chat-widget.html` (in the pack)\n\n### 🔄 Always up to date\nThe bot re-learns your site **every night at 3 AM** and **every time n8n restarts** (the knowledge base lives in n8n's memory — no database needed).\n\n### 🎯 Optional: capture leads\nEnable **Save Lead (Google Sheets)** (select it → press **D**), connect Google, import `Chatbot Leads.csv` into a Google Sheet & paste its URL in Config. The bot then saves name/email/phone of interested visitors.\n\n### 💡 Tips\n- Add FAQs, policies & opening hours to `extra_knowledge` — instant answers.\n- Change colours in the Chat Trigger → *Custom CSS*.\n- Cost: training ≈ $0.01 · each answer ≈ $0.001–0.002.",
+        "height": 536,
         "width": 680,
         "color": 1
       },
@@ -340,7 +340,7 @@
         },
         "sheetName": {
           "__rl": true,
-          "value": "Leads",
+          "value": "Chatbot Leads",
           "mode": "name"
         },
         "columns": {

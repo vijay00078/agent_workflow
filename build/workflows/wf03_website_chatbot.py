@@ -67,7 +67,7 @@ def build():
 The bot re-learns your site **every night at 3 AM** and **every time n8n restarts** (the knowledge base lives in n8n's memory — no database needed).
 
 ### 🎯 Optional: capture leads
-Enable **Save Lead (Google Sheets)** (select it → press **D**), connect Google & paste your sheet URL in Config. The bot then saves name/email/phone of interested visitors.
+Enable **Save Lead (Google Sheets)** (select it → press **D**), connect Google, import `Chatbot Leads.csv` into a Google Sheet & paste its URL in Config. The bot then saves name/email/phone of interested visitors.
 
 ### 💡 Tips
 - Add FAQs, policies & opening hours to `extra_knowledge` — instant answers.
@@ -155,7 +155,7 @@ NEVER invent prices, discounts, availability or policies. Never give legal, medi
         "toolDescription": "save_lead: Save a website visitor who wants to be contacted. Call it once you know at least their name and email.",
         "operation": "append",
         "documentId": sheet_doc(f"={{{{ {CFG}.leads_sheet_url }}}}"),
-        "sheetName": sheet_tab("Leads"),
+        "sheetName": sheet_tab("Chatbot Leads"),
         "columns": {
             "mappingMode": "defineBelow",
             "value": {

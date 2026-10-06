@@ -9,13 +9,14 @@ const labels = $input
 const emails = $('Clean Email').all();
 const decisions = $('AI Triage & Reply').all();
 
-const CATEGORIES = ['Urgent', 'Client', 'Lead', 'Finance', 'Meeting', 'Personal', 'Newsletter', 'Notification', 'Spam', 'Other'];
+// The categories come from the "Triage Format" list, so adding your own category
+// there (and describing it in the AI prompt) is enough to get a new label.
 const NEVER_REPLY = ['Newsletter', 'Notification', 'Spam'];
 const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 return emails.map((email, i) => {
   const ai = (decisions[i] && decisions[i].json && decisions[i].json.output) || {};
-  const category = CATEGORIES.includes(ai.category) ? ai.category : 'Other';
+  const category = String(ai.category || '').replace(/\//g, '-').trim().slice(0, 40) || 'Other';
   const priority = ['high', 'medium', 'low'].includes(ai.priority) ? ai.priority : 'medium';
   const labelName = `${prefix}/${category}`;
   const label = labels.find((l) => String(l.name).toLowerCase() === labelName.toLowerCase());

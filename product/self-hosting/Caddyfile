@@ -1,0 +1,12 @@
+# Caddy gets and renews the HTTPS certificate for your domain automatically.
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy n8n:5678 {
+		# stream responses (chat, server-sent events) without buffering
+		flush_interval -1
+	}
+}

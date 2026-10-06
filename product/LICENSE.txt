@@ -1,0 +1,73 @@
+n8n AI Agent Starter Pack: License Agreement (Version 1.0)
+=========================================================
+
+This license is between you (the "Buyer") and the creator and seller of the
+n8n AI Agent Starter Pack (the "Author"). By downloading or using the pack you
+agree to these terms.
+
+"Pack" means everything in this download: the workflow files (.json), the
+guides and bonus documents (.pdf), the Google Sheets templates, the website
+chat widget, the self-hosting files and any later updates.
+
+
+1. WHAT YOU CAN DO
+   You receive a non-exclusive, non-transferable, perpetual license to:
+   a) use the Pack in your own business or for personal use, without limits;
+   b) set up, customize and run the workflows for your clients, and charge
+      for your services (setup, customization, hosting, maintenance);
+   c) modify, translate and combine the workflows with your own work.
+
+   Your clients may use the workflows you deploy for them inside their own
+   business. They may not redistribute them.
+
+
+2. WHAT YOU CAN'T DO
+   a) Resell, sublicense, share, give away or publish the Pack or any of its
+      files, as they are or modified, as a product of their own. This
+      includes template packs, marketplaces, template websites, course
+      downloads, membership areas and free giveaways.
+   b) Share your download link or your copy of the Pack with others.
+   c) Claim the Pack or its documents as your own work.
+
+   Anyone else who wants the Pack needs to buy their own copy.
+
+
+3. THIRD-PARTY SERVICES
+   The workflows connect to third-party services (for example n8n, OpenAI,
+   Google, Meta/WhatsApp, Telegram). Your use of those services is governed
+   by their own terms, policies and prices, which can change at any time. You
+   are responsible for your accounts, API keys, costs and compliance with
+   their policies.
+
+   n8n is a trademark of n8n GmbH. The Pack is an independent product and is
+   not affiliated with, sponsored or endorsed by n8n GmbH, OpenAI, Google,
+   Meta, Telegram or any other company mentioned.
+
+
+4. YOUR RESPONSIBILITY
+   AI output can be inaccurate. You are responsible for reviewing what the
+   workflows produce and for how you use them, including compliance with
+   privacy and data-protection laws (e.g. GDPR), anti-spam laws (e.g.
+   CAN-SPAM) and tax rules. Nothing in the Pack is legal, tax or financial
+   advice. The Agency Playbook contains examples, not promises of income or
+   results.
+
+
+5. NO WARRANTY
+   The Pack is provided "as is", without warranty of any kind, express or
+   implied, including fitness for a particular purpose and non-infringement.
+
+
+6. LIMITATION OF LIABILITY
+   To the maximum extent permitted by law, the Author is not liable for any
+   indirect, incidental or consequential damages, lost profits, lost data or
+   service costs arising from the use of the Pack. The Author's total
+   liability is limited to the amount you paid for the Pack.
+
+
+7. TERMINATION
+   This license ends automatically if you break its terms. You must then
+   delete all copies of the Pack.
+
+
+Questions about the license? Contact the Author through Gumroad.

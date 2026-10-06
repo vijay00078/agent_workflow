@@ -6,3 +6,8 @@ __pycache__/
 *.pyc
 node_modules/
 .DS_Store
+
+# build intermediates
+build/docs/_out/
+dist/docs/
+dist/stage/

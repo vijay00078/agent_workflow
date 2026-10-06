@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<base href="$base$" />
+<title>$title$ – $subtitle$</title>
+<link rel="stylesheet" href="docs/style.css" />
+</head>
+<body class="theme-$theme$">
+
+<section class="cover">
+  <div class="cover-grid"></div>
+  <div class="cover-top">
+    <span class="cover-kicker">$kicker$</span>
+  </div>
+  <h1 class="cover-title">$title$</h1>
+  <p class="cover-subtitle">$subtitle$</p>
+  <p class="cover-tagline">$tagline$</p>
+$if(cover_images)$
+  <div class="cover-shots">
+$for(cover_images)$
+    <div class="cover-shot"><img src="$cover_images$" alt="" /></div>
+$endfor$
+  </div>
+$endif$
+  <div class="cover-bottom">
+    <div class="cover-chips">
+$for(chips)$
+      <span>$chips$</span>
+$endfor$
+    </div>
+    <span class="cover-version">$version$</span>
+  </div>
+</section>
+
+$if(toc)$
+<section class="toc-page">
+  <h2 class="toc-title">Contents</h2>
+  <nav id="TOC">
+  $table-of-contents$
+  </nav>
+</section>
+$endif$
+
+<main>
+$body$
+</main>
+</body>
+</html>

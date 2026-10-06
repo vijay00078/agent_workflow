@@ -1,0 +1,51 @@
+# n8n + automatic HTTPS (Caddy + Let's Encrypt) on your own server.
+#
+#   1. Point a DNS "A record" (e.g. n8n.yourdomain.com) to this server's IP
+#   2. cp env.example .env   → fill in DOMAIN, ACME_EMAIL, TIMEZONE, N8N_ENCRYPTION_KEY
+#   3. docker compose up -d
+#   4. Open https://n8n.yourdomain.com and create your owner account
+#
+# Update n8n:   docker compose pull && docker compose up -d
+# View logs:    docker compose logs -f n8n
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest   # pin a version for production, e.g. docker.n8n.io/n8nio/n8n:2.42.3
+    restart: unless-stopped
+    environment:
+      - N8N_HOST=${DOMAIN}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - N8N_PROXY_HOPS=1
+      - WEBHOOK_URL=https://${DOMAIN}/
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - GENERIC_TIMEZONE=${TIMEZONE}
+      - TZ=${TIMEZONE}
+      - NODE_ENV=production
+      # keep the execution history small (14 days)
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=336
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ACME_EMAIL=${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - n8n
+
+volumes:
+  n8n_data:
+  caddy_data:
+  caddy_config:
