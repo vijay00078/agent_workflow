@@ -1,0 +1,47 @@
+/* Shared styles for the Gumroad listing images (rendered by build/build_seller_kit.py) */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: var(--w); height: var(--h); overflow: hidden; }
+body {
+  font-family: Inter, "Noto Color Emoji", sans-serif;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(236, 72, 153, 0.42), transparent 34%),
+    radial-gradient(circle at 6% 96%, rgba(16, 185, 129, 0.30), transparent 38%),
+    linear-gradient(140deg, #1e1b4b 0%, #4c1d95 52%, #7c3aed 100%);
+  position: relative;
+}
+body::before {
+  content: ""; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1.2px, transparent 1.2px);
+  background-size: 26px 26px;
+  -webkit-mask-image: linear-gradient(160deg, rgba(0,0,0,0.85), rgba(0,0,0,0.1));
+}
+.display { font-family: "Inter Display", Inter, sans-serif; font-weight: 800; letter-spacing: -0.03em; line-height: 0.98; }
+.kicker {
+  display: inline-block; font-weight: 800; font-size: 15px; letter-spacing: 0.16em; text-transform: uppercase;
+  padding: 9px 16px; border-radius: 99px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.28);
+}
+.grad-text { background: linear-gradient(90deg, #fde68a, #f9a8d4 55%, #c4b5fd); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.card {
+  background: #fff; border-radius: 18px; padding: 8px;
+  box-shadow: 0 30px 60px rgba(10, 5, 40, 0.5), 0 0 0 1px rgba(255,255,255,0.4);
+}
+.card img { display: block; width: 100%; border-radius: 12px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 17px;
+  padding: 10px 16px; border-radius: 99px; background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.25);
+}
+.checks { list-style: none; display: grid; gap: 14px; }
+.checks li { display: flex; gap: 14px; align-items: flex-start; font-size: 24px; font-weight: 600; line-height: 1.25; }
+.checks li::before {
+  content: "✓"; flex: none; width: 32px; height: 32px; border-radius: 50%; background: #10b981; color: #fff;
+  font-size: 19px; font-weight: 900; display: grid; place-items: center; margin-top: -1px;
+}
+.browser { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 30px 70px rgba(10,5,40,0.55); }
+.browser .bar { height: 34px; background: #ece9f5; display: flex; align-items: center; gap: 7px; padding: 0 14px; }
+.browser .bar i { width: 11px; height: 11px; border-radius: 50%; background: #d4d0e2; display: block; }
+.browser .bar i:nth-child(1) { background: #f87171; } .browser .bar i:nth-child(2) { background: #fbbf24; } .browser .bar i:nth-child(3) { background: #34d399; }
+.browser .bar span { margin-left: 14px; flex: 1; height: 20px; border-radius: 6px; background: #fff; color: #8c88a3; font-size: 12px; line-height: 20px; padding-left: 10px; }
+.browser img { display: block; width: 100%; }
+.label { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.75); }

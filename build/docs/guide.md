@@ -20,7 +20,7 @@ Every workflow in this pack:
 - **imports in seconds**: one file, drag it into n8n
 - **explains itself**: a yellow **START HERE** note on the canvas lists the exact setup steps
 - **keeps your settings in one place**: the ✏️ **Config** node is usually the only node you edit
-- **has been tested end to end** on n8n 2.x and works with **n8n 1.100 and newer**
+- **is tested**: every workflow was imported and run on n8n 2.x, and works with **n8n 1.100 and newer**
 - **is yours to use**: in your own business and in projects for your clients (see [License](#license))
 
 ## The 10 workflows (+ bonus)
@@ -970,7 +970,7 @@ On your own server, Google credentials need your own OAuth app ([Google](#google
 
 **Do I need to know how to code?** No. You connect accounts and fill in the Config node. If you want to go further, every Code node is commented.
 
-**Which n8n version do I need?** n8n **1.100 or newer**, including all **2.x** versions. The workflows were tested end to end on n8n 2.x.
+**Which n8n version do I need?** n8n **1.100 or newer**, including all **2.x** versions. Every workflow was tested on n8n 2.x.
 
 **Does it work on n8n Cloud and on self-hosted n8n?** Yes, both.
 

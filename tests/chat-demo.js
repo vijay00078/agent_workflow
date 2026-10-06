@@ -86,7 +86,7 @@ function serveDir(dir, port) {
     fs.writeFileSync(path.join(siteDir, 'index.html'), html);
     const server = await serveDir(siteDir, 8765);
     try {
-      const site = await browser.newPage({ viewport: { width: 1280, height: 800 }, deviceScaleFactor: 2 });
+      const site = await browser.newPage({ viewport: { width: 1180, height: 780 }, deviceScaleFactor: 2 });
       const corsErrors = [];
       site.on('console', (m) => { if (m.type() === 'error') corsErrors.push(m.text()); });
       await routeChatCdn(site);

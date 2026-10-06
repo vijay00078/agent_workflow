@@ -67,6 +67,28 @@ def postprocess(body: str, toc_groups: dict) -> str:
     return body
 
 
+def downscale_images(page: str, max_width: int = 2200) -> str:
+    """Points the HTML at smaller JPEG copies of the big screenshots (keeps the PDFs light)."""
+    from PIL import Image
+
+    def swap(match):
+        src = match.group(1)
+        full = os.path.join(HERE, src)
+        small_rel = os.path.join("docs", "_out", "img", os.path.splitext(src)[0] + ".jpg")
+        small = os.path.join(HERE, small_rel)
+        if not os.path.exists(small) or os.path.getmtime(small) < os.path.getmtime(full):
+            os.makedirs(os.path.dirname(small), exist_ok=True)
+            img = Image.open(full).convert("RGBA")
+            flat = Image.new("RGB", img.size, (255, 255, 255))
+            flat.paste(img, mask=img.split()[3])
+            if flat.width > max_width:
+                flat = flat.resize((max_width, round(flat.height * max_width / flat.width)), Image.LANCZOS)
+            flat.save(small, "JPEG", quality=88, optimize=True, progressive=True)
+        return f'src="{small_rel}"'
+
+    return re.sub(r'src="(screenshots/[^"]+\.png)"', swap, page)
+
+
 def build(doc: dict, out_dir: str) -> str:
     src = os.path.join(DOCS, doc["source"])
     html_path = os.path.join(DOCS, "_out", os.path.splitext(doc["source"])[0] + ".html")
@@ -83,6 +105,7 @@ def build(doc: dict, out_dir: str) -> str:
         args += ["-V", "chips=" + chip]
     page = subprocess.run(args, check=True, capture_output=True, text=True).stdout
     page = postprocess(page, doc.get("toc_groups", {}))
+    page = downscale_images(page)
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(page)
     pdf_path = os.path.join(out_dir, doc["output"])
