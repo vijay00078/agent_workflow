@@ -885,7 +885,7 @@ You also need **n8n** itself: an n8n Cloud plan, or about **$5/month** for your 
 
 **Use expressions.** Fields that start with `=` contain *expressions* like `{{ $json.email }}`. They pull data from earlier nodes. Click a field and drag any value from the left panel into it.
 
-# Swap the AI: Claude, Gemini, Groq, local models 🔄 {#swap}
+# Swap the AI: Claude, Gemini & more 🔄 {#swap}
 
 The workflows use OpenAI by default, but the **chat model is plug-and-play**:
 
