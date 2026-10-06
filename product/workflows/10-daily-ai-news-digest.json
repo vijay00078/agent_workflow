@@ -1,0 +1,495 @@
+{
+  "name": "10 · Daily AI News Digest → Email / Telegram (Your Personal AI Editor)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## ☕ Daily AI News Digest\n**Every morning an AI editor scans dozens of sources, throws out the noise and sends you a beautiful 2-minute briefing:** TL;DR, the 7 stories that matter *to you*, why each one matters, quick hits and an insight of the day. 📬\n\nWorks for **any industry** — just change the topics (Google News search) and feeds.\n\n### ⚡ Setup (≈3 min)\n1. **OpenAI Chat Model** → your OpenAI API key\n2. **Send Email Digest** → connect Gmail\n3. **Config** → your email, topics and *reader profile* (who you are & what you care about)\n4. Click **Execute workflow** → check your inbox ✨ → **Activate / Publish**\n\n### 💡 Tips\n- Prefer Telegram? Enable **Send to Telegram** (select → **D**) and add your chat ID.\n- Change the time in **Every Morning at 7**.\n- A feed stopped working? Remove it — the digest keeps going with the others.\n- Cost: ≈ $0.003 per digest (~$0.10/month).",
+        "height": 860,
+        "width": 680,
+        "color": 1
+      },
+      "id": "e5e6bf6f-f351-583e-925f-abb1c8d88096",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1️⃣ Collect today's news\nRSS feeds + Google News for every topic",
+        "height": 380,
+        "width": 920,
+        "color": 4
+      },
+      "id": "8a41e75d-dc3a-5d0a-bd28-4449478259b5",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2️⃣ AI editor picks what matters to YOU",
+        "height": 520,
+        "width": 680,
+        "color": 5
+      },
+      "id": "4f214a8d-1109-52cb-ad70-2f544d27357b",
+      "name": "Sticky Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        900,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 3️⃣ Beautiful briefing → inbox / Telegram",
+        "height": 520,
+        "width": 700,
+        "color": 2
+      },
+      "id": "1b57a0b2-043b-5757-b88b-c48c40a284c2",
+      "name": "Sticky Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "5f80fea3-8f7d-5b0d-9f05-9e90ccb0b9ec",
+      "name": "Every Morning at 7",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a5752ac7-a48d-538f-8bfe-fe42a8189168",
+              "name": "email_to",
+              "value": "you@example.com",
+              "type": "string"
+            },
+            {
+              "id": "f55a32eb-d724-51d1-8124-73811e455462",
+              "name": "digest_name",
+              "value": "Daily AI Briefing",
+              "type": "string"
+            },
+            {
+              "id": "4adb8a23-7321-5f84-962e-50cce3b60f24",
+              "name": "reader_profile",
+              "value": "Founder of a small AI automation agency. Wants practical AI news: new models and tools, real business use-cases, automation, regulation. Not interested in hype or stock prices.",
+              "type": "string"
+            },
+            {
+              "id": "c9705ab2-2273-54f4-b918-06c61a2a5132",
+              "name": "news_topics",
+              "value": "artificial intelligence\nAI agents\nOpenAI OR Anthropic OR Google Gemini",
+              "type": "string"
+            },
+            {
+              "id": "ec50f594-a9d6-59c4-a62b-8de04590a2fd",
+              "name": "rss_feeds",
+              "value": "https://techcrunch.com/category/artificial-intelligence/feed/\nhttps://www.theverge.com/rss/ai-artificial-intelligence/index.xml\nhttps://venturebeat.com/category/ai/feed/\nhttps://www.technologyreview.com/topic/artificial-intelligence/feed\nhttps://openai.com/news/rss.xml\nhttps://blog.google/technology/ai/rss/\nhttps://hnrss.org/newest?q=AI&points=100",
+              "type": "string"
+            },
+            {
+              "id": "ff5a3faf-2a39-536e-a2a3-4de5dc1b0ab3",
+              "name": "stories_count",
+              "value": 7,
+              "type": "number"
+            },
+            {
+              "id": "247af9c3-f735-57a1-bbe5-f7098e3c48ac",
+              "name": "lookback_hours",
+              "value": 26,
+              "type": "number"
+            },
+            {
+              "id": "a668e411-0a9c-5869-99e2-4ce287173b0a",
+              "name": "language",
+              "value": "English",
+              "type": "string"
+            },
+            {
+              "id": "bae2c854-a4e2-5280-9ecc-ddcf9ba95813",
+              "name": "news_language",
+              "value": "en",
+              "type": "string"
+            },
+            {
+              "id": "88dd3434-adaa-519b-8ddc-08c9dc7459bb",
+              "name": "news_region",
+              "value": "US",
+              "type": "string"
+            },
+            {
+              "id": "b622d0c9-28f4-5bfa-9b94-ac6ff4da9442",
+              "name": "accent_color",
+              "value": "#6d28d9",
+              "type": "string"
+            },
+            {
+              "id": "85b7a8c8-dd26-59eb-acd3-6800ceb625c6",
+              "name": "telegram_chat_id",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3bfa7095-f17b-5d22-873e-d65db8dcf449",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        240
+      ],
+      "notes": "✏️ Your email, topics & interests",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Your sources: the RSS feeds from Config + a Google News search for every topic.\nconst cfg = $('Config').first().json;\nconst feeds = String(cfg.rss_feeds || '')\n  .split(/\\n|,(?=\\s*https?:)/)\n  .map((s) => s.trim())\n  .filter((s) => /^https?:\\/\\//i.test(s));\n\nconst region = String(cfg.news_region || 'US').toUpperCase();\nconst lang = String(cfg.news_language || 'en').toLowerCase();\nconst topics = String(cfg.news_topics || '')\n  .split(/\\n|,/)\n  .map((s) => s.trim())\n  .filter(Boolean);\nfor (const topic of topics) {\n  const q = encodeURIComponent(`${topic} when:1d`);\n  feeds.push(`https://news.google.com/rss/search?q=${q}&hl=${lang}-${region}&gl=${region}&ceid=${region}:${lang}`);\n}\nif (!feeds.length) throw new Error('Add at least one RSS feed or news topic in the Config node.');\nreturn [...new Set(feeds)].map((url) => ({ json: { url } }));\n"
+      },
+      "id": "3231b1e4-4328-5f44-b3c3-a46c17f1af6c",
+      "name": "Build Feed List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "id": "6acf40a7-3c7e-5fa1-b9c9-b95a1defb39c",
+      "name": "Read Feeds",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merges all feeds: keeps fresh stories only, removes duplicates (same link or\n// near-identical headline) and keeps the newest candidates for the AI editor.\nconst cfg = $('Config').first().json;\nconst hours = Number(cfg.lookback_hours) || 26;\nconst cutoff = Date.now() - hours * 3600 * 1000;\nconst maxCandidates = 80;\n\nconst stripHtml = (s) => String(s || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '\"').replace(/&#39;/g, \"'\").replace(/\\s+/g, ' ').trim();\nconst normTitle = (t) => t.toLowerCase().replace(/\\s+[-–|]\\s+[^-–|]+$/, '').replace(/[^a-z0-9 ]/g, '').replace(/\\s+/g, ' ').trim();\n\nconst seenLinks = new Set();\nconst seenTitles = [];\nconst stories = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  if (j.error || !j.title || !j.link) continue;\n  const time = Date.parse(j.isoDate || j.pubDate || '') || 0;\n  if (time && time < cutoff) continue;\n  const link = String(j.link).trim();\n  if (seenLinks.has(link)) continue;\n  let title = stripHtml(j.title);\n  let source = '';\n  const isGoogleNews = /news\\.google\\.com/.test(link);\n  const suffix = title.match(/\\s+[-–|]\\s+([^-–|]{2,60})$/);\n  if (isGoogleNews && suffix) {\n    source = suffix[1].trim();\n    title = title.slice(0, suffix.index).trim();\n  } else {\n    source = (link.match(/^https?:\\/\\/(?:www\\.)?([^\\/:?#]+)/i) || [])[1] || '';\n  }\n  const nt = normTitle(title);\n  const words = new Set(nt.split(' ').filter((w) => w.length > 3));\n  const isDuplicate = seenTitles.some((other) => {\n    if (other.nt === nt) return true;\n    const overlap = [...words].filter((w) => other.words.has(w)).length;\n    return words.size > 3 && overlap / Math.min(words.size, other.words.size || 1) > 0.8;\n  });\n  if (isDuplicate) continue;\n  seenLinks.add(link);\n  seenTitles.push({ nt, words });\n  stories.push({\n    title,\n    link,\n    source,\n    published: time ? new Date(time).toISOString() : '',\n    snippet: stripHtml(j.contentSnippet || j.content || j.summary || '').slice(0, 280),\n    time,\n  });\n}\n\nstories.sort((a, b) => b.time - a.time);\nconst candidates = stories.slice(0, maxCandidates).map((s, i) => ({ id: i + 1, ...s }));\nif (!candidates.length) {\n  return [{ json: { candidates: [], count: 0, feeds_checked: $input.all().length } }];\n}\nreturn [{ json: { candidates, count: candidates.length, feeds_checked: $input.all().length } }];\n"
+      },
+      "id": "8a6796a3-9e6e-519e-91be-7584d59c5c85",
+      "name": "Clean & Rank",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "368bf575-ad93-5be1-bc47-12ea9748001b",
+              "leftValue": "={{ $json.count }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "f8d763c3-abe7-5dbd-889b-1410f0023f41",
+      "name": "Any News?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=TODAY: {{ $now.toFormat('cccc d LLLL yyyy') }}\n\nCANDIDATE STORIES (id | source | published | title | snippet):\n{{ $json.candidates.map(c => c.id + ' | ' + c.source + ' | ' + String(c.published).slice(0, 16) + ' | ' + c.title + ' | ' + c.snippet).join('\\n') }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are the editor-in-chief of a premium daily briefing called \"{{ $('Config').first().json.digest_name }}\".\nREADER: {{ $('Config').first().json.reader_profile }}\n\nFrom the candidate stories, pick the {{ $('Config').first().json.stories_count }} most important and genuinely newsworthy ones FOR THIS READER. Prefer major launches, research breakthroughs, big business moves, regulation and practical tools the reader can use. Skip duplicates, listicles, opinion fluff, stock tips and minor updates.\n\nFor each pick return:\n- id: the candidate id (number)\n- headline: a clear, specific headline (max 12 words), no clickbait\n- summary: 2 factual sentences based ONLY on the title and snippet — never invent details, numbers or quotes\n- why_it_matters: 1 sentence on why this reader should care\n- category: Launch, Research, Business, Policy, Tools, Security or Other\n- emoji: one fitting emoji\n\nAlso return:\n- tldr: 3 bullet points (max 20 words each) that summarise the day\n- quick_hits: up to 5 more notable stories (id + headline of max 10 words)\n- insight: one sharp, original takeaway or trend you notice across today's news (max 40 words)\n\nWrite everything in {{ $('Config').first().json.language }}."
+            }
+          ]
+        },
+        "hasOutputParser": true
+      },
+      "id": "e5499abc-559b-5263-acc0-b975644ae281",
+      "name": "AI Editor: Pick & Summarize",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1340,
+        220
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.4,
+          "responseFormat": "json_object"
+        }
+      },
+      "id": "0369a8da-36fb-57cd-84dc-42613960fb03",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1300,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"tldr\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"top_stories\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n            \"type\": \"integer\"\n          },\n          \"headline\": {\n            \"type\": \"string\"\n          },\n          \"summary\": {\n            \"type\": \"string\"\n          },\n          \"why_it_matters\": {\n            \"type\": \"string\"\n          },\n          \"category\": {\n            \"type\": \"string\"\n          },\n          \"emoji\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"id\",\n          \"headline\",\n          \"summary\",\n          \"why_it_matters\",\n          \"category\",\n          \"emoji\"\n        ]\n      }\n    },\n    \"quick_hits\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"id\": {\n            \"type\": \"integer\"\n          },\n          \"headline\": {\n            \"type\": \"string\"\n          }\n        },\n        \"required\": [\n          \"id\",\n          \"headline\"\n        ]\n      }\n    },\n    \"insight\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"tldr\",\n    \"top_stories\",\n    \"quick_hits\",\n    \"insight\"\n  ]\n}"
+      },
+      "id": "5dec7d03-3955-56e6-960e-c5f4ceaf421e",
+      "name": "Digest Format",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1460,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Builds a beautiful, mobile-friendly HTML email + a Telegram version.\nconst cfg = $('Config').first().json;\nconst candidates = $('Clean & Rank').first().json.candidates || [];\nconst byId = Object.fromEntries(candidates.map((c) => [c.id, c]));\nconst ai = $json.output || {};\nconst esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst today = $now.toFormat('cccc, d LLLL yyyy');\nconst accent = cfg.accent_color || '#6d28d9';\n\nconst stories = (ai.top_stories || []).map((s) => ({ ...s, ...(byId[s.id] ? { link: byId[s.id].link, source: byId[s.id].source } : {}) })).filter((s) => s.link);\nconst quick = (ai.quick_hits || []).map((q) => ({ ...q, link: byId[q.id] && byId[q.id].link, source: byId[q.id] && byId[q.id].source })).filter((q) => q.link);\n\nconst storyHtml = stories.map((s, i) => `\n<tr><td style=\"padding:18px 0;border-bottom:1px solid #eee\">\n  <div style=\"font:12px Arial,sans-serif;color:#888;text-transform:uppercase;letter-spacing:.5px\">${esc(s.emoji || '📰')} ${esc(s.category || '')} · ${esc(s.source || '')}</div>\n  <div style=\"font:bold 18px/1.35 Arial,sans-serif;margin:6px 0\"><a href=\"${esc(s.link)}\" style=\"color:#111;text-decoration:none\">${i + 1}. ${esc(s.headline)}</a></div>\n  <div style=\"font:15px/1.55 Arial,sans-serif;color:#333\">${esc(s.summary)}</div>\n  <div style=\"font:14px/1.5 Arial,sans-serif;color:${accent};margin-top:8px\"><b>Why it matters:</b> ${esc(s.why_it_matters)}</div>\n</td></tr>`).join('');\n\nconst quickHtml = quick.length ? `\n<tr><td style=\"padding:22px 0 6px;font:bold 16px Arial,sans-serif\">⚡ Quick hits</td></tr>\n<tr><td><ul style=\"margin:0;padding-left:18px;font:14px/1.6 Arial,sans-serif;color:#333\">\n${quick.map((q) => `<li><a href=\"${esc(q.link)}\" style=\"color:#333\">${esc(q.headline)}</a> <span style=\"color:#999\">– ${esc(q.source || '')}</span></li>`).join('\\n')}\n</ul></td></tr>` : '';\n\nconst tldr = (ai.tldr || []).map((t) => `<li style=\"margin-bottom:4px\">${esc(t)}</li>`).join('');\n\nconst html = `<!doctype html><html><body style=\"margin:0;background:#f4f4f7\">\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f4f4f7\"><tr><td align=\"center\" style=\"padding:24px 12px\">\n<table role=\"presentation\" width=\"640\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:640px;width:100%;background:#fff;border-radius:16px;overflow:hidden\">\n<tr><td style=\"background:${accent};padding:26px 28px;color:#fff\">\n  <div style=\"font:bold 24px Arial,sans-serif\">${esc(cfg.digest_name || 'Daily AI Briefing')} ☕</div>\n  <div style=\"font:14px Arial,sans-serif;opacity:.85;margin-top:4px\">${esc(today)} · ${stories.length} stories picked for you · 2-minute read</div>\n</td></tr>\n<tr><td style=\"padding:22px 28px 0\">\n  <div style=\"background:#f8f7ff;border-radius:12px;padding:16px 18px\">\n    <div style=\"font:bold 15px Arial,sans-serif;margin-bottom:6px\">🧠 TL;DR</div>\n    <ul style=\"margin:0;padding-left:18px;font:14px/1.55 Arial,sans-serif;color:#333\">${tldr}</ul>\n  </div>\n</td></tr>\n<tr><td style=\"padding:4px 28px\">\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">${storyHtml}${quickHtml}</table>\n</td></tr>\n${ai.insight ? `<tr><td style=\"padding:18px 28px\"><div style=\"border-left:4px solid ${accent};padding:10px 14px;font:italic 15px/1.55 Georgia,serif;color:#333\">💡 ${esc(ai.insight)}</div></td></tr>` : ''}\n<tr><td style=\"padding:16px 28px 26px;font:12px Arial,sans-serif;color:#999\">Curated by your AI news editor from ${$('Clean & Rank').first().json.count} fresh articles. Change topics & sources in the Config node of your n8n workflow.</td></tr>\n</table></td></tr></table></body></html>`;\n\nconst tg = [\n  `<b>☕ ${esc(cfg.digest_name || 'Daily AI Briefing')}</b> — ${esc(today)}`,\n  '',\n  '<b>TL;DR</b>',\n  ...(ai.tldr || []).map((t) => `• ${esc(t)}`),\n  '',\n  ...stories.map((s, i) => `${esc(s.emoji || '📰')} <b>${i + 1}. <a href=\"${esc(s.link)}\">${esc(s.headline)}</a></b>\\n${esc(s.summary)}\\n<i>Why it matters:</i> ${esc(s.why_it_matters)}\\n`),\n].join('\\n').slice(0, 4000);\n\nreturn {\n  json: {\n    subject: `☕ ${cfg.digest_name || 'Daily AI Briefing'} — ${stories[0] ? stories[0].headline : today}`.slice(0, 150),\n    html,\n    telegram: tg,\n    stories: stories.length,\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "2b6fcb7f-a6b5-5188-b82e-99ee55b243c1",
+      "name": "Build Newsletter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1660,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Config').first().json.email_to }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "ec9f890c-b82c-591e-b071-76a46f754bf0",
+      "name": "Send Email Digest",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1900,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Config').first().json.telegram_chat_id }}",
+        "text": "={{ $json.telegram }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "3bf43c97-95c8-526f-8a82-92fba0df0b50",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1900,
+        340
+      ],
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Every Morning at 7": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Build Feed List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Feed List": {
+      "main": [
+        [
+          {
+            "node": "Read Feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Feeds": {
+      "main": [
+        [
+          {
+            "node": "Clean & Rank",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean & Rank": {
+      "main": [
+        [
+          {
+            "node": "Any News?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any News?": {
+      "main": [
+        [
+          {
+            "node": "AI Editor: Pick & Summarize",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Editor: Pick & Summarize": {
+      "main": [
+        [
+          {
+            "node": "Build Newsletter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Newsletter": {
+      "main": [
+        [
+          {
+            "node": "Send Email Digest",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Editor: Pick & Summarize",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Digest Format": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Editor: Pick & Summarize",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false
+}

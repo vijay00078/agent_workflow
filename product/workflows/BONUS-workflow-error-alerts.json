@@ -1,0 +1,358 @@
+{
+  "name": "BONUS · Workflow Error Alerts with AI Fix Suggestions",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🚨 Error Alerts with AI Fix Suggestions\n**Never miss a broken automation again.** When ANY of your workflows fails you instantly get an email (or Telegram message) with the error, a plain-English explanation and the 3 most likely fixes — plus a button to open the failed run. 🛠️\n\n### ⚡ Setup (≈3 min)\n1. **OpenAI Chat Model** → your OpenAI API key\n2. **Email Alert** → connect Gmail · put your email in **Config**\n3. **Save** this workflow (no need to activate it)\n4. Open each workflow you want to protect → **⋯ menu → Settings → Error workflow** → choose *this* workflow → Save ✅\n\n### 💡 Good to know\n- Same error repeating? You get **one alert per hour** (change `quiet_minutes`).\n- Prefer Telegram? Enable **Telegram Alert** (select → **D**).\n- Test it: open a workflow, break something on purpose (e.g. a wrong URL), run it from its trigger.",
+        "height": 760,
+        "width": 680,
+        "color": 1
+      },
+      "id": "51824af8-e43d-538c-b201-b2f3ebf7bcfa",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1️⃣ Any workflow fails → collect the details",
+        "height": 380,
+        "width": 900,
+        "color": 3
+      },
+      "id": "8b4e6baa-4cf2-5c8f-9c15-bb1860e70f89",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2️⃣ AI explains it & suggests fixes",
+        "height": 520,
+        "width": 460,
+        "color": 5
+      },
+      "id": "174f0aca-83ca-5c53-8fdc-f5be6cf52398",
+      "name": "Sticky Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        900,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 3️⃣ Alert you",
+        "height": 520,
+        "width": 700,
+        "color": 2
+      },
+      "id": "1b43d83d-6926-5ecc-92b7-8f5d3e1ad352",
+      "name": "Sticky Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        40
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "1df58167-62b4-57d8-a765-b3ea1218a84f",
+      "name": "When Any Workflow Fails",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fec665a9-994a-5b5e-99ad-6859a1a3f84e",
+              "name": "alert_email",
+              "value": "you@example.com",
+              "type": "string"
+            },
+            {
+              "id": "d36f5e37-d804-5b09-8cdf-4ad7b577b6b9",
+              "name": "telegram_chat_id",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "59e1f99a-ea3b-5461-a0e2-830a45ea81ed",
+              "name": "quiet_minutes",
+              "value": 60,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "ff6ce8ac-906c-5eb3-92dd-8a54951c2e14",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        240
+      ],
+      "notes": "✏️ Where to send alerts",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Collects the useful facts about the failure and prevents alert storms:\n// the same error in the same workflow alerts at most once per quiet period.\nconst cfg = $('Config').first().json;\nconst data = $json;\nconst execution = data.execution || {};\nconst trigger = data.trigger || {};\nconst error = execution.error || trigger.error || {};\nconst workflow = data.workflow || {};\n\nconst message = String(error.message || error.description || 'Unknown error');\nconst node = execution.lastNodeExecuted || (error.node && error.node.name) || 'Trigger';\nconst key = `${workflow.id}|${node}|${message.slice(0, 120)}`;\n\nconst store = $getWorkflowStaticData('global');\nstore.lastAlerts = store.lastAlerts || {};\nconst now = Date.now();\nconst quietMs = (Number(cfg.quiet_minutes) || 60) * 60000;\nconst shouldAlert = now - (store.lastAlerts[key] || 0) > quietMs;\nif (shouldAlert) store.lastAlerts[key] = now;\nfor (const [k, t] of Object.entries(store.lastAlerts)) if (now - t > 7 * 864e5) delete store.lastAlerts[k];\n\nreturn {\n  json: {\n    workflow_name: workflow.name || 'Unknown workflow',\n    workflow_id: workflow.id || '',\n    node,\n    node_type: (error.node && error.node.type) || '',\n    message,\n    description: String(error.description || '').slice(0, 1000),\n    http_code: error.httpCode || '',\n    stack: String(error.stack || '').split('\\n').slice(0, 5).join('\\n'),\n    execution_url: execution.url || '',\n    execution_id: execution.id || '',\n    mode: execution.mode || trigger.mode || '',\n    time: $now.toFormat('yyyy-MM-dd HH:mm:ss'),\n    should_alert: shouldAlert,\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "a272de9e-efc4-5941-b0a1-6ea6f8018474",
+      "name": "Error Details",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "58708582-10cd-5386-b546-651e8cd69447",
+              "leftValue": "={{ $json.should_alert }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "a711d04e-169a-5f04-9fad-8bcfac9fe085",
+      "name": "New Error?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        240
+      ],
+      "notes": "Skips repeats within the quiet period",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=WORKFLOW: {{ $json.workflow_name }}\nFAILED NODE: {{ $json.node }} {{ $json.node_type ? '(' + $json.node_type + ')' : '' }}\nERROR MESSAGE: {{ $json.message }}\nDETAILS: {{ $json.description || '-' }}\nHTTP CODE: {{ $json.http_code || '-' }}\nSTACK (first lines): {{ $json.stack || '-' }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a senior n8n automation engineer helping a non-technical business owner.\nExplain the error in 2 short, plain-English sentences (no jargon). Then list the 3 most likely fixes as numbered steps that say exactly where to click in n8n.\nTypical causes to consider: an expired or disconnected credential (Google/Gmail OAuth → reconnect the credential), wrong or missing API key, OpenAI billing or quota (429 / insufficient_quota → add credit), rate limits (wait or add a Wait node), a wrong Google Sheet URL or tab name, missing column headers, a node that received no data, an AI answer in the wrong format (re-run), a website blocking the request, or the n8n instance not reachable over HTTPS for webhooks.\nMax 120 words. Plain text, no markdown headings."
+            }
+          ]
+        }
+      },
+      "id": "2ed7d7c9-3ca9-5bd8-9117-d1ec8f4c06a4",
+      "name": "AI: Explain & Suggest Fixes",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        920,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "92441bf8-2f50-52db-99dc-7e84f8db9aa3",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        920,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Formats the alert for email and Telegram (works even if the AI step failed).\nconst e = $('Error Details').item.json;\nconst explanation = String($json.text || '').trim() ||\n  'The AI explanation is not available right now. Open the execution to see the full error.';\nconst esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n\nconst html = `<div style=\"font-family:Arial,sans-serif;max-width:640px\">\n<div style=\"background:#dc2626;color:#fff;padding:18px 22px;border-radius:12px 12px 0 0\">\n  <div style=\"font-size:20px;font-weight:bold\">⚠️ Workflow failed: ${esc(e.workflow_name)}</div>\n  <div style=\"opacity:.85;margin-top:4px\">${esc(e.time)} · node “${esc(e.node)}”</div>\n</div>\n<div style=\"border:1px solid #fecaca;border-top:none;padding:18px 22px;border-radius:0 0 12px 12px\">\n  <p style=\"margin:0 0 6px;font-weight:bold\">Error</p>\n  <pre style=\"white-space:pre-wrap;background:#fef2f2;padding:10px;border-radius:8px;font-size:13px;margin:0\">${esc(e.message)}${e.description ? '\\n\\n' + esc(e.description) : ''}</pre>\n  <p style=\"margin:16px 0 6px;font-weight:bold\">🤖 What happened & how to fix it</p>\n  <div style=\"white-space:pre-wrap;line-height:1.55;font-size:14px\">${esc(explanation)}</div>\n  ${e.execution_url ? `<p style=\"margin-top:18px\"><a href=\"${esc(e.execution_url)}\" style=\"background:#111;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none\">Open the failed execution →</a></p>` : ''}\n  <p style=\"color:#888;font-size:12px;margin-top:16px\">Same error again within the quiet period? You won't get duplicate alerts.</p>\n</div></div>`;\n\nconst telegram = [\n  `⚠️ <b>Workflow failed:</b> ${esc(e.workflow_name)}`,\n  `<b>Node:</b> ${esc(e.node)} · ${esc(e.time)}`,\n  `<b>Error:</b> <code>${esc(e.message.slice(0, 500))}</code>`,\n  '',\n  esc(explanation.slice(0, 2500)),\n  e.execution_url ? `\\n<a href=\"${esc(e.execution_url)}\">Open execution</a>` : '',\n].join('\\n');\n\nreturn { json: { subject: `⚠️ n8n workflow failed: ${e.workflow_name}`, html, telegram } };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "b1e9c34f-9423-5b2c-8fef-2d4dddc3cb10",
+      "name": "Build Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Config').first().json.alert_email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "b7ca33f4-73a0-54bf-b056-f74490f77e88",
+      "name": "Email Alert",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1420,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Config').first().json.telegram_chat_id }}",
+        "text": "={{ $json.telegram }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "d7ba377a-84da-51a2-8986-8bdeaa8f0339",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1420,
+        360
+      ],
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "When Any Workflow Fails": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Error Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Details": {
+      "main": [
+        [
+          {
+            "node": "New Error?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Error?": {
+      "main": [
+        [
+          {
+            "node": "AI: Explain & Suggest Fixes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Explain & Suggest Fixes": {
+      "main": [
+        [
+          {
+            "node": "Build Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Alert": {
+      "main": [
+        [
+          {
+            "node": "Email Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: Explain & Suggest Fixes",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false
+}

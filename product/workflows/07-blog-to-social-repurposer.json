@@ -1,0 +1,566 @@
+{
+  "name": "07 · Blog-to-Social Content Repurposer (1 Article → 9 Posts)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## ♻️ Blog-to-Social Content Repurposer\n**Paste one article URL → get 9 ready-to-post pieces in ~30 seconds:** LinkedIn post · X thread · Instagram caption + hashtags · carousel slides · Facebook post · newsletter blurb · Reels/TikTok script · quote cards · AI image prompt. ✨\n\nEverything is emailed to you **and** saved as drafts in a Content Calendar sheet.\n\n### ⚡ Setup (≈5 min)\n1. **OpenAI Chat Model** → your OpenAI API key\n2. **Config** → your brand, audience, voice, CTA & email\n3. **Email Me the Pack** → connect Gmail\n4. **Save to Content Calendar** → connect Google + paste your sheet URL in Config\n5. **Activate / Publish** → open the **Repurpose Form** URL and paste an article link 🔗\n\n### 🤖 Autopilot (optional)\nEnable **New Blog Post (RSS)** (select → press **D**) and put your blog's RSS feed URL in it — every new post gets repurposed automatically.\nWant to auto-publish? Enable **Post to LinkedIn** and connect LinkedIn.\n\n💡 Cost: ≈ $0.01 per article.",
+        "height": 900,
+        "width": 680,
+        "color": 1
+      },
+      "id": "20def88f-555c-5497-a40a-9ba1e7e1ff02",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1️⃣ Article in (form or RSS)",
+        "height": 520,
+        "width": 700,
+        "color": 4
+      },
+      "id": "e4e44160-87fa-537a-94e3-73c51a4afd6a",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2️⃣ Read the article + AI writes 9 posts",
+        "height": 520,
+        "width": 900,
+        "color": 5
+      },
+      "id": "fc502e13-c95c-596b-ae5f-308b56602a63",
+      "name": "Sticky Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        680,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 3️⃣ Deliver: email + content calendar",
+        "height": 760,
+        "width": 700,
+        "color": 2
+      },
+      "id": "f9d1e542-2e18-52ef-b72d-4f5bc26835b6",
+      "name": "Sticky Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "formTitle": "♻️ Repurpose an article",
+        "formDescription": "Paste a blog post / article URL. You'll get 9 ready-to-post pieces by email in about 30 seconds.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Article URL",
+              "placeholder": "https://yourblog.com/your-post",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Tone",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Use my brand voice (Config)"
+                  },
+                  {
+                    "option": "Professional & insightful"
+                  },
+                  {
+                    "option": "Friendly & casual"
+                  },
+                  {
+                    "option": "Bold & punchy"
+                  },
+                  {
+                    "option": "Witty & playful"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Extra instructions (optional)",
+              "fieldType": "textarea",
+              "placeholder": "e.g. focus on tip #3, mention our webinar on Friday"
+            }
+          ]
+        },
+        "responseMode": "onReceived",
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "Create my content ✨",
+          "path": "repurpose",
+          "respondWithOptions": {
+            "values": {
+              "respondWith": "text",
+              "formSubmittedText": "✨ Working on it! Your content pack will arrive by email in about 30 seconds."
+            }
+          }
+        }
+      },
+      "id": "4c274661-0599-5e80-910e-22b1dc4c16e4",
+      "name": "Repurpose Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        160
+      ],
+      "webhookId": "73c4ddf7-4493-5007-8514-c308777573fd"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "feedUrl": "https://your-blog.com/feed/"
+      },
+      "id": "ea645206-ea71-5d95-8dfc-0e0cbeb453a6",
+      "name": "New Blog Post (RSS)",
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        380
+      ],
+      "disabled": true,
+      "notes": "Optional autopilot – put your RSS URL here",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "451210de-816a-5bd0-a91f-e46125b17dec",
+              "name": "brand_name",
+              "value": "Morgan Digital",
+              "type": "string"
+            },
+            {
+              "id": "d114d164-7d6c-5752-a748-7641920a8824",
+              "name": "audience",
+              "value": "Small-business owners and marketers who want more leads without more work.",
+              "type": "string"
+            },
+            {
+              "id": "63fafa21-1696-57cf-ab94-c5f3637b0217",
+              "name": "brand_voice",
+              "value": "Helpful, confident and down-to-earth. Practical tips, no jargon.",
+              "type": "string"
+            },
+            {
+              "id": "151ec9bb-ec3c-5578-9595-a869d337d748",
+              "name": "cta",
+              "value": "Book a free 20-minute strategy call: https://example.com/call",
+              "type": "string"
+            },
+            {
+              "id": "5b2e993c-1707-5b8b-97e8-6237e6222394",
+              "name": "hashtags",
+              "value": "#marketing #smallbusiness",
+              "type": "string"
+            },
+            {
+              "id": "8a56e0ed-df28-578d-aaff-883a006d7261",
+              "name": "language",
+              "value": "English",
+              "type": "string"
+            },
+            {
+              "id": "c2220164-d830-5046-b583-92e2e9614edb",
+              "name": "your_email",
+              "value": "you@example.com",
+              "type": "string"
+            },
+            {
+              "id": "09c5d195-6604-5340-bef0-2685fcac5f2d",
+              "name": "google_sheet_url",
+              "value": "https://docs.google.com/spreadsheets/d/PASTE-YOUR-SHEET-ID/edit",
+              "type": "string"
+            },
+            {
+              "id": "fd14f637-98c8-589a-8a4e-b38ae8975af7",
+              "name": "sheet_tab",
+              "value": "Content Calendar",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "c11a5a2e-df6f-5993-afc7-78dfd79f64b3",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        270
+      ],
+      "notes": "✏️ Your brand + where to deliver",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "url": "={{ $json['Article URL'] || $json.link }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 20000
+        }
+      },
+      "id": "b9ad3704-c47d-51ee-b024-ac4879322464",
+      "name": "Fetch Article",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        270
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pulls the article title, image and main text out of the page HTML.\n// Falls back to the RSS content when the page blocks bots.\nconst input = $('Config').item.json;\nconst url = String(input['Article URL'] || input.link || '').trim();\nconst html = typeof $json.data === 'string' ? $json.data.slice(0, 3000000) : '';\n\nconst NAMED = { amp: '&', lt: '<', gt: '>', quot: '\"', apos: \"'\", nbsp: ' ', ndash: '–', mdash: '—', hellip: '…', rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“' };\nconst decode = (s) => String(s || '').replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (m, e) => {\n  if (e[0] === '#') {\n    const code = e[1].toLowerCase() === 'x' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);\n    return Number.isFinite(code) && code > 0 && code < 0x110000 ? String.fromCodePoint(code) : m;\n  }\n  return NAMED[e.toLowerCase()] ?? m;\n});\nconst meta = (prop) => {\n  const re1 = new RegExp(`<meta[^>]+(?:property|name)=[\"']${prop}[\"'][^>]*content=[\"']([^\"']*)[\"']`, 'i');\n  const re2 = new RegExp(`<meta[^>]+content=[\"']([^\"']*)[\"'][^>]*(?:property|name)=[\"']${prop}[\"']`, 'i');\n  return decode((html.match(re1) || html.match(re2) || [])[1] || '').trim();\n};\n\nfunction toText(fragment) {\n  return decode(\n    fragment\n      .replace(/<(script|style|noscript|svg|iframe|form|button|figure|aside|nav|footer|header)[\\s\\S]*?<\\/\\1>/gi, ' ')\n      .replace(/<(h[1-6])[^>]*>([\\s\\S]*?)<\\/\\1>/gi, (m, tag, inner) => `\\n\\n${'#'.repeat(Number(tag[1]))} ${inner.replace(/<[^>]+>/g, '')}\\n`)\n      .replace(/<li[^>]*>/gi, '\\n- ')\n      .replace(/<(br|hr)\\s*\\/?>/gi, '\\n')\n      .replace(/<\\/(p|div|section|li|blockquote|ul|ol|tr)>/gi, '\\n')\n      .replace(/<[^>]+>/g, ' ')\n  )\n    .replace(/[ \\t ]+/g, ' ')\n    .replace(/ *\\n */g, '\\n')\n    .replace(/\\n{3,}/g, '\\n\\n')\n    .trim();\n}\n\n// Main content: the biggest <article>, else <main>, else <body>\nlet main = '';\nfor (const m of html.matchAll(/<article[\\s\\S]*?<\\/article>/gi)) if (m[0].length > main.length) main = m[0];\nif (!main) main = (html.match(/<main[\\s\\S]*?<\\/main>/i) || [])[0] || '';\nif (!main) main = (html.match(/<body[\\s\\S]*<\\/body>/i) || [])[0] || html;\nlet text = toText(main);\n\nconst rssContent = toText(String(input.content || input['content:encoded'] || input.contentSnippet || ''));\nif (text.length < 400 && rssContent.length > text.length) text = rssContent;\n\nconst title = meta('og:title') || decode(((html.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i) || [])[1] || '').trim()) ||\n  decode(((main.match(/<h1[^>]*>([\\s\\S]*?)<\\/h1>/i) || [])[1] || '').replace(/<[^>]+>/g, '').trim()) || input.title || 'Untitled article';\n\nif (text.length < 200) {\n  throw new Error(`Could not read enough text from ${url || 'the article'} (the site may block bots). Try another URL or paste the article into a Google Doc and share that link.`);\n}\nconst words = text.split(/\\s+/).length;\n\nreturn {\n  json: {\n    url,\n    title: title.replace(/\\s+[|–-]\\s+[^|–-]{2,40}$/, '').trim(),\n    description: meta('og:description') || meta('description'),\n    image: meta('og:image'),\n    text: text.slice(0, 16000),\n    word_count: words,\n    tone: input.Tone && !/brand voice/i.test(input.Tone) ? input.Tone : input.brand_voice,\n    extra_instructions: input['Extra instructions (optional)'] || '',\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "5916006e-1a61-53c7-93a3-9b4114ed29cf",
+      "name": "Extract Article",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        270
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=ARTICLE TITLE: {{ $json.title }}\nARTICLE LINK: {{ $json.url }}\nARTICLE SUMMARY: {{ $json.description || '-' }}\n\nARTICLE TEXT:\n\"\"\"\n{{ $json.text }}\n\"\"\"",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a world-class social media strategist and ghostwriter for {{ $('Config').first().json.brand_name }}.\nAUDIENCE: {{ $('Config').first().json.audience }}\nTONE / VOICE: {{ $json.tone }}\nCALL TO ACTION (weave in where natural): {{ $('Config').first().json.cta }}\nLANGUAGE: write everything in {{ $('Config').first().json.language }}.\nHASHTAGS TO ALWAYS INCLUDE (where hashtags are used): {{ $('Config').first().json.hashtags }}\n\nTurn the article into a complete content pack. Rules for every piece:\n- Open with a scroll-stopping hook (a bold claim, a surprising point from the article, or a sharp question). Never open with clichés like \"In today's fast-paced world\".\n- One idea per sentence, short paragraphs, lots of white space, concrete takeaways from the article.\n- Stay 100% faithful to the article: never invent statistics, quotes, names or facts.\n- Sound human. Avoid: \"unlock\", \"delve\", \"game-changer\", \"elevate\", \"in conclusion\", \"dive in\".\n\nPLATFORM SPECS\n- linkedin_post: 150–250 words. Hook line of max 12 words, then a blank line. A personal angle + 3–5 takeaways as \"→\" bullets. End with a question that invites comments, then 3–5 hashtags.\n- x_thread: 5–8 tweets, each max 270 characters. Tweet 1 = a hook that makes people open the thread. Last tweet = CTA + the article link. At most 1 hashtag, in the last tweet. Do not number the tweets.\n- instagram_caption: 100–180 words. Hook in the first line, value in the middle, clear CTA (\"Save this for later\", \"Link in bio\"). Emojis welcome. No hashtags here.\n- instagram_hashtags: 15–20 relevant hashtags on one line (mix of broad and niche).\n- carousel_slides: exactly 7 slides. Slide 1 = big headline (max 8 words). Slides 2–6 = one tip each (max 30 words). Slide 7 = CTA.\n- facebook_post: 80–150 words, conversational, ends with a question and the article link.\n- newsletter_blurb: first line \"Subject: …\", then an 80–120 word teaser that makes readers click the article link.\n- short_video_script: 30–45 second script for Reels / TikTok / Shorts with [HOOK 0–3s], [BODY] and [CTA] sections and on-screen text suggestions in brackets.\n- key_quotes: 3 short, punchy, quotable lines taken or adapted from the article.\n- image_prompt: a detailed prompt for an AI image generator to create a header image (subject, style, composition, colours, mood). No text in the image.\n\nEXTRA INSTRUCTIONS FROM THE USER: {{ $json.extra_instructions || 'none' }}"
+            }
+          ]
+        },
+        "hasOutputParser": true
+      },
+      "id": "c710feab-f1d3-577c-902a-fe880fe8f322",
+      "name": "AI: Create Content Pack",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        940,
+        270
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.8,
+          "responseFormat": "json_object",
+          "timeout": 180000
+        }
+      },
+      "id": "4f3fd968-a5c8-5c9c-b5fe-10a11c3501aa",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        900,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"linkedin_post\": {\n      \"type\": \"string\"\n    },\n    \"x_thread\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"instagram_caption\": {\n      \"type\": \"string\"\n    },\n    \"instagram_hashtags\": {\n      \"type\": \"string\"\n    },\n    \"carousel_slides\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"facebook_post\": {\n      \"type\": \"string\"\n    },\n    \"newsletter_blurb\": {\n      \"type\": \"string\"\n    },\n    \"short_video_script\": {\n      \"type\": \"string\"\n    },\n    \"key_quotes\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"image_prompt\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"linkedin_post\",\n    \"x_thread\",\n    \"instagram_caption\",\n    \"instagram_hashtags\",\n    \"carousel_slides\",\n    \"facebook_post\",\n    \"newsletter_blurb\",\n    \"short_video_script\",\n    \"key_quotes\",\n    \"image_prompt\"\n  ],\n  \"additionalProperties\": false\n}"
+      },
+      "id": "93a05d4e-a467-5219-b496-32263a9c0653",
+      "name": "Content Pack Format",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1060,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Builds a clean HTML email with every post in its own copy-ready box.\nconst pack = $json.output || {};\nconst article = $('Extract Article').item.json;\nconst esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst box = (emoji, title, content) => content ? `\n  <tr><td style=\"padding:18px 0 6px;font:bold 16px Arial,sans-serif;color:#111\">${emoji} ${title}</td></tr>\n  <tr><td style=\"background:#f8f7ff;border:1px solid #e9e5ff;border-radius:10px;padding:14px 16px;font:14px/1.55 Arial,sans-serif;color:#222;white-space:pre-wrap\">${esc(content)}</td></tr>` : '';\n\nconst thread = (pack.x_thread || []).map((t, i, all) => `${i + 1}/${all.length} ${t}`).join('\\n\\n');\nconst slides = (pack.carousel_slides || []).map((s, i) => `Slide ${i + 1}: ${s}`).join('\\n');\n\nconst html = `<!doctype html><html><body style=\"margin:0;background:#f4f4f7\">\n<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f4f4f7\"><tr><td align=\"center\" style=\"padding:24px 12px\">\n<table role=\"presentation\" width=\"640\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:640px;width:100%;background:#fff;border-radius:14px;padding:24px\">\n  <tr><td style=\"font:bold 22px Arial,sans-serif;color:#111\">📦 Your content pack is ready</td></tr>\n  <tr><td style=\"padding-top:6px;font:14px Arial,sans-serif;color:#555\">From: <a href=\"${esc(article.url)}\" style=\"color:#6d28d9\">${esc(article.title)}</a> · ${article.word_count} words → 9 ready-to-post pieces</td></tr>\n  ${box('💼', 'LinkedIn post', pack.linkedin_post)}\n  ${box('🐦', 'X / Twitter thread', thread)}\n  ${box('📸', 'Instagram caption', [pack.instagram_caption, pack.instagram_hashtags].filter(Boolean).join('\\n\\n'))}\n  ${box('🖼️', 'Carousel slides', slides)}\n  ${box('👍', 'Facebook post', pack.facebook_post)}\n  ${box('✉️', 'Newsletter blurb', pack.newsletter_blurb)}\n  ${box('🎬', 'Short video script', pack.short_video_script)}\n  ${box('💬', 'Quote cards', (pack.key_quotes || []).map((q) => `“${q}”`).join('\\n'))}\n  ${box('🎨', 'Image prompt (Midjourney / DALL·E / Ideogram)', pack.image_prompt)}\n  <tr><td style=\"padding-top:20px;font:12px Arial,sans-serif;color:#888\">Everything is also saved as drafts in your Content Calendar sheet.</td></tr>\n</table></td></tr></table></body></html>`;\n\nreturn { json: { subject: `📦 Content pack ready: ${article.title}`.slice(0, 150), html } };\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "3cad1313-9138-54e4-960e-9f08c2b63263",
+      "name": "Build Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1660,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Config').first().json.your_email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "e64ad729-27d6-5388-966f-d8a59fe5473f",
+      "name": "Email Me the Pack",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1880,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// One Content Calendar row per platform, ready to schedule.\nconst out = [];\nconst articles = $('Extract Article').all();\nfor (const [index, item] of $input.all().entries()) {\n  const pack = item.json.output || {};\n  const article = (articles[index] || articles[0]).json;\n  const created = $now.toFormat('yyyy-MM-dd HH:mm');\n  const thread = (pack.x_thread || []).map((t, i, all) => `${i + 1}/${all.length} ${t}`).join('\\n\\n');\n  const slides = (pack.carousel_slides || []).map((s, i) => `Slide ${i + 1}: ${s}`).join('\\n');\n  const rows = [\n    ['LinkedIn post', pack.linkedin_post],\n    ['X / Twitter thread', thread],\n    ['Instagram caption', [pack.instagram_caption, pack.instagram_hashtags].filter(Boolean).join('\\n\\n')],\n    ['Carousel (Instagram / LinkedIn)', slides],\n    ['Facebook post', pack.facebook_post],\n    ['Newsletter blurb', pack.newsletter_blurb],\n    ['Short video script (Reels / TikTok / Shorts)', pack.short_video_script],\n    ['Quote cards', (pack.key_quotes || []).map((q) => `“${q}”`).join('\\n')],\n    ['Image prompt', pack.image_prompt],\n  ];\n  for (const [platform, content] of rows) {\n    if (!content) continue;\n    out.push({\n      json: {\n        Created: created,\n        'Source title': article.title,\n        'Source URL': article.url,\n        Platform: platform,\n        Content: content,\n        Status: 'Draft',\n        'Scheduled for': '',\n      },\n    });\n  }\n}\nreturn out;\n"
+      },
+      "id": "e1fd01d1-9bec-542d-b7dc-bafacc15e33a",
+      "name": "Calendar Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.google_sheet_url }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.sheet_tab }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "a3be3afd-d67b-5b52-af0c-85b273bbfa04",
+      "name": "Save to Content Calendar",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1880,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.output.linkedin_post }}",
+        "additionalFields": {}
+      },
+      "id": "b9327350-63ff-575e-b96e-dd5e4132548a",
+      "name": "Post to LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        520
+      ],
+      "disabled": true,
+      "notes": "Optional: auto-publish (connect LinkedIn first)",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Repurpose Form": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Blog Post (RSS)": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Fetch Article",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Article": {
+      "main": [
+        [
+          {
+            "node": "Extract Article",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Article": {
+      "main": [
+        [
+          {
+            "node": "AI: Create Content Pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Create Content Pack": {
+      "main": [
+        [
+          {
+            "node": "Build Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Calendar Rows",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post to LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email": {
+      "main": [
+        [
+          {
+            "node": "Email Me the Pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Rows": {
+      "main": [
+        [
+          {
+            "node": "Save to Content Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: Create Content Pack",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Pack Format": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI: Create Content Pack",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false
+}

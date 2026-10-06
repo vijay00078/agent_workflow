@@ -1,0 +1,854 @@
+{
+  "name": "08 · AI SEO Blog Writer — Google Sheets → Google Docs",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## ✍️ AI SEO Blog Writer\n**Add topics to a Google Sheet → every morning the AI researches the angle, builds an SEO brief and writes a full, formatted article straight into Google Docs.** Then it updates the sheet with the title, meta description, slug, word count and Doc link. 📈\n\n### ⚡ Setup (≈10 min)\n1. Import `Blog Topics.csv` into a Google Sheet (File → Import) — or create these columns: **Topic · Primary Keyword · Audience · Notes · Word Count · Status**\n2. Put a few topics in it with **Status = Ready**\n3. **Config** → paste the sheet URL, your brand, audience & voice (optional: a Drive folder link for the docs)\n4. Connect **Google Sheets** (3 nodes) + **Google Drive** (*Create Google Doc*)\n5. **OpenAI** models → your OpenAI API key\n6. Click **Execute workflow** to write one now → then **Activate / Publish** for daily autopilot ☀️\n\n### 💡 Good to know\n- Writes `articles_per_run` articles per day (default 1).\n- Brief: gpt-4.1-mini · Article: gpt-4.1 (≈ $0.02–0.04 per article).\n- Failed rows get Status = **Error** with the reason — set back to *Ready* to retry.\n- WordPress user? Enable **WordPress Draft** to also create a draft post.",
+        "height": 1000,
+        "width": 680,
+        "color": 1
+      },
+      "id": "ce88037a-738d-51e3-9efc-b4630611fc6c",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        -340
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1️⃣ Pick today's topics (Status = Ready)",
+        "height": 420,
+        "width": 920,
+        "color": 4
+      },
+      "id": "af109965-1dd1-5de1-91a0-81600d49269f",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2️⃣ SEO brief → full article",
+        "height": 600,
+        "width": 900,
+        "color": 5
+      },
+      "id": "21f68ce5-61b4-5e98-80c1-5e0464fb050e",
+      "name": "Sticky Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        840,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 3️⃣ Formatted Google Doc + sheet updated",
+        "height": 340,
+        "width": 900,
+        "color": 2
+      },
+      "id": "40f9abb7-e048-5aa7-9cbf-c36aa3d1f689",
+      "name": "Sticky Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### ⚠️ If something fails\nThe row is marked **Error** with the reason.",
+        "height": 260,
+        "width": 700,
+        "color": 3
+      },
+      "id": "a2d07cc9-6f6b-55d1-9386-f69d21ec5721",
+      "name": "Sticky Note 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "24a27d79-fd0a-5ecf-aefc-f7f490f750df",
+      "name": "Every Morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c8acd627-7039-5ae2-bedf-a992a26e3653",
+              "name": "google_sheet_url",
+              "value": "https://docs.google.com/spreadsheets/d/PASTE-YOUR-SHEET-ID/edit",
+              "type": "string"
+            },
+            {
+              "id": "67f9da07-e773-5614-912f-09ba7d595ef5",
+              "name": "sheet_tab",
+              "value": "Blog Topics",
+              "type": "string"
+            },
+            {
+              "id": "71b18d80-5644-5d8e-becf-b30be674a5fc",
+              "name": "articles_per_run",
+              "value": 1,
+              "type": "number"
+            },
+            {
+              "id": "41d0000e-bfb4-51b8-8403-a94f9bf05cb8",
+              "name": "brand_name",
+              "value": "Morgan Digital",
+              "type": "string"
+            },
+            {
+              "id": "4c2eaf69-10c9-53a9-889e-059e215ecf68",
+              "name": "default_audience",
+              "value": "Small-business owners who are not marketing experts",
+              "type": "string"
+            },
+            {
+              "id": "c2df4335-a692-5920-9349-b642b87b378c",
+              "name": "brand_voice",
+              "value": "Clear, practical and friendly. Short sentences, real examples, no fluff.",
+              "type": "string"
+            },
+            {
+              "id": "ec5eb117-e146-5498-8393-2723abd523ef",
+              "name": "language",
+              "value": "English",
+              "type": "string"
+            },
+            {
+              "id": "6fdedf71-273b-53de-ae90-13cb97df165f",
+              "name": "default_word_count",
+              "value": 1500,
+              "type": "number"
+            },
+            {
+              "id": "eba60708-a7c2-5d5c-8ff6-e8740e28516a",
+              "name": "cta",
+              "value": "Want help putting this into practice? Book a free call: https://example.com/call",
+              "type": "string"
+            },
+            {
+              "id": "bd70d9c2-957e-5f9c-b211-9be69e58d386",
+              "name": "internal_links",
+              "value": "Pricing | https://example.com/pricing\nFree consultation | https://example.com/call",
+              "type": "string"
+            },
+            {
+              "id": "3a9f0b38-06af-55f7-bd39-4e29c4116c20",
+              "name": "google_drive_folder_id",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3e67eef7-d53b-5c98-9fc1-398f0d06998b",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        240
+      ],
+      "notes": "✏️ Sheet URL + brand voice",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.google_sheet_url }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.sheet_tab }}",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "Ready"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "54b2cf5f-cf2f-5b71-a7c4-5355a0b94863",
+      "name": "Get Ready Topics",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        440,
+        240
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "maxItems": "={{ $('Config').first().json.articles_per_run || 1 }}"
+      },
+      "id": "4290b284-6d97-516a-817e-ca9cc323fe2f",
+      "name": "Limit",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        660,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=TOPIC: {{ $json.Topic }}\nPRIMARY KEYWORD: {{ $json['Primary Keyword'] || $json.Topic }}\nAUDIENCE: {{ $json.Audience || $('Config').first().json.default_audience }}\nNOTES: {{ $json.Notes || 'none' }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a senior SEO strategist. Create a winning content brief for a blog article.\nBrand: {{ $('Config').first().json.brand_name }}. Language: {{ $('Config').first().json.language }}.\n- title: compelling, max 60 characters, contains the primary keyword naturally.\n- slug: short, lowercase, hyphenated, contains the primary keyword.\n- meta_description: 140–155 characters, includes the keyword, promises a clear benefit.\n- secondary_keywords: 5–8 related terms people also search for.\n- search_intent: informational, commercial, transactional or navigational — plus one sentence on what the searcher really wants.\n- outline: 5–8 H2 sections in a logical order, each with 2–4 key points and optional H3s. Cover the topic better than the current top results.\n- faq: 4–5 real questions people ask about this topic.\n- takeaways: 3–5 one-line key takeaways."
+            }
+          ]
+        },
+        "hasOutputParser": true
+      },
+      "id": "7db639f1-fb31-5ea7-a8f3-7fef7c0695ca",
+      "name": "AI: SEO Brief",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        900,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.5,
+          "responseFormat": "json_object"
+        }
+      },
+      "id": "cd76a177-2e09-5d29-80f2-4921c3a9786b",
+      "name": "Brief Model (gpt-4.1-mini)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        860,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\"\n    },\n    \"slug\": {\n      \"type\": \"string\"\n    },\n    \"meta_description\": {\n      \"type\": \"string\"\n    },\n    \"primary_keyword\": {\n      \"type\": \"string\"\n    },\n    \"secondary_keywords\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"search_intent\": {\n      \"type\": \"string\"\n    },\n    \"outline\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"h2\": {\n            \"type\": \"string\"\n          },\n          \"key_points\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"h3s\": {\n            \"type\": \"array\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          }\n        },\n        \"required\": [\n          \"h2\",\n          \"key_points\",\n          \"h3s\"\n        ]\n      }\n    },\n    \"faq\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"takeaways\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    }\n  },\n  \"required\": [\n    \"title\",\n    \"slug\",\n    \"meta_description\",\n    \"primary_keyword\",\n    \"secondary_keywords\",\n    \"search_intent\",\n    \"outline\",\n    \"faq\",\n    \"takeaways\"\n  ]\n}"
+      },
+      "id": "d6544f20-70fe-5059-9b20-fae2d2e4518d",
+      "name": "Brief Format",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1000,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write the article.\n\nTOPIC: {{ $('Get Ready Topics').item.json.Topic }}\nAUDIENCE: {{ $('Get Ready Topics').item.json.Audience || $('Config').first().json.default_audience }}\nEXTRA NOTES: {{ $('Get Ready Topics').item.json.Notes || 'none' }}\n\nSEO BRIEF (JSON):\n{{ JSON.stringify($json.output, null, 2) }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert writer for {{ $('Config').first().json.brand_name }}. You write in-depth, genuinely useful blog articles that rank on Google and read like they were written by a human expert.\n\nVOICE: {{ $('Config').first().json.brand_voice }}\nLANGUAGE: {{ $('Config').first().json.language }}\n\nOUTPUT FORMAT — VERY IMPORTANT\n- Return ONLY the article body as clean HTML. No markdown, no ``` code fences, no <html>, <head>, <body> or <h1> tags.\n- Allowed tags: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <a href=\"…\">, <blockquote>, <table>, <tr>, <th>, <td>.\n\nSTRUCTURE\n1. Intro (2–3 short paragraphs): hook with the reader's problem, promise what they will learn. Use the primary keyword in the first 100 words.\n2. \"Key takeaways\" box: an <h2> followed by a <ul> with the takeaways.\n3. The H2/H3 sections from the outline. Short paragraphs (max 3 sentences), concrete examples, step-by-step instructions where useful, at least one list and — when it helps — one comparison table.\n4. \"FAQ\" <h2> with each question as an <h3> and a concise answer.\n5. Conclusion <h2> with a clear call to action: {{ $('Config').first().json.cta }}\n\nRULES\n- Target length: about {{ $('Get Ready Topics').item.json['Word Count'] || $('Config').first().json.default_word_count }} words.\n- Use the primary keyword naturally 3–6 times and the secondary keywords where they fit. Never keyword-stuff.\n- Add 2–3 internal links from this list where relevant (anchor text | URL):\n{{ $('Config').first().json.internal_links }}\n- Do NOT invent statistics, studies, quotes or prices. If a number would help, describe it qualitatively instead.\n- Avoid filler and clichés (\"in today's digital age\", \"unlock\", \"delve\", \"game-changer\")."
+            }
+          ]
+        }
+      },
+      "id": "04092178-8ff9-507b-a51e-39850d202cb7",
+      "name": "AI: Write Article",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1340,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {
+          "temperature": 0.7,
+          "timeout": 300000
+        }
+      },
+      "id": "eee6448a-dbcc-59ef-81f1-115f73c4f9b7",
+      "name": "Writer Model (gpt-4.1)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1340,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6dcb4e0f-7da0-5385-9640-cfba73e13559",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "541c8d40-bcde-5a38-9089-92f4cf3798f3",
+      "name": "Brief OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3f116650-9db8-54b1-a1ba-23257a52b5c0",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "5381bd3e-2aa9-5940-83d1-d08a7ee51e14",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "f2b90ecc-1d60-5f70-a337-b09d86f73990",
+      "name": "Article OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1560,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Cleans the article HTML and packs it (with an SEO brief on top) into a\n// Google Drive upload that converts it into a nicely formatted Google Doc.\nconst cfg = $('Config').first().json;\nconst row = $('Get Ready Topics').item.json;\nconst brief = $('AI: SEO Brief').item.json.output || {};\nconst esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n\nlet article = String($json.text || '').trim();\narticle = article.replace(/^```(?:html)?\\s*/i, '').replace(/\\s*```$/i, '');\narticle = article.replace(/<!doctype[^>]*>/gi, '').replace(/<\\/?(html|head|body)[^>]*>/gi, '').replace(/<title>[\\s\\S]*?<\\/title>/gi, '');\narticle = article.replace(/<h1[^>]*>[\\s\\S]*?<\\/h1>/i, '').trim();\nconst words = article.replace(/<[^>]+>/g, ' ').split(/\\s+/).filter(Boolean).length;\n\nconst title = String(brief.title || row.Topic || 'Untitled article').trim();\nconst slug = String(brief.slug || title).toLowerCase().normalize('NFKD').replace(/[^\\w\\s-]/g, '').trim().replace(/[\\s_-]+/g, '-').slice(0, 80);\nconst keywords = Array.isArray(brief.secondary_keywords) ? brief.secondary_keywords.join(', ') : '';\n\nconst docHtml = `<html><head><meta charset=\"utf-8\"><title>${esc(title)}</title></head><body>\n<h1>${esc(title)}</h1>\n<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" style=\"border-collapse:collapse;font-size:10pt;background:#f6f5ff\">\n<tr><td><b>SEO title</b></td><td>${esc(title)}</td></tr>\n<tr><td><b>Meta description</b></td><td>${esc(brief.meta_description)}</td></tr>\n<tr><td><b>URL slug</b></td><td>/${esc(slug)}</td></tr>\n<tr><td><b>Primary keyword</b></td><td>${esc(brief.primary_keyword || row['Primary Keyword'])}</td></tr>\n<tr><td><b>Secondary keywords</b></td><td>${esc(keywords)}</td></tr>\n<tr><td><b>Search intent</b></td><td>${esc(brief.search_intent)}</td></tr>\n<tr><td><b>Words</b></td><td>${words}</td></tr>\n</table>\n<p><i>✂️ Delete the SEO brief above before publishing.</i></p>\n<hr>\n${article}\n</body></html>`;\n\n// Folder: accept a folder URL or a plain ID\nconst folderRaw = String(cfg.google_drive_folder_id || '').trim();\nconst folderId = (folderRaw.match(/folders\\/([A-Za-z0-9_-]+)/) || [])[1] || folderRaw;\nconst metadata = { name: title, mimeType: 'application/vnd.google-apps.document' };\nif (folderId) metadata.parents = [folderId];\n\nconst boundary = 'n8n-blog-' + Math.random().toString(36).slice(2);\nconst multipart = [\n  `--${boundary}`,\n  'Content-Type: application/json; charset=UTF-8',\n  '',\n  JSON.stringify(metadata),\n  `--${boundary}`,\n  'Content-Type: text/html; charset=UTF-8',\n  '',\n  docHtml,\n  `--${boundary}--`,\n  '',\n].join('\\r\\n');\n\nreturn {\n  json: {\n    row_number: row.row_number,\n    title,\n    slug,\n    meta_description: brief.meta_description || '',\n    words,\n    article_html: article,\n    boundary,\n    multipart,\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "c7368cd4-aa49-537b-a6e9-5602ee821fd6",
+      "name": "Build Google Doc",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true&fields=id,name,webViewLink",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "={{ 'multipart/related; boundary=' + $json.boundary }}",
+        "body": "={{ $json.multipart }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "88525e86-a93d-52b3-85fd-859d157ebdc3",
+      "name": "Create Google Doc",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        200
+      ],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c71c63dd-9eda-512f-a641-7a51c4fc4c2b",
+              "name": "row_number",
+              "value": "={{ $('Build Google Doc').item.json.row_number }}",
+              "type": "number"
+            },
+            {
+              "id": "4e38ee26-11ad-56ce-ab88-058b445d0c3b",
+              "name": "Status",
+              "value": "Done",
+              "type": "string"
+            },
+            {
+              "id": "9c116296-f6e6-5e1b-a6a6-d5f61ebfc0f1",
+              "name": "Title",
+              "value": "={{ $('Build Google Doc').item.json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "785f97b9-e127-51d6-b412-482f4f0ebd11",
+              "name": "Doc URL",
+              "value": "={{ $json.webViewLink || ('https://docs.google.com/document/d/' + $json.id + '/edit') }}",
+              "type": "string"
+            },
+            {
+              "id": "77f108ab-0cc7-587f-b455-92ef7944c7d6",
+              "name": "Meta Description",
+              "value": "={{ $('Build Google Doc').item.json.meta_description }}",
+              "type": "string"
+            },
+            {
+              "id": "72bea55e-230d-5a8e-8180-cffe39f722ea",
+              "name": "Slug",
+              "value": "={{ $('Build Google Doc').item.json.slug }}",
+              "type": "string"
+            },
+            {
+              "id": "a811481d-f2b5-5eaf-b18a-29e4946ebfba",
+              "name": "Words",
+              "value": "={{ $('Build Google Doc').item.json.words }}",
+              "type": "number"
+            },
+            {
+              "id": "40df2ba7-d37f-5531-9885-595390e37305",
+              "name": "Written On",
+              "value": "={{ $now.toFormat('yyyy-MM-dd HH:mm') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "112c6059-6c02-5c0f-8cdc-d40815a22a06",
+      "name": "Done Row",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2100,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.google_sheet_url }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.sheet_tab }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "a4397b82-0183-54c3-bc81-6373f0c5f08a",
+      "name": "Mark as Done",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2440,
+        200
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8773a17c-aaf0-5a69-b9f6-ac5daabcb844",
+              "name": "row_number",
+              "value": "={{ $('Get Ready Topics').item.json.row_number }}",
+              "type": "number"
+            },
+            {
+              "id": "e77ccfaf-28fd-5532-9059-72ed52424b2f",
+              "name": "Status",
+              "value": "=Error: {{ String($json.error?.message || $json.error || 'unknown error – see n8n executions').slice(0, 150) }}",
+              "type": "string"
+            },
+            {
+              "id": "40df2ba7-d37f-5531-9885-595390e37305",
+              "name": "Written On",
+              "value": "={{ $now.toFormat('yyyy-MM-dd HH:mm') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "77f79ac8-2506-54dd-915b-18b4e98b131d",
+      "name": "Error Row",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2000,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.google_sheet_url }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.sheet_tab }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "1bcb8679-760d-53f9-8926-bd93cb3a812f",
+      "name": "Mark as Error",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2220,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "title": "={{ $json.title }}",
+        "additionalFields": {
+          "content": "={{ $json.article_html }}",
+          "slug": "={{ $json.slug }}",
+          "status": "draft"
+        }
+      },
+      "id": "6052d7eb-08b6-52dd-a60d-bb494415e577",
+      "name": "WordPress Draft",
+      "type": "n8n-nodes-base.wordpress",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        400
+      ],
+      "disabled": true,
+      "notes": "Optional: also create a WordPress draft",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "Every Morning": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Get Ready Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Ready Topics": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "AI: SEO Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: SEO Brief": {
+      "main": [
+        [
+          {
+            "node": "Brief OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brief OK?": {
+      "main": [
+        [
+          {
+            "node": "AI: Write Article",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Write Article": {
+      "main": [
+        [
+          {
+            "node": "Article OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Article OK?": {
+      "main": [
+        [
+          {
+            "node": "Build Google Doc",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Google Doc": {
+      "main": [
+        [
+          {
+            "node": "Create Google Doc",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "WordPress Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Google Doc": {
+      "main": [
+        [
+          {
+            "node": "Done Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Done Row": {
+      "main": [
+        [
+          {
+            "node": "Mark as Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Row": {
+      "main": [
+        [
+          {
+            "node": "Mark as Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brief Model (gpt-4.1-mini)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: SEO Brief",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brief Format": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI: SEO Brief",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Writer Model (gpt-4.1)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: Write Article",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false
+}

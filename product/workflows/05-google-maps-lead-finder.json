@@ -1,0 +1,876 @@
+{
+  "name": "05 · Google Maps Lead Finder + AI Personalized Openers",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🎯 Google Maps Lead Finder + AI Openers\n**Type \"dentists in Austin\" → get up to 60 local businesses in your Google Sheet with phone, website, email, socials, a lead score and a personalised cold-email opener for each.** 🚀\n\n### ⚡ Setup (≈10 min)\n1. **Google Cloud** → enable *Places API (New)* → create an **API key** (PDF guide → *Google Maps API key*)\n2. **Search Google Maps** → credential *Header Auth*: Name `X-Goog-Api-Key`, Value = your key\n3. **OpenAI Chat Model** → your OpenAI API key\n4. Make a Google Sheet (or import `Leads.csv` from the pack) → paste its URL in **Config**\n5. **Save to Google Sheets** → connect Google\n6. **Activate / Publish** → open the form URL (Lead Search Form → *Production URL*) 🔎\n\n### 💡 Good to know\n- Re-running a search **updates** existing rows (matched by Place ID) — no duplicates.\n- Each lead gets **signals** (no online booking, outdated site, low rating…) → hyper-personal openers.\n- Google gives a monthly free allowance for Places API — see the PDF for current pricing.\n- AI cost ≈ $0.0005 per lead.\n- ⚖️ Follow anti-spam & privacy laws (CAN-SPAM, GDPR) when contacting leads.",
+        "height": 1000,
+        "width": 680,
+        "color": 1
+      },
+      "id": "4fb6278e-233b-518b-8a35-d309f5622abd",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1️⃣ Search Google Maps\nUp to 3 pages × 20 results, closed businesses skipped.",
+        "height": 400,
+        "width": 1140,
+        "color": 4
+      },
+      "id": "e119561e-f5f1-5844-b3d9-17c6a1c52ab9",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2️⃣ Visit each website\nEmails (also hidden ones), Instagram/Facebook/LinkedIn, contact page & sales signals.",
+        "height": 560,
+        "width": 1180,
+        "color": 6
+      },
+      "id": "11cd2a75-5058-594c-975e-6d78840754b3",
+      "name": "Sticky Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        -60
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 3️⃣ AI scores the lead & writes the opener → Google Sheet",
+        "height": 560,
+        "width": 900,
+        "color": 5
+      },
+      "id": "6f8707ef-8e65-5e42-ba5e-0ad6548126f4",
+      "name": "Sticky Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2360,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "formTitle": "🔎 Find local business leads",
+        "formDescription": "Type a business type and a location. We'll search Google Maps, visit every website and write a personalised opener for each lead. Results appear in your Google Sheet within 1–3 minutes.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Business type",
+              "placeholder": "e.g. dentists, roofers, yoga studios",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "City or area",
+              "placeholder": "e.g. Austin, TX",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "How many leads?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "20"
+                  },
+                  {
+                    "option": "40"
+                  },
+                  {
+                    "option": "60"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Your offer (optional)",
+              "fieldType": "textarea",
+              "placeholder": "What do you sell? Leave empty to use the default from the Config node."
+            }
+          ]
+        },
+        "responseMode": "onReceived",
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "Find leads 🚀",
+          "path": "find-leads",
+          "respondWithOptions": {
+            "values": {
+              "respondWith": "text",
+              "formSubmittedText": "✅ Searching Google Maps now… Your leads (with AI-written openers) will appear in your Google Sheet in 1–3 minutes."
+            }
+          }
+        }
+      },
+      "id": "188c8191-9ceb-51a4-9923-1e882c21557b",
+      "name": "Lead Search Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "1ad65d18-d543-5d68-9135-f0c2228ff6b3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f5030ff7-1943-543f-ac5c-a7d83be931da",
+              "name": "google_sheet_url",
+              "value": "https://docs.google.com/spreadsheets/d/PASTE-YOUR-SHEET-ID/edit",
+              "type": "string"
+            },
+            {
+              "id": "57864074-5779-5d92-b531-871197d54ba9",
+              "name": "sheet_tab",
+              "value": "Leads",
+              "type": "string"
+            },
+            {
+              "id": "9e0661d6-ba02-585c-8bb1-588ecb6967bb",
+              "name": "your_offer",
+              "value": "We build AI chatbots and online booking systems that turn website visitors into booked appointments — set up in 7 days.",
+              "type": "string"
+            },
+            {
+              "id": "d7a1afd0-50d4-567f-ab93-e6f8b9ff143e",
+              "name": "your_name",
+              "value": "Alex",
+              "type": "string"
+            },
+            {
+              "id": "af534b1f-129d-5b52-a69a-9e45ea0d1dc1",
+              "name": "your_company",
+              "value": "Morgan Digital",
+              "type": "string"
+            },
+            {
+              "id": "be416d8a-15c0-5d86-b229-1ac6fc74e2c8",
+              "name": "opener_style",
+              "value": "Casual, specific and helpful. Sounds like a real person, not a template. No hype.",
+              "type": "string"
+            },
+            {
+              "id": "658bc2d3-668d-5c9a-bb17-12e1bfd89c0d",
+              "name": "language",
+              "value": "English",
+              "type": "string"
+            },
+            {
+              "id": "0120063b-1c4d-5695-bac8-6b78b48f974e",
+              "name": "language_code",
+              "value": "en",
+              "type": "string"
+            },
+            {
+              "id": "1df90ab6-14eb-5325-a92e-8c3eb792aa9b",
+              "name": "min_rating",
+              "value": 0,
+              "type": "number"
+            },
+            {
+              "id": "d73d345e-af78-5b87-b872-0b5247c67f66",
+              "name": "only_with_website",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "072d38b1-d268-59f3-8d7a-2f8ffddb944f",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ],
+      "notes": "✏️ Sheet URL + what you sell",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://places.googleapis.com/v1/places:searchText",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Goog-FieldMask",
+              "value": "places.id,places.displayName,places.formattedAddress,places.nationalPhoneNumber,places.internationalPhoneNumber,places.websiteUri,places.rating,places.userRatingCount,places.googleMapsUri,places.primaryTypeDisplayName,places.businessStatus,nextPageToken"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { textQuery: $('Lead Search Form').first().json['Business type'] + ' in ' + $('Lead Search Form').first().json['City or area'], pageSize: 20, languageCode: $('Config').first().json.language_code || 'en' } }}",
+        "options": {
+          "pagination": {
+            "pagination": {
+              "paginationMode": "updateAParameterInEachRequest",
+              "parameters": {
+                "parameters": [
+                  {
+                    "type": "body",
+                    "name": "pageToken",
+                    "value": "={{ $response.body.nextPageToken }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ !$response.body.nextPageToken }}",
+              "limitPagesFetched": true,
+              "maxRequests": "={{ Math.max(1, Math.ceil(Number($('Lead Search Form').first().json['How many leads?'] || 20) / 20)) }}",
+              "requestInterval": 1500
+            }
+          }
+        }
+      },
+      "id": "0f20c0ff-7467-57cf-b0e4-20ba624faf0a",
+      "name": "Search Google Maps",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "// One item per business. Skips closed businesses, duplicates and (optionally)\n// low ratings or businesses without a website, then caps the list.\nconst form = $('Lead Search Form').first().json;\nconst cfg = $('Config').first().json;\nconst max = Number(String(form['How many leads?'] || '20').replace(/\\D/g, '')) || 20;\nconst minRating = Number(cfg.min_rating) || 0;\nconst onlyWithWebsite = cfg.only_with_website === true || cfg.only_with_website === 'true';\n\nconst seen = new Set();\nconst out = [];\nfor (const item of $input.all()) {\n  for (const place of item.json.places || []) {\n    if (!place.id || seen.has(place.id)) continue;\n    seen.add(place.id);\n    if (place.businessStatus && place.businessStatus !== 'OPERATIONAL') continue;\n    if (minRating && (Number(place.rating) || 0) < minRating) continue;\n    if (onlyWithWebsite && !place.websiteUri) continue;\n    out.push({ json: place });\n  }\n}\nreturn out.slice(0, max);\n"
+      },
+      "id": "474b7cbf-33c0-5751-82a5-ff487a901533",
+      "name": "Split Places",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Flattens one Google Maps result into a clean lead record.\n// Empty contact fields are filled later from the business website.\nconst place = $json;\nconst form = $('Lead Search Form').first().json;\nconst text = (v) => (v && typeof v === 'object' ? v.text : v) || '';\n\nreturn {\n  json: {\n    place_id: place.id || '',\n    name: text(place.displayName),\n    category: text(place.primaryTypeDisplayName),\n    address: place.formattedAddress || '',\n    phone: place.internationalPhoneNumber || place.nationalPhoneNumber || '',\n    website: place.websiteUri || '',\n    rating: place.rating ?? '',\n    reviews: place.userRatingCount ?? 0,\n    maps_url: place.googleMapsUri || '',\n    search: `${form['Business type']} in ${form['City or area']}`,\n    email: '',\n    other_emails: '',\n    instagram: '',\n    facebook: '',\n    linkedin: '',\n    website_title: '',\n    website_summary: '',\n    website_signals: place.websiteUri ? '' : 'No website listed on Google Maps',\n    contact_url: '',\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "598813ce-b053-554f-b9ab-4c8ea4bb493e",
+      "name": "Prepare Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "02497a66-50cd-5d33-829d-6639d161ed2d",
+              "leftValue": "={{ $json.website }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "a46803ba-ae7c-5aaf-908b-32b8fd3a7bab",
+      "name": "Has Website?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.website }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml"
+            }
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 10,
+              "batchInterval": 500
+            }
+          },
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 12000
+        }
+      },
+      "id": "39ad411c-4bfd-50a0-befc-0115788a717c",
+      "name": "Visit Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1320,
+        160
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reads the business homepage: emails (incl. Cloudflare-protected ones), social\n// profiles, the contact page link and \"signals\" the AI can use to personalise\n// the opener (no online booking, outdated site, no analytics…).\n// --- Tiny URL helper (n8n's Code node sandbox has no URL class) -------------\nfunction resolveUrl(href, base) {\n  href = String(href || '').trim().replace(/&amp;/g, '&');\n  if (!href || /^(mailto:|tel:|javascript:|data:|sms:|whatsapp:|#)/i.test(href)) return null;\n  const b = String(base || '').match(/^(https?:)\\/\\/([^\\/?#]+)([^?#]*)/i);\n  let proto, host, path, query = '';\n  let m;\n  if ((m = href.match(/^(https?:)\\/\\/([^\\/?#]+)([^?#]*)(\\?[^#]*)?/i))) {\n    [, proto, host, path, query = ''] = m;\n  } else if (href.startsWith('//') && b) {\n    m = href.match(/^\\/\\/([^\\/?#]+)([^?#]*)(\\?[^#]*)?/);\n    if (!m) return null;\n    proto = b[1];\n    [, host, path, query = ''] = m;\n  } else if (/^[a-z][a-z0-9+.-]*:/i.test(href) || !b) {\n    return null;\n  } else {\n    proto = b[1];\n    host = b[2];\n    const rel = href.match(/^([^?#]*)(\\?[^#]*)?/);\n    query = rel[2] || '';\n    if (rel[1].startsWith('/')) path = rel[1];\n    else if (rel[1] === '') path = b[3] || '/';\n    else path = (b[3] || '/').replace(/[^\\/]*$/, '') + rel[1];\n  }\n  const segments = [];\n  for (const s of (path || '/').split('/')) {\n    if (s === '..') segments.pop();\n    else if (s !== '.') segments.push(s);\n  }\n  path = segments.join('/');\n  if (!path.startsWith('/')) path = '/' + path;\n  proto = proto.toLowerCase();\n  host = host.toLowerCase();\n  return {\n    protocol: proto,\n    host,\n    hostname: host.replace(/:\\d+$/, ''),\n    domain: host.replace(/:\\d+$/, '').replace(/^www\\./, ''),\n    pathname: path,\n    search: query,\n    origin: `${proto}//${host}`,\n    href: `${proto}//${host}${path}${query}`,\n  };\n}\n// ---------------------------------------------------------------------------\n\nconst lead = $('Prepare Lead').item.json;\nconst html = typeof $json.data === 'string' ? $json.data.slice(0, 1500000) : '';\nconst site = resolveUrl(lead.website);\nconst siteDomain = site ? site.domain : '';\n\n// ---------- emails\nconst JUNK_EMAIL = /(example\\.|domain\\.(com|tld)|yourdomain|yoursite|email\\.com$|sentry|wixpress|godaddy|squarespace|@sentry|\\.(png|jpe?g|gif|svg|webp|css|js)$|@\\dx\\.|^(no-?reply|do-?not-?reply)@|u00[0-9a-f]{2})/i;\nfunction findEmails(source) {\n  const found = new Set();\n  for (const m of source.matchAll(/data-cfemail=\"([0-9a-f]+)\"/gi)) {\n    const hex = m[1];\n    const key = parseInt(hex.slice(0, 2), 16);\n    let email = '';\n    for (let i = 2; i < hex.length; i += 2) email += String.fromCharCode(parseInt(hex.slice(i, i + 2), 16) ^ key);\n    found.add(email);\n  }\n  const decoded = source.replace(/&#0*64;|&#x0*40;/gi, '@').replace(/&#0*46;|&#x0*2e;/gi, '.');\n  for (const m of decoded.matchAll(/mailto:([^\"'?>\\s]+)/gi)) {\n    try { found.add(decodeURIComponent(m[1])); } catch (e) { found.add(m[1]); }\n  }\n  for (const m of decoded.matchAll(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,24}/gi)) found.add(m[0]);\n  return [...found]\n    .map((e) => e.toLowerCase().trim().replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, ''))\n    .filter((e) => /^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,24}$/.test(e) && !JUNK_EMAIL.test(e));\n}\n\n// ---------- social profiles\nconst SOCIAL = {\n  instagram: /https?:\\/\\/(?:www\\.)?instagram\\.com\\/(?!p\\/|reel\\/|explore|accounts|share)[A-Za-z0-9_.]{2,}\\/?/i,\n  facebook: /https?:\\/\\/(?:www\\.|m\\.|web\\.)?facebook\\.com\\/(?!sharer|share|dialog|plugins|tr[?/]|groups\\/?$)[A-Za-z0-9_.\\-]{2,}(?:\\/[A-Za-z0-9_.\\-]+)?\\/?/i,\n  linkedin: /https?:\\/\\/(?:[a-z]{2,3}\\.)?linkedin\\.com\\/(?:company|in)\\/[A-Za-z0-9_\\-%]+\\/?/i,\n};\nconst socials = {};\nfor (const [key, re] of Object.entries(SOCIAL)) {\n  const m = html.match(re);\n  socials[key] = m ? m[0].replace(/[\"'<>].*$/, '') : '';\n}\n\n// ---------- contact page\nlet contactUrl = '';\nfor (const m of html.matchAll(/<a\\s[^>]*?href\\s*=\\s*[\"']([^\"'#]+)[\"'][^>]*>([\\s\\S]{0,200}?)<\\/a>/gi)) {\n  const href = m[1];\n  const label = m[2].replace(/<[^>]+>/g, ' ');\n  if (/contact|kontakt|contacto|contato|get-in-touch|reach-us/i.test(href + ' ' + label)) {\n    const url = resolveUrl(href, lead.website);\n    if (url && url.domain === siteDomain) { contactUrl = url.href; break; }\n  }\n}\nif (!contactUrl && site) contactUrl = site.origin + '/contact';\n\n// ---------- text + signals for personalisation\nconst title = ((html.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i) || [])[1] || '').replace(/\\s+/g, ' ').trim();\nconst description = ((html.match(/<meta[^>]+name=[\"']description[\"'][^>]*content=[\"']([^\"']*)[\"']/i) || [])[1] || '').trim();\nconst visible = html\n  .replace(/<head[\\s\\S]*?<\\/head>/i, ' ')\n  .replace(/<(script|style|noscript|svg|nav|footer)[\\s\\S]*?<\\/\\1>/gi, ' ')\n  .replace(/<[^>]+>/g, ' ')\n  .replace(/&nbsp;|&#160;/g, ' ')\n  .replace(/&amp;/g, '&')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nconst signals = [];\nconst year = new Date().getFullYear();\nif (!html) signals.push('Website could not be loaded (down, slow or blocking bots)');\nelse {\n  if (!/name=[\"']viewport[\"']/i.test(html)) signals.push('No mobile viewport tag – site may not be mobile-friendly');\n  const copyright = html.match(/(?:©|&copy;|copyright)\\s*(?:\\d{4}\\s*[-–]\\s*)?(\\d{4})/i);\n  if (copyright && Number(copyright[1]) < year - 2) signals.push(`Copyright year ${copyright[1]} – website looks outdated`);\n  if (!/calendly|acuityscheduling|booksy|fresha|setmore|simplybook|vagaro|zocdoc|opentable|resy|squareup\\.com\\/appointments|book now|book online|schedule (an )?appointment/i.test(html)) signals.push('No online booking found');\n  if (!/intercom|tawk\\.to|drift\\.com|crisp\\.chat|livechatinc|tidio|zendesk|hubspot.*chat|wa\\.me\\/|api\\.whatsapp\\.com/i.test(html)) signals.push('No live chat / WhatsApp button');\n  if (!/gtag\\(|googletagmanager|google-analytics|plausible|matomo/i.test(html)) signals.push('No website analytics detected');\n  if (!/fbq\\(|connect\\.facebook\\.net/i.test(html)) signals.push('No Meta (Facebook) pixel – probably not running retargeting ads');\n  if (/wp-content/i.test(html)) signals.push('Built with WordPress');\n  if (/cdn\\.shopify\\.com/i.test(html)) signals.push('Built with Shopify');\n  if (/wixstatic|wix\\.com/i.test(html)) signals.push('Built with Wix');\n}\nif (!lead.rating) signals.push('No Google rating yet');\nelse if (Number(lead.rating) < 4) signals.push(`Google rating only ${lead.rating}★ – reputation could be improved`);\nif (Number(lead.reviews) < 20) signals.push(`Only ${lead.reviews || 0} Google reviews`);\n\nconst emails = findEmails(html);\nemails.sort((a, b) => Number(b.endsWith('@' + siteDomain)) - Number(a.endsWith('@' + siteDomain)));\n\nreturn {\n  json: {\n    ...lead,\n    email: emails[0] || '',\n    other_emails: emails.slice(1, 4).join(', '),\n    instagram: socials.instagram,\n    facebook: socials.facebook,\n    linkedin: socials.linkedin,\n    website_title: title,\n    website_summary: [description, visible.slice(0, 1500)].filter(Boolean).join(' | '),\n    website_signals: signals.join('; '),\n    contact_url: contactUrl,\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "19e5f221-71bb-598a-95cb-61c345416554",
+      "name": "Read Website",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.contact_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+            }
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 10,
+              "batchInterval": 500
+            }
+          },
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 12000
+        }
+      },
+      "id": "a8ad758b-140c-5ffa-8ecb-76b2edbcc4e1",
+      "name": "Visit Contact Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        160
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Adds emails found on the contact page to what we found on the homepage.\nconst lead = $('Read Website').item.json;\nconst html = typeof $json.data === 'string' ? $json.data.slice(0, 1000000) : '';\nconst domain = String(lead.website || '').replace(/^https?:\\/\\/(www\\.)?/i, '').split(/[\\/?#:]/)[0].toLowerCase();\n\nconst JUNK_EMAIL = /(example\\.|domain\\.(com|tld)|yourdomain|yoursite|email\\.com$|sentry|wixpress|godaddy|squarespace|\\.(png|jpe?g|gif|svg|webp|css|js)$|@\\dx\\.|^(no-?reply|do-?not-?reply)@|u00[0-9a-f]{2})/i;\nconst found = new Set([lead.email, ...String(lead.other_emails || '').split(/,\\s*/)].filter(Boolean));\nfor (const m of html.matchAll(/data-cfemail=\"([0-9a-f]+)\"/gi)) {\n  const key = parseInt(m[1].slice(0, 2), 16);\n  let email = '';\n  for (let i = 2; i < m[1].length; i += 2) email += String.fromCharCode(parseInt(m[1].slice(i, i + 2), 16) ^ key);\n  found.add(email);\n}\nconst decoded = html.replace(/&#0*64;|&#x0*40;/gi, '@');\nfor (const m of decoded.matchAll(/mailto:([^\"'?>\\s]+)/gi)) found.add(m[1]);\nfor (const m of decoded.matchAll(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,24}/gi)) found.add(m[0]);\n\nconst emails = [...found]\n  .map((e) => String(e).toLowerCase().trim().replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, ''))\n  .filter((e) => /^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,24}$/.test(e) && !JUNK_EMAIL.test(e));\nconst unique = [...new Set(emails)].sort((a, b) => Number(b.endsWith('@' + domain)) - Number(a.endsWith('@' + domain)));\n\nreturn {\n  json: {\n    ...lead,\n    email: unique[0] || '',\n    other_emails: unique.slice(1, 4).join(', '),\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "a3a48b39-2ce4-578e-8832-fe62f0a754ca",
+      "name": "Combine Contacts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        160
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "1512eefb-aaa3-5307-8f92-d4743b6e92ba",
+      "name": "Lead Data",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=BUSINESS: {{ $json.name }}\nCATEGORY: {{ $json.category || 'unknown' }}\nADDRESS: {{ $json.address }}\nGOOGLE RATING: {{ $json.rating || 'no rating' }} ({{ $json.reviews || 0 }} reviews)\nWEBSITE: {{ $json.website || 'none' }}\nWEBSITE TITLE: {{ $json.website_title || '-' }}\nWEBSITE TEXT (excerpt): {{ String($json.website_summary || '-').slice(0, 1200) }}\nSIGNALS: {{ $json.website_signals || '-' }}\nAVAILABLE CONTACTS: email={{ $json.email ? 'yes' : 'no' }}, phone={{ $json.phone ? 'yes' : 'no' }}, instagram={{ $json.instagram ? 'yes' : 'no' }}, facebook={{ $json.facebook ? 'yes' : 'no' }}, linkedin={{ $json.linkedin ? 'yes' : 'no' }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert sales development rep and copywriter. You research local businesses and write short, genuinely personalised cold-email openers that get replies.\n\nWHAT WE SELL: {{ $('Lead Search Form').first().json['Your offer (optional)'] || $('Config').first().json.your_offer }}\nSENDER: {{ $('Config').first().json.your_name }} from {{ $('Config').first().json.your_company }}\nTONE: {{ $('Config').first().json.opener_style }}\nLANGUAGE: write everything in {{ $('Config').first().json.language }}.\n\nFor the business below return:\n1. lead_score (1–10): how likely they need AND can afford our offer. Weigh: fit of their category with our offer, rating & number of reviews (busy business = budget), website quality and the SIGNALS (missing online booking/chat/analytics, not mobile-friendly, outdated), and whether we can contact them.\n2. score_reason: one short sentence.\n3. personalization_hook: ONE specific, true observation about THIS business taken from the data (a service they offer, their rating, something on their website, a missing feature). Never invent facts.\n4. email_subject: max 6 words, curiosity without clickbait, no emojis, no ALL CAPS.\n5. opener: 2–3 sentences, max 60 words. Start with the hook, connect it to one concrete benefit of our offer, end with a low-pressure question. No \"I hope this email finds you well\", no generic flattery, no exclamation marks, no placeholders like [Name].\n6. best_channel: the best way to reach them given the available contacts."
+            }
+          ]
+        },
+        "hasOutputParser": true
+      },
+      "id": "62a39b5c-b612-5472-8dc6-ec995427ad8b",
+      "name": "AI: Score & Write Opener",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2440,
+        300
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.7,
+          "responseFormat": "json_object"
+        }
+      },
+      "id": "395d1fe1-7c5b-586b-a11c-ad87074eef04",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2400,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"lead_score\": {\n      \"type\": \"integer\",\n      \"minimum\": 1,\n      \"maximum\": 10\n    },\n    \"score_reason\": {\n      \"type\": \"string\"\n    },\n    \"personalization_hook\": {\n      \"type\": \"string\"\n    },\n    \"email_subject\": {\n      \"type\": \"string\"\n    },\n    \"opener\": {\n      \"type\": \"string\"\n    },\n    \"best_channel\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"email\",\n        \"phone\",\n        \"instagram\",\n        \"facebook\",\n        \"linkedin\",\n        \"contact form\"\n      ]\n    }\n  },\n  \"required\": [\n    \"lead_score\",\n    \"score_reason\",\n    \"personalization_hook\",\n    \"email_subject\",\n    \"opener\",\n    \"best_channel\"\n  ],\n  \"additionalProperties\": false\n}"
+      },
+      "id": "4be0854c-24fa-5e45-8746-faafa2cb5a48",
+      "name": "Lead Format",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2560,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b0280359-225f-5979-86fc-ca0a8fdc7d7d",
+              "name": "Place ID",
+              "value": "={{ $('Lead Data').item.json.place_id }}",
+              "type": "string"
+            },
+            {
+              "id": "9d85f772-4375-5b6e-ab70-f0834f1c04af",
+              "name": "Business Name",
+              "value": "={{ $('Lead Data').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "ac04c265-12db-534d-b0a8-dbe8009be453",
+              "name": "Category",
+              "value": "={{ $('Lead Data').item.json.category }}",
+              "type": "string"
+            },
+            {
+              "id": "39ec2deb-a38e-56df-aa87-e55fe69d3eba",
+              "name": "Rating",
+              "value": "={{ $('Lead Data').item.json.rating }}",
+              "type": "string"
+            },
+            {
+              "id": "282b40d0-9878-58b6-841d-a80fa28b7b5b",
+              "name": "Reviews",
+              "value": "={{ $('Lead Data').item.json.reviews }}",
+              "type": "string"
+            },
+            {
+              "id": "18969579-c7ed-5d04-93fd-ce3160b76607",
+              "name": "Phone",
+              "value": "={{ $('Lead Data').item.json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "c52be50e-7465-59bb-b003-54e23fbe1c11",
+              "name": "Email",
+              "value": "={{ $('Lead Data').item.json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "432e728d-7fb5-5465-9090-29d09524731a",
+              "name": "Other Emails",
+              "value": "={{ $('Lead Data').item.json.other_emails }}",
+              "type": "string"
+            },
+            {
+              "id": "783555ee-c122-5c90-be05-0b7e045e4e64",
+              "name": "Website",
+              "value": "={{ $('Lead Data').item.json.website }}",
+              "type": "string"
+            },
+            {
+              "id": "627b45b9-83e6-5642-81c2-e4b6833fab39",
+              "name": "Address",
+              "value": "={{ $('Lead Data').item.json.address }}",
+              "type": "string"
+            },
+            {
+              "id": "507e0497-9bda-5b83-97b8-39286ddb1ad9",
+              "name": "Google Maps",
+              "value": "={{ $('Lead Data').item.json.maps_url }}",
+              "type": "string"
+            },
+            {
+              "id": "ab4c851a-5cbc-54c2-8506-3b189e67e4cd",
+              "name": "Instagram",
+              "value": "={{ $('Lead Data').item.json.instagram }}",
+              "type": "string"
+            },
+            {
+              "id": "f4ba6fa2-677f-5270-9cae-a72e1f916cf1",
+              "name": "Facebook",
+              "value": "={{ $('Lead Data').item.json.facebook }}",
+              "type": "string"
+            },
+            {
+              "id": "55bb36ab-c8a0-5194-9035-85c4a8fd9795",
+              "name": "LinkedIn",
+              "value": "={{ $('Lead Data').item.json.linkedin }}",
+              "type": "string"
+            },
+            {
+              "id": "0e13683b-6c19-5b9a-81af-36bbe0c1d8b9",
+              "name": "Lead Score",
+              "value": "={{ $json.output?.lead_score ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "c9e6b919-7bbb-5e78-b7c5-2ff9b1eeb612",
+              "name": "Why this score",
+              "value": "={{ $json.output?.score_reason ?? 'AI step failed for this lead – run the search again to retry' }}",
+              "type": "string"
+            },
+            {
+              "id": "c3d0804e-a024-565f-a7f3-f2d9c82c77c7",
+              "name": "Signals",
+              "value": "={{ $('Lead Data').item.json.website_signals }}",
+              "type": "string"
+            },
+            {
+              "id": "5f82fc47-3617-5f40-a96d-f6b88fce274d",
+              "name": "Personalization hook",
+              "value": "={{ $json.output?.personalization_hook ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "642171f6-b669-5c82-b1be-0bf134c4eb9a",
+              "name": "Email subject",
+              "value": "={{ $json.output?.email_subject ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "5ffe2c88-8a61-52d5-84f8-98614eed4732",
+              "name": "AI Opener",
+              "value": "={{ $json.output?.opener ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "99f856d2-6d2f-5ae5-8900-831704096eee",
+              "name": "Best channel",
+              "value": "={{ $json.output?.best_channel ?? '' }}",
+              "type": "string"
+            },
+            {
+              "id": "dbdefd8b-ac5a-5b9b-b573-37af631269fc",
+              "name": "Search",
+              "value": "={{ $('Lead Data').item.json.search }}",
+              "type": "string"
+            },
+            {
+              "id": "b5a23eab-92c0-560a-8734-7244e59d8bd6",
+              "name": "Found on",
+              "value": "={{ $now.toFormat('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "074bd395-278f-50a4-928c-03b5be3e17b5",
+      "name": "Format Row",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.google_sheet_url }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.sheet_tab }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "Place ID"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "ec6c847a-1f31-5c2b-9a66-e904322af65f",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2980,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Lead Search Form": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Search Google Maps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Google Maps": {
+      "main": [
+        [
+          {
+            "node": "Split Places",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Places": {
+      "main": [
+        [
+          {
+            "node": "Prepare Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Lead": {
+      "main": [
+        [
+          {
+            "node": "Has Website?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Website?": {
+      "main": [
+        [
+          {
+            "node": "Visit Website",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Visit Website": {
+      "main": [
+        [
+          {
+            "node": "Read Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Website": {
+      "main": [
+        [
+          {
+            "node": "Visit Contact Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Visit Contact Page": {
+      "main": [
+        [
+          {
+            "node": "Combine Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Contacts": {
+      "main": [
+        [
+          {
+            "node": "Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Data": {
+      "main": [
+        [
+          {
+            "node": "AI: Score & Write Opener",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Score & Write Opener": {
+      "main": [
+        [
+          {
+            "node": "Format Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Row": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: Score & Write Opener",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Format": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI: Score & Write Opener",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false
+}

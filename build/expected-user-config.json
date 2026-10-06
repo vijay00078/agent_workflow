@@ -1,0 +1,4 @@
+{
+  "_comment": "Parameters that the BUYER must fill in themselves (e.g. pick their own Drive folder). The validator reports them as INFO instead of failing.",
+  "09-invoice-receipt-extractor-gst.json": ["New File in Drive Folder: Parameter \"Folder\" is required."]
+}

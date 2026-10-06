@@ -1,0 +1,8 @@
+# test artifacts
+tests/mock-openai/requests.jsonl
+tests/mock-openai/overrides.json
+tests/mock-openai/last-doc.html
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store

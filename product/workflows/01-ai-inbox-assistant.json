@@ -1,0 +1,651 @@
+{
+  "name": "01 · AI Inbox Assistant — Email Triage & Draft Replies",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 📬 AI Inbox Assistant\n**Every new email is read by AI, labeled in Gmail, summarized — and when someone is waiting for an answer, a reply in YOUR voice is saved as a draft in the same thread.**\n\nYou open Gmail → the draft is already there → tweak & send. ✉️\n\n### ⚡ Setup (≈5 min)\n1. **New Email** trigger → connect your **Gmail** account\n2. **OpenAI Chat Model** → add your **OpenAI API key**\n3. **Config** → your name, signature & writing style\n4. Open **Get Gmail Labels**, **Create Label**, **Add Label** and **Create Draft Reply** → select the same Gmail account\n5. Click **Execute workflow** (tests on your latest email) → check Gmail → **Activate / Publish** ✅\n\n### 🏷️ Labels it creates (automatically)\nAI/Urgent · AI/Client · AI/Lead · AI/Finance · AI/Meeting · AI/Personal · AI/Newsletter · AI/Notification · AI/Spam · AI/Other\n\n### 💡 Good to know\n- Drafts are **never sent automatically** — you stay in control.\n- Promotions & Social tabs are skipped to save AI costs (edit the trigger's *Search* filter to change this).\n- Cost: ≈ $0.001 per email with gpt-4.1-mini.\n- 📱 Want phone alerts for urgent emails? Enable the **Urgent Alert (Telegram)** node.",
+        "height": 900,
+        "width": 560,
+        "color": 1
+      },
+      "id": "c72089ee-742f-56ac-8010-5725ad02f8b8",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -620,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1️⃣ New email arrives\nChecks Gmail every minute, then strips quoted history & signatures so the AI reads only the new message.",
+        "height": 380,
+        "width": 700,
+        "color": 4
+      },
+      "id": "15af84a6-ae7a-5094-821f-bf5d3f09f6f2",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2️⃣ AI triage + reply draft\nCategory, priority, 1-line summary and — if needed — a reply written in your style.",
+        "height": 560,
+        "width": 300,
+        "color": 5
+      },
+      "id": "2b52fd64-7cbd-5d52-a9b8-44929cc08866",
+      "name": "Sticky Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        680,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 3️⃣ Label it in Gmail\nUses `AI/<Category>` labels. Missing labels are created on the fly.",
+        "height": 360,
+        "width": 1180,
+        "color": 6
+      },
+      "id": "e79a9318-a4cb-5d6f-a3a3-af7c4e2f4d4e",
+      "name": "Sticky Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 4️⃣ Save a draft reply\nOnly when a real person is waiting for an answer. Drafts land in the same thread.",
+        "height": 260,
+        "width": 560,
+        "color": 2
+      },
+      "id": "ed140d7d-7368-5b76-9892-d80e83dbd749",
+      "name": "Sticky Note 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 5️⃣ Optional: urgent alerts 📱\nSelect the Telegram node → press **D** to enable → add your bot + `telegram_chat_id` in Config.",
+        "height": 280,
+        "width": 560,
+        "color": 7
+      },
+      "id": "c2a1c1f8-456f-59e5-bc77-69e1dc2475fa",
+      "name": "Sticky Note 6",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "INBOX"
+          ],
+          "readStatus": "both",
+          "q": "-category:promotions -category:social"
+        },
+        "options": {}
+      },
+      "id": "31df4683-d5c9-5d0d-aa12-2f38487cb088",
+      "name": "New Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "03001186-0aaa-5801-90c5-342528c3b324",
+              "name": "your_name",
+              "value": "Alex Morgan",
+              "type": "string"
+            },
+            {
+              "id": "6c12f1d3-7e09-599a-9f25-931f527adc04",
+              "name": "about_you",
+              "value": "Founder of Morgan Digital, a small agency that runs paid ads and email marketing for e-commerce brands.",
+              "type": "string"
+            },
+            {
+              "id": "d8f33105-f32c-5701-8c37-896044401e63",
+              "name": "writing_style",
+              "value": "Friendly, concise and professional. Short paragraphs. No fluff, no corporate jargon.",
+              "type": "string"
+            },
+            {
+              "id": "a2fc54a5-63c5-5b69-b468-27b6a5c79c7b",
+              "name": "signature",
+              "value": "Best regards,\nAlex",
+              "type": "string"
+            },
+            {
+              "id": "70d8db5a-f7b3-54fc-bc7e-4acb17a7b0cd",
+              "name": "reply_language",
+              "value": "Reply in the same language the sender used.",
+              "type": "string"
+            },
+            {
+              "id": "ce6ecd39-3f2f-5507-9808-96e110624de3",
+              "name": "create_draft_replies",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "df8c9b00-c23e-5435-af82-86e70dfeea37",
+              "name": "label_prefix",
+              "value": "AI",
+              "type": "string"
+            },
+            {
+              "id": "64c22b3e-831a-566f-913b-4f34b5f0c661",
+              "name": "telegram_chat_id",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "67ca7c69-d6ce-57d3-8f42-447523c1bf84",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        200
+      ],
+      "notes": "✏️ Edit these settings — everything else works out of the box.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepares each email for the AI: who sent it, what they actually wrote\n// (quoted history removed) and signals that it was sent by a machine.\nconst email = $json;\nconst sender = (email.from && email.from.value && email.from.value[0]) || {};\nconst headers = email.headers || {};\nconst header = (name) => String(headers[name] || '').replace(/^[^:]+:\\s*/, '').trim();\n\nfunction htmlToText(html) {\n  return String(html || '')\n    .replace(/<(script|style|head)[\\s\\S]*?<\\/\\1>/gi, ' ')\n    .replace(/<(br|\\/p|\\/div|\\/li|\\/tr|\\/h[1-6])[^>]*>/gi, '\\n')\n    .replace(/<[^>]+>/g, ' ')\n    .replace(/&nbsp;/gi, ' ')\n    .replace(/&amp;/gi, '&')\n    .replace(/&lt;/gi, '<')\n    .replace(/&gt;/gi, '>')\n    .replace(/&quot;/gi, '\"')\n    .replace(/&#39;/gi, \"'\");\n}\n\nlet body = String(email.text || '').trim() || htmlToText(email.html || email.textAsHtml);\nbody = body.replace(/\\r/g, '');\n\n// Cut off quoted replies / forwarded history so the AI only reads the new message\nconst historyMarkers = [\n  /\\nOn [^\\n]{3,250}wrote:\\s*\\n/i,\n  /\\n-{2,}\\s*Original Message\\s*-{2,}/i,\n  /\\nFrom:\\s[^\\n]+\\n(?:Sent|Date):\\s/i,\n  /\\n_{10,}\\s*\\n/,\n  /\\nLe [^\\n]{3,250}a écrit\\s?:/i,\n  /\\nAm [^\\n]{3,250}schrieb[^\\n]*:/i,\n  /\\nEl [^\\n]{3,250}escribió:/i,\n];\nfor (const marker of historyMarkers) {\n  const at = body.search(marker);\n  if (at > 40) body = body.slice(0, at);\n}\nbody = body\n  .split('\\n')\n  .filter((line) => !/^\\s*>/.test(line))\n  .join('\\n')\n  .replace(/[ \\t]+\\n/g, '\\n')\n  .replace(/\\n{3,}/g, '\\n\\n')\n  .trim();\nif (body.length > 6000) body = body.slice(0, 6000) + '\\n[...email truncated]';\n\nconst fromEmail = String(sender.address || '').toLowerCase();\nconst autoSubmitted = header('auto-submitted');\nconst automated = Boolean(\n  header('list-unsubscribe') ||\n    /^(bulk|list|junk)$/i.test(header('precedence')) ||\n    (autoSubmitted && !/^no$/i.test(autoSubmitted)) ||\n    /(^|[._-])(no-?reply|do-?not-?reply|notifications?|mailer-daemon|bounces?|alerts?)@/i.test(fromEmail)\n);\n\nreturn {\n  json: {\n    messageId: email.id,\n    threadId: email.threadId,\n    fromName: sender.name || fromEmail.split('@')[0] || 'there',\n    fromEmail,\n    subject: String(email.subject || '(no subject)').trim(),\n    receivedAt: email.date || new Date().toISOString(),\n    body: body || '(empty email)',\n    automated,\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "95be7d11-ea28-5ca4-a0ee-cd90f6943501",
+      "name": "Clean Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Triage this email.\n\nFROM: {{ $json.fromName }} <{{ $json.fromEmail }}>\nSUBJECT: {{ $json.subject }}\nRECEIVED: {{ $json.receivedAt }}\nSENT BY AN AUTOMATED SYSTEM: {{ $json.automated ? 'probably yes (bulk / no-reply headers found)' : 'no signals found' }}\n\nEMAIL:\n\"\"\"\n{{ $json.body }}\n\"\"\"",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are the executive assistant of {{ $('Config').first().json.your_name }}.\nAbout them: {{ $('Config').first().json.about_you }}\n\nYour job: triage every incoming email and, when a reply is needed, draft one in their voice.\n\nCATEGORY (pick exactly one):\n- Urgent: time-sensitive problems or requests needing action within 24 hours (outages, escalations, failed payments, legal or security issues, hard deadlines)\n- Client: existing customers or clients asking questions, giving feedback or requesting work\n- Lead: new business inquiries, quote requests, partnership or sales opportunities from potential customers\n- Finance: invoices, receipts, payments, billing, banking, taxes\n- Meeting: meeting requests, scheduling or rescheduling, calendar coordination\n- Personal: friends, family and personal matters\n- Newsletter: newsletters, marketing emails, promotions, digests, content subscriptions\n- Notification: automated notifications and alerts from apps, systems and services\n- Spam: unsolicited cold pitches, SEO or link-building offers, scams, phishing\n- Other: anything that fits nowhere else\n\nPRIORITY: high = needs attention today, medium = this week, low = no action needed / FYI.\n\nREPLY RULES\n- needs_reply is true only if a real person is waiting for an answer from {{ $('Config').first().json.your_name }}.\n- Never draft replies to Newsletter, Notification or Spam emails.\n- Writing style: {{ $('Config').first().json.writing_style }}\n- Language: {{ $('Config').first().json.reply_language }}\n- 40 to 150 words. Answer the actual question or propose one clear next step.\n- Never invent facts, prices, dates or commitments. If something is unknown, use a placeholder in square brackets such as [DATE] or [PRICE] so it is easy to spot before sending.\n- No subject line. Start with a greeting using the sender's first name. End with exactly this signature:\n{{ $('Config').first().json.signature }}\n\nIf needs_reply is false, return an empty string for reply."
+            }
+          ]
+        },
+        "hasOutputParser": true
+      },
+      "id": "0ce0650c-b931-55b4-8b01-a0a3d5b7e9cc",
+      "name": "AI Triage & Reply",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        700,
+        200
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.4,
+          "responseFormat": "json_object"
+        }
+      },
+      "id": "4807cd42-db26-55ac-842c-b42be8a87c50",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        680,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"category\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"Urgent\",\n        \"Client\",\n        \"Lead\",\n        \"Finance\",\n        \"Meeting\",\n        \"Personal\",\n        \"Newsletter\",\n        \"Notification\",\n        \"Spam\",\n        \"Other\"\n      ]\n    },\n    \"priority\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"high\",\n        \"medium\",\n        \"low\"\n      ]\n    },\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"One short sentence: who wants what\"\n    },\n    \"needs_reply\": {\n      \"type\": \"boolean\"\n    },\n    \"reply\": {\n      \"type\": \"string\",\n      \"description\": \"Full reply text with greeting and signature, or an empty string\"\n    }\n  },\n  \"required\": [\n    \"category\",\n    \"priority\",\n    \"summary\",\n    \"needs_reply\",\n    \"reply\"\n  ],\n  \"additionalProperties\": false\n}"
+      },
+      "id": "3734fdc3-5373-507b-a90b-b939a0343cf9",
+      "name": "Triage Format",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        840,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "returnAll": true
+      },
+      "id": "1d785739-bd01-5273-b080-7f31b3fdb970",
+      "name": "Get Gmail Labels",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1040,
+        200
+      ],
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combines every email with the AI decision and looks up the matching\n// Gmail label (e.g. \"AI/Client\"). Missing labels are created in the next step.\nconst cfg = $('Config').first().json;\nconst prefix = String(cfg.label_prefix || 'AI').trim().replace(/\\/+$/, '') || 'AI';\nconst labels = $input\n  .all()\n  .map((item) => item.json)\n  .filter((label) => label && label.id && label.name);\nconst emails = $('Clean Email').all();\nconst decisions = $('AI Triage & Reply').all();\n\nconst CATEGORIES = ['Urgent', 'Client', 'Lead', 'Finance', 'Meeting', 'Personal', 'Newsletter', 'Notification', 'Spam', 'Other'];\nconst NEVER_REPLY = ['Newsletter', 'Notification', 'Spam'];\nconst esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n\nreturn emails.map((email, i) => {\n  const ai = (decisions[i] && decisions[i].json && decisions[i].json.output) || {};\n  const category = CATEGORIES.includes(ai.category) ? ai.category : 'Other';\n  const priority = ['high', 'medium', 'low'].includes(ai.priority) ? ai.priority : 'medium';\n  const labelName = `${prefix}/${category}`;\n  const label = labels.find((l) => String(l.name).toLowerCase() === labelName.toLowerCase());\n  const reply = String(ai.reply || '').trim();\n  const summary = String(ai.summary || '').trim();\n  const e = email.json;\n\n  return {\n    json: {\n      ...e,\n      category,\n      priority,\n      summary,\n      needs_reply: ai.needs_reply === true && reply.length > 0 && !NEVER_REPLY.includes(category),\n      reply,\n      labelName,\n      labelId: label ? label.id : '',\n      urgent: category === 'Urgent' || priority === 'high',\n      alert_html:\n        `🚨 <b>${category === 'Urgent' ? 'Urgent email' : 'High-priority email'}</b>\\n` +\n        `<b>From:</b> ${esc(e.fromName)} (${esc(e.fromEmail)})\\n` +\n        `<b>Subject:</b> ${esc(e.subject)}\\n\\n${esc(summary)}`,\n    },\n    pairedItem: { item: 0 },\n  };\n});\n"
+      },
+      "id": "5a62caa8-76a4-5a9c-83a2-468db592785c",
+      "name": "Prepare Actions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "942f529e-1dac-522d-a89f-db1467d60b54",
+              "leftValue": "={{ $json.labelId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "a40bb026-a8b3-5cb5-b8d0-5de6e7b7bb07",
+      "name": "Label Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1480,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "operation": "create",
+        "name": "={{ $json.labelName }}",
+        "options": {}
+      },
+      "id": "4cf518ea-e33c-5a46-85fb-abc57d9dea01",
+      "name": "Create Label",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1720,
+        60
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Prepare Actions').item.json.messageId }}",
+        "labelIds": "={{ [ $json.labelId || $json.id ] }}"
+      },
+      "id": "4797c23e-9fd1-5d3e-9bb2-30a09ccdfc83",
+      "name": "Add Label",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1960,
+        -20
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "85680b14-2be8-5795-a92b-3f561aad7dcd",
+              "leftValue": "={{ $json.needs_reply }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "06214910-ff3e-5dde-9201-277e1cda12bb",
+              "leftValue": "={{ $('Config').first().json.create_draft_replies }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "8aaf655a-971e-5742-9ded-4262698ef882",
+      "name": "Needs Reply?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1480,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ /^re:/i.test($json.subject) ? $json.subject : 'Re: ' + $json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.reply }}",
+        "options": {
+          "threadId": "={{ $json.threadId }}",
+          "sendTo": "={{ $json.fromEmail }}"
+        }
+      },
+      "id": "8ed73c94-4664-5187-aa2e-2d413f33cb14",
+      "name": "Create Draft Reply",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2d64485b-9d95-520f-b38d-993fccc61aa9",
+              "leftValue": "={{ $json.urgent }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "745c5962-17e2-5ac5-b4f1-e6514b66c9aa",
+      "name": "Urgent?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1480,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Config').first().json.telegram_chat_id }}",
+        "text": "={{ $json.alert_html }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "d84c54d4-718b-5b67-991e-812c9d79e5d5",
+      "name": "Urgent Alert (Telegram)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        580
+      ],
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "New Email": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Clean Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Email": {
+      "main": [
+        [
+          {
+            "node": "AI Triage & Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Triage & Reply": {
+      "main": [
+        [
+          {
+            "node": "Get Gmail Labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Gmail Labels": {
+      "main": [
+        [
+          {
+            "node": "Prepare Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Triage & Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Triage Format": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Triage & Reply",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Actions": {
+      "main": [
+        [
+          {
+            "node": "Label Exists?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Needs Reply?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Urgent?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Label Exists?": {
+      "main": [
+        [
+          {
+            "node": "Add Label",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Label": {
+      "main": [
+        [
+          {
+            "node": "Add Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Reply?": {
+      "main": [
+        [
+          {
+            "node": "Create Draft Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Urgent?": {
+      "main": [
+        [
+          {
+            "node": "Urgent Alert (Telegram)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false
+}

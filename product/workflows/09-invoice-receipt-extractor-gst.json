@@ -1,0 +1,756 @@
+{
+  "name": "09 · Invoice & Receipt Extractor → Google Sheets (GST-ready)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🧾 Invoice & Receipt Extractor (GST-ready)\n**Drop invoices into a Google Drive folder — or snap receipts with your phone via the upload form — and AI types everything into a clean Google Sheet register.** 📊\n\nReads **PDFs (even scanned), JPG, PNG, WEBP** · vendor, GSTIN/VAT, invoice no., dates, taxable value, **CGST / SGST / IGST**, cess, totals, HSN/SAC, line items & expense category.\n\n### 🇮🇳 Built-in GST checks\nGSTIN format + checksum · state codes · intra- vs inter-state tax logic · totals that don't add up · duplicate invoices · purchase vs. sales (set `your_gstin`).\n🌍 Works for VAT / sales tax invoices worldwide too.\n\n### ⚡ Setup (≈10 min)\n1. **OpenAI** credential on **AI: Read Invoice** (uses your OpenAI key)\n2. **New File in Drive Folder** → connect Google Drive → pick your *Invoices* folder\n3. **Config** → paste your Google Sheet URL (+ your GSTIN)\n4. **Save to Invoice Register** → connect Google Sheets\n5. **Activate / Publish** → drop a PDF into the folder or open the **Upload Form** URL 📱\n\n💡 Cost: ≈ $0.002–0.01 per document · Only use the form? Disable the Drive trigger (select → **D**).",
+        "height": 1020,
+        "width": 680,
+        "color": 1
+      },
+      "id": "a5463cea-afe7-54f7-a0ba-5a58e6aaf648",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        -340
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1️⃣ New file in Drive OR uploaded via the form",
+        "height": 600,
+        "width": 1120,
+        "color": 4
+      },
+      "id": "bc30829b-690c-5d71-950e-34621a1dd7d5",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2️⃣ AI reads the document (PDF/photo → JSON)",
+        "height": 420,
+        "width": 700,
+        "color": 5
+      },
+      "id": "c5f88448-e4d8-5dd5-9204-3566033c2594",
+      "name": "Sticky Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 3️⃣ GST checks → Invoice register",
+        "height": 600,
+        "width": 900,
+        "color": 2
+      },
+      "id": "230aac6d-e5b7-5c47-9e5d-050b356009ea",
+      "name": "Sticky Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1820,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "",
+          "mode": "list"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "b90b4aa5-631c-5dd0-afd9-d55627677444",
+      "name": "New File in Drive Folder",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        160
+      ],
+      "notes": "👉 Pick your Invoices folder",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "formTitle": "🧾 Upload invoices & receipts",
+        "formDescription": "PDFs or photos (JPG, PNG, WEBP). You can select several files at once — they'll appear in the invoice register in about a minute.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Invoices or receipts",
+              "fieldType": "file",
+              "multipleFiles": true,
+              "acceptFileTypes": ".pdf,.jpg,.jpeg,.png,.webp",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Notes (optional)",
+              "placeholder": "e.g. client dinner, project X"
+            }
+          ]
+        },
+        "responseMode": "onReceived",
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "Upload 📤",
+          "path": "upload-invoices",
+          "respondWithOptions": {
+            "values": {
+              "respondWith": "text",
+              "formSubmittedText": "✅ Got it! Your documents are being processed and will appear in your invoice sheet within a minute."
+            }
+          }
+        }
+      },
+      "id": "2f3424e9-1f2e-5fbe-842d-a948dcac58f0",
+      "name": "Upload Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        400
+      ],
+      "webhookId": "58c66c47-2962-5711-8dad-d0e583bae5c1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a219c73e-0399-53ed-a40c-f26c13ed2f15",
+              "name": "google_sheet_url",
+              "value": "https://docs.google.com/spreadsheets/d/PASTE-YOUR-SHEET-ID/edit",
+              "type": "string"
+            },
+            {
+              "id": "3ec11c77-84a2-516a-8c5d-6326e7651f5f",
+              "name": "sheet_tab",
+              "value": "Invoices",
+              "type": "string"
+            },
+            {
+              "id": "0b9af1ff-f873-568f-98f8-66eaf254a303",
+              "name": "your_gstin",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "720c808f-c456-5ae2-840e-228918f39e70",
+              "name": "home_currency",
+              "value": "INR",
+              "type": "string"
+            },
+            {
+              "id": "97f7d9f3-1537-5694-8cde-d0f0e762c24f",
+              "name": "openai_model",
+              "value": "gpt-4.1-mini",
+              "type": "string"
+            },
+            {
+              "id": "0850e93b-a201-5347-a2ad-5af26f3f9443",
+              "name": "processed_folder_id",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "e08a6b86-3293-5ea2-8933-d3c7bb709a7c",
+              "name": "line_items_tab",
+              "value": "Line Items",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "stripBinary": false
+        },
+        "includeOtherFields": true
+      },
+      "id": "be3e789d-273e-57d1-9256-9691e427b302",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        280
+      ],
+      "notes": "✏️ Sheet URL + your GSTIN",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ea5677b2-d384-5d11-b271-082857f47928",
+              "leftValue": "={{ $json.formMode }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "9321c11a-9d6b-5a4c-a5dd-eaad2cf824f6",
+      "name": "From Google Drive?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        460,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "5d5ad8c7-b6f1-5bdf-b5da-81e4babb7fd7",
+      "name": "Download File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        700,
+        160
+      ],
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "jsCode": "// Keeps the downloaded file and records where it came from.\nconst meta = $('New File in Drive Folder').item.json;\nreturn {\n  json: {\n    file_name: meta.name || 'file',\n    file_link: meta.webViewLink || (meta.id ? `https://drive.google.com/file/d/${meta.id}/view` : ''),\n    drive_file_id: meta.id || '',\n    source: 'Google Drive',\n    notes: '',\n  },\n  binary: $input.item.binary,\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "52a565ed-312e-5d20-85c1-2a20dca501da",
+      "name": "Drive File Info",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        920,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// The upload form can receive several files at once → one item per file.\nconst out = [];\nfor (const item of $input.all()) {\n  const notes = item.json['Notes (optional)'] || '';\n  for (const [key, file] of Object.entries(item.binary || {})) {\n    out.push({\n      json: { file_name: file.fileName || key, file_link: '', drive_file_id: '', source: 'Upload form', notes },\n      binary: { data: file },\n    });\n  }\n}\nif (!out.length) throw new Error('No file was uploaded.');\nreturn out;\n"
+      },
+      "id": "81ddf6d8-e61b-5fa3-be1d-5142e0726389",
+      "name": "Split Uploaded Files",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        700,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Builds one OpenAI request per file. PDFs (also scanned ones) and photos are\n// sent directly to the vision model with a strict JSON schema, so the answer\n// always has exactly the fields we need.\nconst cfg = $('Config').first().json;\nconst MODEL = String(cfg.openai_model || 'gpt-4.1-mini').trim();\nconst num = { type: ['number', 'null'] };\nconst str = { type: ['string', 'null'] };\nconst SCHEMA = {\n  type: 'object',\n  additionalProperties: false,\n  properties: {\n    is_invoice_or_receipt: { type: 'boolean' },\n    document_type: { type: 'string', enum: ['tax_invoice', 'invoice', 'receipt', 'bill_of_supply', 'credit_note', 'debit_note', 'proforma', 'purchase_order', 'other'] },\n    vendor_name: str,\n    vendor_gstin: { type: ['string', 'null'], description: 'Seller GSTIN / VAT number / tax ID exactly as printed, without spaces' },\n    vendor_address: str,\n    buyer_name: str,\n    buyer_gstin: { type: ['string', 'null'], description: 'Buyer GSTIN / VAT number if printed' },\n    invoice_number: str,\n    invoice_date: { type: ['string', 'null'], description: 'YYYY-MM-DD' },\n    due_date: { type: ['string', 'null'], description: 'YYYY-MM-DD' },\n    place_of_supply: { type: ['string', 'null'], description: 'State name and/or 2-digit state code exactly as printed' },\n    currency: { type: 'string', description: 'ISO 4217 code such as INR, USD, EUR, GBP' },\n    taxable_value: { type: ['number', 'null'], description: 'Total amount before tax' },\n    cgst: num,\n    sgst: { type: ['number', 'null'], description: 'SGST or UTGST amount' },\n    igst: num,\n    cess: num,\n    other_tax: { type: ['number', 'null'], description: 'VAT / sales tax / any tax not covered by CGST, SGST, IGST or cess' },\n    total_tax: num,\n    round_off: num,\n    total_amount: { type: ['number', 'null'], description: 'Final amount payable' },\n    payment_method: str,\n    expense_category: {\n      type: 'string',\n      enum: ['Software & SaaS', 'Office supplies', 'Travel', 'Meals & entertainment', 'Fuel & transport', 'Utilities & telecom', 'Rent', 'Professional services', 'Advertising & marketing', 'Inventory / goods for resale', 'Equipment & hardware', 'Repairs & maintenance', 'Insurance', 'Bank & payment fees', 'Taxes & government', 'Other'],\n    },\n    line_items: {\n      type: 'array',\n      items: {\n        type: 'object',\n        additionalProperties: false,\n        properties: { description: { type: 'string' }, hsn_sac: str, quantity: num, unit_price: num, tax_rate_percent: num, amount: num },\n        required: ['description', 'hsn_sac', 'quantity', 'unit_price', 'tax_rate_percent', 'amount'],\n      },\n    },\n    notes: { type: ['string', 'null'], description: 'Anything unclear, handwritten or important' },\n    confidence: { type: 'number', description: 'From 0 to 1: how sure you are about the extracted values' },\n  },\n};\nSCHEMA.required = Object.keys(SCHEMA.properties);\n\nconst SYSTEM = `You are a meticulous accountant's assistant. Extract data from invoices and receipts with perfect accuracy. Read every page.\nRules:\n- Copy identifiers (GSTIN, VAT ID, invoice number) exactly as printed, without spaces.\n- Dates as YYYY-MM-DD. For ambiguous dates like 03/04/2026 use day-first (India/Europe) unless the document is clearly American.\n- Amounts are plain numbers: no currency symbols, no thousands separators. Use null when a value is not on the document — never guess or calculate missing taxes.\n- Indian GST: Central tax → cgst, State/UT tax → sgst, Integrated tax → igst. taxable_value is the amount before GST.\n- Other countries: VAT / sales tax → other_tax.\n- total_amount is the final amount payable printed on the document.\n- If the document is not an invoice or receipt, set is_invoice_or_receipt to false and fill in what you can.`;\n\nconst out = [];\nconst items = $input.all();\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  const info = {\n    file_name: item.json.file_name || 'file',\n    file_link: item.json.file_link || '',\n    drive_file_id: item.json.drive_file_id || '',\n    source: item.json.source || '',\n    notes: item.json.notes || '',\n  };\n  const bin = item.binary && item.binary.data;\n  if (!bin) {\n    out.push({ json: { ...info, skip_reason: 'No file found' }, pairedItem: { item: i } });\n    continue;\n  }\n  const mime = String(bin.mimeType || '').toLowerCase();\n  const isPdf = mime.includes('pdf') || /\\.pdf$/i.test(info.file_name);\n  const isImage = /^image\\/(jpeg|jpg|png|webp|gif)$/.test(mime) || /\\.(jpe?g|png|webp|gif)$/i.test(info.file_name);\n  if (!isPdf && !isImage) {\n    out.push({ json: { ...info, skip_reason: `Unsupported file type (${mime || 'unknown'}) – please use PDF, JPG, PNG or WEBP` }, pairedItem: { item: i } });\n    continue;\n  }\n  const buffer = await this.helpers.getBinaryDataBuffer(i, 'data');\n  if (buffer.length > 20 * 1024 * 1024) {\n    out.push({ json: { ...info, skip_reason: 'File is larger than 20 MB' }, pairedItem: { item: i } });\n    continue;\n  }\n  const b64 = buffer.toString('base64');\n  const filePart = isPdf\n    ? { type: 'file', file: { filename: /\\.pdf$/i.test(info.file_name) ? info.file_name : `${info.file_name}.pdf`, file_data: `data:application/pdf;base64,${b64}` } }\n    : { type: 'image_url', image_url: { url: `data:${mime.startsWith('image/') ? mime : 'image/jpeg'};base64,${b64}`, detail: 'high' } };\n\n  out.push({\n    json: {\n      ...info,\n      skip_reason: '',\n      requestBody: {\n        model: MODEL,\n        temperature: 0,\n        response_format: { type: 'json_schema', json_schema: { name: 'invoice_data', strict: true, schema: SCHEMA } },\n        messages: [\n          { role: 'system', content: SYSTEM },\n          {\n            role: 'user',\n            content: [\n              { type: 'text', text: `Extract the data from this document (file name: ${info.file_name}).${info.notes ? ` Notes from the uploader: ${info.notes}` : ''}` },\n              filePart,\n            ],\n          },\n        ],\n      },\n    },\n    pairedItem: { item: i },\n  });\n}\nreturn out;\n"
+      },
+      "id": "6e06a160-2a2e-54a3-93c3-153c9cec750d",
+      "name": "Prepare AI Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "740fc600-0d12-5f48-802e-235bf4bcbfe1",
+              "leftValue": "={{ $json.skip_reason }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "a727b72c-8fa9-5503-8ce4-45dd35ab153d",
+      "name": "Readable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1380,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.requestBody }}",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 3,
+              "batchInterval": 1000
+            }
+          },
+          "timeout": 180000
+        }
+      },
+      "id": "a4a45d9a-abf6-5255-b47c-1265b167096a",
+      "name": "AI: Read Invoice",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        260
+      ],
+      "onError": "continueRegularOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "notes": "GPT-4.1-mini vision · strict JSON schema",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Turns the AI answer into a GST-ready register row and runs accounting checks:\n// GSTIN format + checksum, state codes, intra/inter-state tax logic, totals,\n// duplicates (same vendor + invoice number) and purchase vs. sales.\nconst cfg = $('Config').first().json;\nconst file = $('Prepare AI Request').item.json;\nconst res = $json;\n\nconst STATES = {\n  '01': 'Jammu & Kashmir', '02': 'Himachal Pradesh', '03': 'Punjab', '04': 'Chandigarh', '05': 'Uttarakhand', '06': 'Haryana',\n  '07': 'Delhi', '08': 'Rajasthan', '09': 'Uttar Pradesh', '10': 'Bihar', '11': 'Sikkim', '12': 'Arunachal Pradesh', '13': 'Nagaland',\n  '14': 'Manipur', '15': 'Mizoram', '16': 'Tripura', '17': 'Meghalaya', '18': 'Assam', '19': 'West Bengal', '20': 'Jharkhand',\n  '21': 'Odisha', '22': 'Chhattisgarh', '23': 'Madhya Pradesh', '24': 'Gujarat', '25': 'Daman & Diu', '26': 'Dadra & Nagar Haveli and Daman & Diu',\n  '27': 'Maharashtra', '28': 'Andhra Pradesh (old)', '29': 'Karnataka', '30': 'Goa', '31': 'Lakshadweep', '32': 'Kerala', '33': 'Tamil Nadu',\n  '34': 'Puducherry', '35': 'Andaman & Nicobar Islands', '36': 'Telangana', '37': 'Andhra Pradesh', '38': 'Ladakh', '96': 'Other Country',\n  '97': 'Other Territory', '99': 'Centre Jurisdiction',\n};\nconst CHARS = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';\nconst cleanId = (v) => String(v || '').toUpperCase().replace(/[^0-9A-Z]/g, '');\nconst isGstinFormat = (g) => /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(g);\nfunction gstinChecksumOk(g) {\n  let total = 0;\n  for (let i = 0; i < 14; i++) {\n    const v = CHARS.indexOf(g[i]) * (i % 2 === 0 ? 1 : 2);\n    total += Math.floor(v / 36) + (v % 36);\n  }\n  return CHARS[(36 - (total % 36)) % 36] === g[14];\n}\nfunction stateCodeFrom(text) {\n  const s = String(text || '').trim();\n  if (!s) return '';\n  const code = s.match(/\\b(\\d{2})\\b/);\n  if (code && STATES[code[1]]) return code[1];\n  const norm = (x) => x.toLowerCase().replace(/&/g, 'and').replace(/[^a-z]/g, '');\n  const target = norm(s);\n  for (const [c, name] of Object.entries(STATES)) if (norm(name) && target.includes(norm(name))) return c;\n  return '';\n}\nconst n = (v) => (v === null || v === undefined || v === '' || isNaN(Number(v)) ? null : Math.round(Number(v) * 100) / 100);\n\nconst checks = [];\nlet d = null;\nif (file.skip_reason) {\n  checks.push('⛔ Skipped: ' + file.skip_reason);\n} else if (res.error || !res.choices) {\n  checks.push('⛔ AI extraction failed: ' + String((res.error && (res.error.message || res.error)) || 'no response').slice(0, 200));\n} else {\n  try {\n    const msg = res.choices[0].message;\n    if (msg.refusal) throw new Error(msg.refusal);\n    d = JSON.parse(msg.content);\n  } catch (e) {\n    checks.push('⛔ Could not read the AI answer: ' + e.message);\n  }\n}\nd = d || {};\n\nconst vendorGstin = cleanId(d.vendor_gstin);\nconst buyerGstin = cleanId(d.buyer_gstin);\nconst myGstin = cleanId(cfg.your_gstin);\nconst currency = String(d.currency || cfg.home_currency || '').toUpperCase();\nconst isIndian = currency === 'INR' || isGstinFormat(vendorGstin) || isGstinFormat(buyerGstin);\n\nlet gstinStatus = '';\nif (vendorGstin) {\n  if (!isGstinFormat(vendorGstin)) gstinStatus = isIndian ? '❌ Invalid format' : 'n/a (not an Indian GSTIN)';\n  else if (!gstinChecksumOk(vendorGstin)) gstinStatus = '⚠️ Checksum failed';\n  else gstinStatus = '✅ Valid';\n} else if (isIndian && d.document_type === 'tax_invoice') {\n  gstinStatus = '❌ Missing';\n}\nif (gstinStatus.startsWith('❌') || gstinStatus.startsWith('⚠️')) checks.push(`Vendor GSTIN: ${gstinStatus.replace(/^\\S+\\s/, '')} – verify on the GST portal before claiming ITC`);\nif (buyerGstin && isGstinFormat(buyerGstin) && !gstinChecksumOk(buyerGstin)) checks.push('Buyer GSTIN checksum failed');\n\nconst vendorState = isGstinFormat(vendorGstin) ? vendorGstin.slice(0, 2) : '';\nconst posState = stateCodeFrom(d.place_of_supply) || (isGstinFormat(buyerGstin) ? buyerGstin.slice(0, 2) : '');\nconst cgst = n(d.cgst) || 0;\nconst sgst = n(d.sgst) || 0;\nconst igst = n(d.igst) || 0;\nconst cess = n(d.cess) || 0;\nconst otherTax = n(d.other_tax) || 0;\n\nlet supplyType = '';\nif (isIndian && vendorState && posState) {\n  supplyType = vendorState === posState ? 'Intra-state (CGST + SGST)' : 'Inter-state (IGST)';\n  if (vendorState === posState && igst > 0) checks.push('IGST charged on an intra-state supply – should be CGST + SGST');\n  if (vendorState !== posState && (cgst > 0 || sgst > 0)) checks.push('CGST/SGST charged on an inter-state supply – should be IGST');\n} else if (isIndian && (cgst || sgst || igst)) {\n  supplyType = igst ? 'Inter-state (IGST)' : 'Intra-state (CGST + SGST)';\n}\nif (cgst && sgst && Math.abs(cgst - sgst) > 1) checks.push(`CGST (${cgst}) and SGST (${sgst}) differ`);\n\nconst taxable = n(d.taxable_value);\nconst total = n(d.total_amount);\nconst totalTax = n(d.total_tax) ?? Math.round((cgst + sgst + igst + cess + otherTax) * 100) / 100;\nif (taxable !== null && total !== null) {\n  const expected = taxable + cgst + sgst + igst + cess + otherTax + (n(d.round_off) || 0);\n  const diff = Math.round((total - expected) * 100) / 100;\n  if (Math.abs(diff) > Math.max(1, Math.abs(total) * 0.01)) checks.push(`Totals don't add up: taxable + taxes = ${Math.round(expected * 100) / 100}, invoice total = ${total}`);\n}\nif (d.is_invoice_or_receipt === false) checks.push('Does not look like an invoice or receipt');\nif (d.confidence !== undefined && Number(d.confidence) < 0.7) checks.push(`Low AI confidence (${Math.round(Number(d.confidence) * 100)}%) – please double-check`);\nif (!d.invoice_number && d.document_type && d.document_type !== 'receipt') checks.push('Invoice number missing');\n\n// Duplicate detection (remembers invoices processed by the active workflow)\nlet duplicate = '';\nif (d.invoice_number) {\n  const key = `${vendorGstin || String(d.vendor_name || '').toLowerCase()}|${cleanId(d.invoice_number)}`;\n  const store = $getWorkflowStaticData('global');\n  store.invoices = store.invoices || {};\n  if (store.invoices[key]) duplicate = `Possible duplicate – same vendor & invoice no. processed on ${store.invoices[key]}`;\n  else store.invoices[key] = $now.toFormat('yyyy-MM-dd');\n  if (duplicate) checks.push(duplicate);\n}\n\nlet direction = 'Expense / Purchase';\nif (myGstin && vendorGstin === myGstin) direction = 'Sales (issued by you)';\nelse if (myGstin && buyerGstin === myGstin) direction = 'Purchase (ITC eligible)';\nelse if (myGstin && buyerGstin && buyerGstin !== myGstin) checks.push('Buyer GSTIN is not yours – ITC may not be claimable');\n\nconst lineItems = Array.isArray(d.line_items) ? d.line_items : [];\nconst hsn = [...new Set(lineItems.map((l) => l.hsn_sac).filter(Boolean))].join(', ');\nconst lines = lineItems\n  .map((l) => `${l.description}${l.quantity !== null && l.quantity !== undefined ? ` × ${l.quantity}` : ''}${l.unit_price !== null && l.unit_price !== undefined ? ` @ ${l.unit_price}` : ''}${l.hsn_sac ? ` [HSN/SAC ${l.hsn_sac}]` : ''}${l.tax_rate_percent !== null && l.tax_rate_percent !== undefined ? ` (${l.tax_rate_percent}%)` : ''} = ${l.amount ?? '?'}`)\n  .join('\\n');\n\nreturn {\n  json: {\n    row: {\n      'Processed At': $now.toFormat('yyyy-MM-dd HH:mm'),\n      File: file.file_name,\n      Source: file.source,\n      'Doc Type': (d.document_type || '').replace(/_/g, ' '),\n      'Purchase / Sales': direction,\n      Vendor: d.vendor_name || '',\n      'Vendor GSTIN': vendorGstin,\n      'GSTIN Check': gstinStatus,\n      'Vendor State': vendorState ? `${vendorState} – ${STATES[vendorState] || ''}` : '',\n      Buyer: d.buyer_name || '',\n      'Buyer GSTIN': buyerGstin,\n      'Invoice No': d.invoice_number || '',\n      'Invoice Date': d.invoice_date || '',\n      'Due Date': d.due_date || '',\n      'Place of Supply': posState ? `${posState} – ${STATES[posState] || ''}` : d.place_of_supply || '',\n      'Supply Type': supplyType,\n      Currency: currency,\n      'Taxable Value': taxable ?? '',\n      CGST: n(d.cgst) ?? '',\n      SGST: n(d.sgst) ?? '',\n      IGST: n(d.igst) ?? '',\n      Cess: n(d.cess) ?? '',\n      'Other Tax / VAT': n(d.other_tax) ?? '',\n      'Total Tax': totalTax || '',\n      'Total Amount': total ?? '',\n      Category: d.expense_category || '',\n      'Payment Method': d.payment_method || '',\n      'HSN / SAC': hsn,\n      'Line Items': lines,\n      Checks: checks.length ? checks.map((c) => '• ' + c).join('\\n') : '✅ All checks passed',\n      Confidence: d.confidence !== undefined ? Math.round(Number(d.confidence) * 100) + '%' : '',\n      'File Link': file.file_link,\n      Notes: d.notes || '',\n    },\n    line_items: lineItems.map((l) => ({\n      'Invoice No': d.invoice_number || '',\n      Vendor: d.vendor_name || '',\n      'Invoice Date': d.invoice_date || '',\n      Description: l.description,\n      'HSN / SAC': l.hsn_sac || '',\n      Quantity: l.quantity ?? '',\n      'Unit Price': l.unit_price ?? '',\n      'Tax Rate %': l.tax_rate_percent ?? '',\n      Amount: l.amount ?? '',\n    })),\n    drive_file_id: file.drive_file_id,\n    source: file.source,\n    ok: !checks.some((c) => c.startsWith('⛔')),\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "0feefb4f-e287-5f2d-92e5-271b26b823a4",
+      "name": "Check & Enrich (GST)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1860,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $json.row }}",
+        "options": {}
+      },
+      "id": "f05b82ff-36f0-50da-8f33-85be8baae389",
+      "name": "Invoice Row",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2080,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.google_sheet_url }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.sheet_tab }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "895b2dfb-cc5f-5e7a-9e59-7b0cfdbe7fb3",
+      "name": "Save to Invoice Register",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2300,
+        160
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "96fbb166-8bcc-5a56-8cbc-2a821c01ba98",
+              "leftValue": "={{ $json.source }}",
+              "rightValue": "Google Drive",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "0b4c2467-efb5-507c-8932-215e041e8cbb",
+              "leftValue": "={{ $('Config').first().json.processed_folder_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b8c4a842-5f69-5c23-8a71-413f82c5a30e",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "65b41f17-8913-56c6-8237-08197b582c3e",
+      "name": "Move to Processed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2080,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.drive_file_id }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ ($('Config').first().json.processed_folder_id.match(/folders\\/([A-Za-z0-9_-]+)/) || [])[1] || $('Config').first().json.processed_folder_id.trim() }}",
+          "mode": "id"
+        }
+      },
+      "id": "8e9eb178-5ee1-5c4d-b79e-ed093f23d6a3",
+      "name": "Move to Processed Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2300,
+        360
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().flatMap((item) => (item.json.line_items || []).map((row) => ({ json: row })));\n"
+      },
+      "id": "bac1b71a-07b8-5b63-b219-9cabba741670",
+      "name": "Line Item Rows",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        580
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.google_sheet_url }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.line_items_tab }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "740c39e8-57cb-5480-97e6-a21871dca7fe",
+      "name": "Save Line Items",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2300,
+        580
+      ],
+      "disabled": true,
+      "notes": "Optional: item-level detail (enable both nodes)",
+      "notesInFlow": true
+    }
+  ],
+  "connections": {
+    "New File in Drive Folder": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Form": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "From Google Drive?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "From Google Drive?": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Split Uploaded Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "Drive File Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drive File Info": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Uploaded Files": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Request": {
+      "main": [
+        [
+          {
+            "node": "Readable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Readable?": {
+      "main": [
+        [
+          {
+            "node": "AI: Read Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check & Enrich (GST)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Read Invoice": {
+      "main": [
+        [
+          {
+            "node": "Check & Enrich (GST)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check & Enrich (GST)": {
+      "main": [
+        [
+          {
+            "node": "Invoice Row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Move to Processed?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Line Item Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice Row": {
+      "main": [
+        [
+          {
+            "node": "Save to Invoice Register",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move to Processed?": {
+      "main": [
+        [
+          {
+            "node": "Move to Processed Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Line Item Rows": {
+      "main": [
+        [
+          {
+            "node": "Save Line Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false
+}

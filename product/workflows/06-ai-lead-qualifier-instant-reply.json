@@ -1,0 +1,947 @@
+{
+  "name": "06 · AI Lead Qualifier & Instant Reply (Speed-to-Lead)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## ⚡ AI Lead Qualifier & Instant Reply\n**Every new lead is scored 0–100 by AI, gets a personal reply in under 60 seconds (with your booking link), lands in your CRM sheet — and hot leads ping you instantly.** 🔥\n\nLeads contacted within 5 minutes are far more likely to convert than leads contacted hours later. This makes you the fastest responder in your market — 24/7.\n\n### ⚡ Setup (≈10 min)\n1. **OpenAI Chat Model** → your OpenAI API key\n2. **Config** → what you sell, ideal customer, booking link (Calendly/Cal.com), your email\n3. **Send Instant Reply** + **Alert Me (Email)** → connect Gmail\n4. **Save to CRM Sheet** → connect Google + paste your sheet URL in Config\n5. **Activate / Publish**, then either:\n   - share the **Lead Form** URL (Production URL), or\n   - send your website form to the **Website Form (Webhook)** URL (POST JSON — see PDF guide)\n\n### 💡 Good to know\n- Spam & sales pitches are detected and never get a reply.\n- Set `auto_reply` to false in Config to only score & log.\n- Cost: ≈ $0.002 per lead.",
+        "height": 960,
+        "width": 680,
+        "color": 1
+      },
+      "id": "c56b1c2c-b7ce-5056-b548-b8e8c4c5e9e1",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1️⃣ New lead from your form or website",
+        "height": 560,
+        "width": 920,
+        "color": 4
+      },
+      "id": "ea4ea373-8d03-572c-b312-2347fc3bc3b1",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2️⃣ Quick research + AI qualification",
+        "height": 560,
+        "width": 1100,
+        "color": 5
+      },
+      "id": "5c2ee2ae-f854-586b-a339-096c06fa8df2",
+      "name": "Sticky Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        920,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 3️⃣ Log · reply · alert",
+        "height": 900,
+        "width": 700,
+        "color": 2
+      },
+      "id": "c1499cc0-f483-5acf-91a4-3c972d4cf449",
+      "name": "Sticky Note 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2060,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "formTitle": "Let's talk about your project 👋",
+        "formDescription": "Tell us a bit about what you need — you'll get a reply in your inbox within a minute.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full name",
+              "placeholder": "Jane Smith",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "placeholder": "jane@company.com",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company",
+              "placeholder": "Company name"
+            },
+            {
+              "fieldLabel": "Website",
+              "placeholder": "company.com"
+            },
+            {
+              "fieldLabel": "Phone",
+              "placeholder": "+1 555 0100"
+            },
+            {
+              "fieldLabel": "What can we help you with?",
+              "fieldType": "textarea",
+              "placeholder": "A few sentences about your project or question",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Budget",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Under $1,000"
+                  },
+                  {
+                    "option": "$1,000 – $5,000"
+                  },
+                  {
+                    "option": "$5,000 – $20,000"
+                  },
+                  {
+                    "option": "$20,000+"
+                  },
+                  {
+                    "option": "Not sure yet"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Timeline",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "ASAP"
+                  },
+                  {
+                    "option": "Within 1 month"
+                  },
+                  {
+                    "option": "1–3 months"
+                  },
+                  {
+                    "option": "Just researching"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "responseMode": "onReceived",
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "Send 🚀",
+          "path": "lead-form",
+          "respondWithOptions": {
+            "values": {
+              "respondWith": "text",
+              "formSubmittedText": "🎉 Thank you! Check your inbox — you'll hear from us within a minute."
+            }
+          }
+        }
+      },
+      "id": "45446496-136f-5aaa-863d-db649f37bf4f",
+      "name": "Lead Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        160
+      ],
+      "webhookId": "dcd2192a-2f8f-5d20-b7e7-c5cefbeda7fe"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new-lead",
+        "options": {}
+      },
+      "id": "c04b3701-f3e0-55e3-a341-b8a307d8a37e",
+      "name": "Website Form (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        380
+      ],
+      "webhookId": "22c50fbf-3be7-5856-a985-0d79edc7f835",
+      "notes": "POST your website form here",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Turns a submission from the n8n lead form OR any website form (Webflow,\n// WordPress, Elementor, Typeform, Tally, Framer…) into one standard lead.\nconst data = $json.body && typeof $json.body === 'object' ? $json.body : $json;\nconst flat = {};\n(function walk(obj, prefix) {\n  for (const [key, value] of Object.entries(obj || {})) {\n    if (value && typeof value === 'object' && !Array.isArray(value)) walk(value, prefix + key + '.');\n    else flat[(prefix + key).toLowerCase()] = Array.isArray(value) ? value.join(', ') : value;\n  }\n})(data, '');\n\nconst norm = (s) => String(s).toLowerCase().replace(/[^a-z]/g, '');\nfunction pick(...aliases) {\n  const wanted = aliases.map(norm);\n  for (const [key, value] of Object.entries(flat)) {\n    const last = norm(key.split('.').pop());\n    if (wanted.includes(last) && value !== undefined && value !== null && String(value).trim() !== '') {\n      return String(value).trim();\n    }\n  }\n  return '';\n}\n\nconst first = pick('first name', 'firstname', 'fname', 'given name');\nconst last = pick('last name', 'lastname', 'lname', 'surname', 'family name');\nconst rawName = pick('full name', 'fullname', 'name', 'your name', 'contact name') || [first, last].filter(Boolean).join(' ');\n// \"jane smith\" -> \"Jane Smith\" (only when typed all lowercase)\nconst name = rawName === rawName.toLowerCase() ? rawName.replace(/(^|[\\s'-])\\p{L}/gu, (c) => c.toUpperCase()) : rawName;\nlet website = pick('website', 'company website', 'url', 'site', 'web', 'domain');\nif (website && !/^https?:\\/\\//i.test(website)) website = 'https://' + website.replace(/^\\/+/, '');\n\nreturn {\n  json: {\n    name: name || 'there',\n    first_name: (first || name.split(/\\s+/)[0] || 'there').replace(/^./, (c) => c.toUpperCase()),\n    email: pick('email', 'e-mail', 'email address', 'your email', 'work email', 'business email', 'mail').toLowerCase(),\n    company: pick('company', 'company name', 'business', 'business name', 'organisation', 'organization', 'brand'),\n    website,\n    phone: pick('phone', 'phone number', 'mobile', 'telephone', 'tel', 'whatsapp'),\n    message: pick('what can we help you with', 'message', 'details', 'project', 'project details', 'description', 'notes', 'comments', 'inquiry', 'enquiry', 'how can we help', 'question').slice(0, 4000),\n    budget: pick('budget', 'project budget', 'monthly budget'),\n    timeline: pick('timeline', 'timeframe', 'when', 'start date', 'deadline'),\n    source: $json.formMode ? 'Lead form' : 'Website form (webhook)',\n    received_at: new Date().toISOString(),\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "a9866e53-7c70-5884-91e7-90c99fa73192",
+      "name": "Normalize Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        270
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6bdfc771-271a-5ca0-9f5e-7996ffec9123",
+              "name": "business_name",
+              "value": "Morgan Digital",
+              "type": "string"
+            },
+            {
+              "id": "1f33ba62-d30b-5018-a314-07adbda42ed0",
+              "name": "what_you_sell",
+              "value": "Done-for-you AI automation for small businesses: AI chatbots, lead follow-up and booking systems. Projects typically $2,000–$10,000; monthly care plans from $300/month.",
+              "type": "string"
+            },
+            {
+              "id": "996cde8a-305a-517a-85a4-c0c19193dfdb",
+              "name": "ideal_customer",
+              "value": "Service businesses with 5–200 employees (clinics, agencies, real estate, trades, coaches) that get leads online and want to respond faster.",
+              "type": "string"
+            },
+            {
+              "id": "dd91352f-9cbb-582c-8cb3-8ccd6edcb891",
+              "name": "booking_link",
+              "value": "https://calendly.com/your-name/intro-call",
+              "type": "string"
+            },
+            {
+              "id": "b2db24bb-d0dc-5857-bb2d-6b9af11afed9",
+              "name": "your_name",
+              "value": "Alex Morgan",
+              "type": "string"
+            },
+            {
+              "id": "3ae82034-b1a5-5078-b427-8a1da0f35636",
+              "name": "your_title",
+              "value": "Founder",
+              "type": "string"
+            },
+            {
+              "id": "9cad2db8-3f38-5cc4-a0c6-eae2d9c51441",
+              "name": "your_email",
+              "value": "you@example.com",
+              "type": "string"
+            },
+            {
+              "id": "153c5067-f06d-56fe-a41b-0df5c8302f78",
+              "name": "reply_style",
+              "value": "Warm, confident and concise. Sounds like a real person, not a robot. No buzzwords.",
+              "type": "string"
+            },
+            {
+              "id": "1acc8ac1-6bbc-5a65-88ff-c21802b63fd9",
+              "name": "auto_reply",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "e66184f8-948c-5efe-8a8b-2405512eab5b",
+              "name": "hot_score",
+              "value": 70,
+              "type": "number"
+            },
+            {
+              "id": "bb504272-f1e3-5aca-88ee-b2529409702f",
+              "name": "warm_score",
+              "value": 40,
+              "type": "number"
+            },
+            {
+              "id": "5a706e42-46b2-5155-a413-f71c64326110",
+              "name": "google_sheet_url",
+              "value": "https://docs.google.com/spreadsheets/d/PASTE-YOUR-SHEET-ID/edit",
+              "type": "string"
+            },
+            {
+              "id": "0ce35fc1-d698-5685-9de6-f91e709fc58d",
+              "name": "sheet_tab",
+              "value": "Leads CRM",
+              "type": "string"
+            },
+            {
+              "id": "426215b5-3300-5bed-b14d-aac55622b12c",
+              "name": "telegram_chat_id",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {},
+        "includeOtherFields": true
+      },
+      "id": "4f06a5de-82c5-546f-844b-d671f06bbb92",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        270
+      ],
+      "notes": "✏️ Your offer, booking link & sheet",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "935fc758-4a90-583e-86d3-0273d95bac41",
+              "leftValue": "={{ $json.website }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "a641050b-6644-56c5-9ea5-1812bcb61fb0",
+      "name": "Has Website?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        680,
+        270
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.website }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "id": "4b3cb6c5-9844-579a-b5ff-3b33ffde16e3",
+      "name": "Visit Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        140
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Grabs a short description of the lead's company from its website,\n// so the AI can qualify better and personalise the reply.\nconst lead = $('Config').item.json;\nconst html = typeof $json.data === 'string' ? $json.data.slice(0, 800000) : '';\nconst title = ((html.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i) || [])[1] || '').replace(/\\s+/g, ' ').trim();\nconst description = ((html.match(/<meta[^>]+name=[\"']description[\"'][^>]*content=[\"']([^\"']*)[\"']/i) || [])[1] || '').trim();\nconst text = html\n  .replace(/<head[\\s\\S]*?<\\/head>/i, ' ')\n  .replace(/<(script|style|noscript|svg|nav|footer)[\\s\\S]*?<\\/\\1>/gi, ' ')\n  .replace(/<[^>]+>/g, ' ')\n  .replace(/&nbsp;|&#160;/g, ' ')\n  .replace(/&amp;/g, '&')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nreturn {\n  json: {\n    ...lead,\n    website_summary: html ? [title, description, text.slice(0, 1200)].filter(Boolean).join(' | ') : 'Website could not be loaded',\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "f411f22f-53ef-58bb-afaf-cb0441fd47c7",
+      "name": "Website Snippet",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1160,
+        140
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "95456205-4326-50ec-8505-7952a79d23b0",
+      "name": "Lead Data",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        270
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=NEW LEAD\nName: {{ $json.name }}\nEmail: {{ $json.email || 'not given' }}\nCompany: {{ $json.company || 'not given' }}\nWebsite: {{ $json.website || 'not given' }}\nPhone: {{ $json.phone || 'not given' }}\nBudget: {{ $json.budget || 'not given' }}\nTimeline: {{ $json.timeline || 'not given' }}\nSource: {{ $json.source }}\n\nMessage:\n\"\"\"\n{{ $json.message || '(empty)' }}\n\"\"\"\n\nWebsite excerpt: {{ $json.website_summary || 'n/a' }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are the head of sales at {{ $('Config').first().json.business_name }}. You qualify inbound leads and write the very first reply.\n\nWHAT WE SELL: {{ $('Config').first().json.what_you_sell }}\nIDEAL CUSTOMER: {{ $('Config').first().json.ideal_customer }}\nBOOKING LINK: {{ $('Config').first().json.booking_link }}\nSENDER: {{ $('Config').first().json.your_name }}, {{ $('Config').first().json.your_title }} at {{ $('Config').first().json.business_name }}\nSTYLE: {{ $('Config').first().json.reply_style }}\n\n1) SCORE the lead from 0 to 100:\n   - Need fit (0–35): does what they ask for match what we sell?\n   - Ideal-customer fit (0–25): company type, size and industry vs. our ideal customer.\n   - Budget (0–20): stated budget vs. our prices (not given = 8).\n   - Urgency (0–20): timeline (ASAP = 20, within 1 month = 15, 1–3 months = 8, just researching = 3, not given = 6).\n2) is_spam = true for spam, SEO/link-building/marketing/dev-agency pitches, vendors selling TO us, job applications, crypto, gibberish or test submissions.\n3) Write the reply email from {{ $('Config').first().json.your_name }} to the lead:\n   - Personal and specific: mention what they asked for (and their company if known).\n   - Score 70+: enthusiastic; propose a short call and include the booking link.\n   - Score 40–69: helpful; answer briefly and offer the booking link as an easy next step.\n   - Below 40: polite and genuinely helpful; suggest a fitting next step (e.g. reply with more details); no hard sell.\n   - 80–150 words, plain text (no markdown), short paragraphs. Greet them by first name and sign off with {{ $('Config').first().json.your_name }}.\n   - Write in the language of their message.\n   - Never promise prices, discounts or deadlines that are not in WHAT WE SELL.\n   - If is_spam is true, return empty strings for email_subject and email_body."
+            }
+          ]
+        },
+        "hasOutputParser": true
+      },
+      "id": "84fde1d3-18c5-5c04-b96b-7e4a4b278688",
+      "name": "AI: Qualify & Write Reply",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1600,
+        270
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.5,
+          "responseFormat": "json_object"
+        }
+      },
+      "id": "2145ad8e-5348-5320-80f8-dc670921fb09",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1560,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"score\": {\n      \"type\": \"integer\",\n      \"minimum\": 0,\n      \"maximum\": 100\n    },\n    \"is_spam\": {\n      \"type\": \"boolean\"\n    },\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"One sentence: what they need\"\n    },\n    \"key_needs\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"budget_fit\": {\n      \"type\": \"string\",\n      \"description\": \"good / unclear / too low – with a few words why\"\n    },\n    \"urgency\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"high\",\n        \"medium\",\n        \"low\"\n      ]\n    },\n    \"next_step\": {\n      \"type\": \"string\",\n      \"description\": \"Recommended next action for the sales team\"\n    },\n    \"red_flags\": {\n      \"type\": \"string\",\n      \"description\": \"Concerns, or empty string\"\n    },\n    \"email_subject\": {\n      \"type\": \"string\"\n    },\n    \"email_body\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"score\",\n    \"is_spam\",\n    \"summary\",\n    \"key_needs\",\n    \"budget_fit\",\n    \"urgency\",\n    \"next_step\",\n    \"red_flags\",\n    \"email_subject\",\n    \"email_body\"\n  ],\n  \"additionalProperties\": false\n}"
+      },
+      "id": "907b702c-5eff-5b6e-bd67-7c82815e917e",
+      "name": "Qualification Format",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1720,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combines the lead with the AI verdict, applies your score thresholds and\n// prepares everything the next steps need (CRM row, reply email, alert).\nconst lead = $('Lead Data').item.json;\nconst cfg = $('Config').first().json;\nconst ai = $json.output && typeof $json.output === 'object' ? $json.output : null;\n\nconst hot = Number(cfg.hot_score) || 70;\nconst warm = Number(cfg.warm_score) || 40;\nconst score = ai ? Math.max(0, Math.min(100, Math.round(Number(ai.score) || 0))) : null;\nconst tier = !ai ? 'review' : ai.is_spam ? 'spam' : score >= hot ? 'hot' : score >= warm ? 'warm' : 'cold';\nconst validEmail = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(lead.email || '');\n\nconst fallbackSubject = `Thanks for reaching out to ${cfg.business_name}`;\nconst fallbackBody =\n  `Hi ${lead.first_name},\\n\\nThanks for reaching out to ${cfg.business_name}! We've received your message and will get back to you within one business day.` +\n  (cfg.booking_link ? `\\n\\nIf you'd like to talk sooner, you can book a time that suits you here: ${cfg.booking_link}` : '') +\n  `\\n\\nBest,\\n${cfg.your_name}`;\n\nconst subject = ai && ai.email_subject ? ai.email_subject : fallbackSubject;\nconst body = ai && ai.email_body ? ai.email_body : fallbackBody;\nconst autoReply = cfg.auto_reply === true || cfg.auto_reply === 'true';\nconst esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n\nreturn {\n  json: {\n    ...lead,\n    score: score === null ? '' : score,\n    tier,\n    summary: ai ? ai.summary : 'AI qualification failed – please review manually',\n    key_needs: ai && Array.isArray(ai.key_needs) ? ai.key_needs.join(', ') : '',\n    urgency: ai ? ai.urgency : '',\n    budget_fit: ai ? ai.budget_fit : '',\n    next_step: ai ? ai.next_step : 'Review manually',\n    red_flags: ai ? ai.red_flags : '',\n    email_subject: subject,\n    email_body: body,\n    send_reply: autoReply && validEmail && tier !== 'spam',\n    alert_html:\n      `🔥 <b>Hot lead: ${esc(lead.name)}</b> (${score}/100)\\n` +\n      `${esc(lead.company || '')} ${esc(lead.email)} ${esc(lead.phone || '')}\\n\\n` +\n      `<b>Needs:</b> ${esc(ai ? ai.summary : '')}\\n<b>Budget:</b> ${esc(lead.budget || '?')} · <b>Timeline:</b> ${esc(lead.timeline || '?')}\\n<b>Next step:</b> ${esc(ai ? ai.next_step : '')}`,\n    alert_email_html: `<div style=\"font-family:Arial,sans-serif;max-width:600px\">\n<h2 style=\"margin:0 0 12px\">🔥 Hot lead: ${esc(lead.name)} <span style=\"color:#16a34a\">${score}/100</span></h2>\n<table style=\"border-collapse:collapse;width:100%;font-size:14px\">\n${[['Company', lead.company], ['Email', lead.email], ['Phone', lead.phone], ['Website', lead.website], ['Budget', lead.budget], ['Timeline', lead.timeline], ['Needs', ai ? ai.summary : ''], ['Next step', ai ? ai.next_step : ''], ['Red flags', ai ? ai.red_flags : '']]\n  .map(([k, v]) => `<tr><td style=\"padding:6px 10px;background:#f4f4f5;font-weight:bold;width:110px\">${k}</td><td style=\"padding:6px 10px;border-bottom:1px solid #eee\">${esc(v || '–')}</td></tr>`)\n  .join('\\n')}\n</table>\n<p style=\"margin-top:14px\"><b>Their message:</b><br>${esc(lead.message).replace(/\\n/g, '<br>')}</p>\n<p style=\"color:#71717a;font-size:12px\">${autoReply && validEmail ? 'An AI-written reply was already sent to them.' : 'No automatic reply was sent.'} Speed wins — call them today! 📞</p>\n</div>`,\n  },\n};\n",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "2476f94f-de73-5a57-9028-766f1f246e7d",
+      "name": "Lead Record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1880,
+        270
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2821e2ae-1aa5-58f4-9153-b70dbba4210a",
+              "name": "Received",
+              "value": "={{ $json.received_at }}",
+              "type": "string"
+            },
+            {
+              "id": "b16e7bb8-b5bc-50ca-bc4b-917e65969db4",
+              "name": "Name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "ebea4fc3-7068-5a18-9790-0c4cc8b8fac8",
+              "name": "Email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "d4836958-c5a7-5957-a63a-36e16a258c06",
+              "name": "Phone",
+              "value": "={{ $json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "83449ecc-bd2f-5660-a9c0-bbb856595d8a",
+              "name": "Company",
+              "value": "={{ $json.company }}",
+              "type": "string"
+            },
+            {
+              "id": "f0df8ee9-00ce-5914-a796-06318688c46f",
+              "name": "Website",
+              "value": "={{ $json.website }}",
+              "type": "string"
+            },
+            {
+              "id": "1eea5a43-3296-5aa7-ac8b-b7606c472fbe",
+              "name": "Budget",
+              "value": "={{ $json.budget }}",
+              "type": "string"
+            },
+            {
+              "id": "0557be45-60e7-57f2-bab1-7c2b2e428c3b",
+              "name": "Timeline",
+              "value": "={{ $json.timeline }}",
+              "type": "string"
+            },
+            {
+              "id": "ec66a911-0124-5e80-bed7-f484c8a986aa",
+              "name": "Message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "efeae103-7919-58c3-a647-5083b33f7097",
+              "name": "Score",
+              "value": "={{ $json.score }}",
+              "type": "string"
+            },
+            {
+              "id": "85fcb31a-7922-5437-b536-6ca4f3597cb6",
+              "name": "Tier",
+              "value": "={{ $json.tier }}",
+              "type": "string"
+            },
+            {
+              "id": "6a24b7d5-6844-5225-9633-208807f5fd2c",
+              "name": "Summary",
+              "value": "={{ $json.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "e85db812-4c2a-5637-b0e9-c77f49dea556",
+              "name": "Next step",
+              "value": "={{ $json.next_step }}",
+              "type": "string"
+            },
+            {
+              "id": "486ae869-77c3-5d7d-b6ff-4f0321b880c2",
+              "name": "Red flags",
+              "value": "={{ $json.red_flags }}",
+              "type": "string"
+            },
+            {
+              "id": "ba49af25-2bd0-561b-b384-609a982d067f",
+              "name": "Auto-reply sent",
+              "value": "={{ $json.send_reply ? 'yes' : 'no' }}",
+              "type": "string"
+            },
+            {
+              "id": "ed893cf5-3cfa-5b46-9cdc-7f05c5d0e4d5",
+              "name": "Source",
+              "value": "={{ $json.source }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fd97faf5-c032-5e84-800d-4b90775b10a9",
+      "name": "CRM Row",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2120,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.google_sheet_url }}",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.sheet_tab }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "a66f483e-940a-5ebf-876b-482cb4a7987e",
+      "name": "Save to CRM Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2340,
+        60
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3ce749a9-9b3f-5beb-bd52-ef9a9e37e84d",
+              "leftValue": "={{ $json.send_reply }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "5487f10e-0b4e-5e2c-8228-2d4eeda057d7",
+      "name": "Send Reply?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.email_subject }}",
+        "emailType": "text",
+        "message": "={{ $json.email_body }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "={{ $('Config').first().json.your_name }}"
+        }
+      },
+      "id": "232405ac-9df9-5ef9-883b-25aca2b1f0e3",
+      "name": "Send Instant Reply",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2340,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2df20d1c-ad8b-5fcd-ae43-904d016cc5d1",
+              "leftValue": "={{ $json.tier }}",
+              "rightValue": "hot",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "id": "2bc0c35f-4e22-54e1-a3bb-fa0ee786ea5e",
+      "name": "Hot Lead?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2120,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Config').first().json.your_email }}",
+        "subject": "=🔥 Hot lead: {{ $json.name }} ({{ $json.score }}/100)",
+        "message": "={{ $json.alert_email_html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "f329cc37-a7ee-5567-b7f2-ee15fa4f1576",
+      "name": "Alert Me (Email)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2340,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Config').first().json.telegram_chat_id }}",
+        "text": "={{ $json.alert_html }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "b00fb9d5-d63e-5aca-9987-aacb91e1cd08",
+      "name": "Alert Me (Telegram)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2340,
+        700
+      ],
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Lead Form": {
+      "main": [
+        [
+          {
+            "node": "Normalize Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Website Form (Webhook)": {
+      "main": [
+        [
+          {
+            "node": "Normalize Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Lead": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Has Website?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Website?": {
+      "main": [
+        [
+          {
+            "node": "Visit Website",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Visit Website": {
+      "main": [
+        [
+          {
+            "node": "Website Snippet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Website Snippet": {
+      "main": [
+        [
+          {
+            "node": "Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Data": {
+      "main": [
+        [
+          {
+            "node": "AI: Qualify & Write Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Qualify & Write Reply": {
+      "main": [
+        [
+          {
+            "node": "Lead Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Record": {
+      "main": [
+        [
+          {
+            "node": "CRM Row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Reply?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Hot Lead?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CRM Row": {
+      "main": [
+        [
+          {
+            "node": "Save to CRM Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Reply?": {
+      "main": [
+        [
+          {
+            "node": "Send Instant Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hot Lead?": {
+      "main": [
+        [
+          {
+            "node": "Alert Me (Email)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert Me (Telegram)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: Qualify & Write Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qualification Format": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI: Qualify & Write Reply",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "active": false
+}
