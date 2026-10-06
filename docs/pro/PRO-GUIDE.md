@@ -7,11 +7,11 @@ tier: Pro
 
 ## What Pro adds
 
-Read this guide after you set up your first Client Finder workflow with SETUP-GUIDE.pdf. Pro adds three things:
+Read this guide after you set up your first workflow with SETUP-GUIDE.pdf. Pro adds three things:
 
 1. **Four more niche workflows.** A *niche* is the type of service you sell, such as local SEO or AI chatbots. Each niche workflow looks for different problems and gives Claude a different angle for the pitch.
 2. **The Follow-up Autopilot.** A workflow that runs every morning. It checks Gmail for the pitches you sent and the replies you got, and drafts short follow-ups in the same email thread.
-3. **Your own niche packs.** A *niche pack* is a small block of settings inside each workflow. It decides what the workflow checks and how many points each problem is worth. You can copy a workflow and write your own.
+3. **Your own niche packs.** A *niche pack* is a small block of settings inside each workflow. It decides what the workflow checks and how many points each problem is worth.
 
 You also get OUTREACH-PLAYBOOK.pdf and TEMPLATES.pdf. The basics stay the same: {{productName}} uses Google's official Places API, not scraping. It finds an email only when a business publishes one on its homepage. It never sends anything: pitches and follow-ups become Gmail drafts that you read and send yourself.
 
@@ -27,7 +27,7 @@ You also get OUTREACH-PLAYBOOK.pdf and TEMPLATES.pdf. The basics stay the same: 
 | `client-finder-social-media.json` | Social media managers and ads agencies | No social media links 40, No analytics or ad pixel 30, No website 15, Few Google reviews 15, Outdated website 10 | gyms, Pune, India | 3 ready-to-post content ideas for their Instagram, free |
 | `client-finder-ai-chatbot.json` | AI automation agencies (chatbots, AI receptionists, booking) | No online booking 35, No chat or WhatsApp 30, Limited opening hours 25, No website 10 | physiotherapy clinics, Bangalore, India | a free 5-minute demo of an AI assistant trained on their own website |
 
-Scoring is the same in every niche: the points of all problems found are added up, to a maximum of 100. **Hot** is 60 or more, **Warm** 30-59, **Low** 1-29.
+In every niche, the points of all problems found are added up, to a maximum of 100. **Hot** is 60 or more, **Warm** 30-59, **Low** 1-29.
 
 ### What each workflow opens, and how fast it is
 
@@ -37,17 +37,15 @@ Scoring is the same in every niche: the points of all problems found are added u
 | Local SEO | local SEO (getting found on Google Search and Google Maps) | Yes | Yes |
 | Social Media & Ads | social media management and Instagram/Facebook ads | Yes | No |
 | AI Chatbots & Booking | AI assistants that answer enquiries and book appointments 24/7 | Yes | No |
-| Google Reviews & Reputation | getting more 5-star Google reviews from happy customers | No | No |
+| Google Reviews & Reputation | getting more 5-star Google reviews from happy customers | Yes (only to find an email) | No |
 
-A PageSpeed test can take up to a minute per site, so Web Design and Local SEO are the slowest. Social Media & Ads and AI Chatbots & Booking skip PageSpeed and finish faster. Reviews uses only Google Maps data, so it is the fastest.
-
-> **Important:** Reviews never opens a homepage, so it never finds an email address. Its pitches are saved as **Pitch ready**, without a Gmail draft: use the DM message or call opener. If you find an email yourself, type it into the **Email** column and send the pitch from Gmail. The Autopilot can then follow it up.
+Every niche opens each homepage, because that is where contact emails come from. A PageSpeed test can take up to a minute per site, so Web Design and Local SEO are the slowest. Reviews, Social Media & Ads and AI Chatbots & Booking skip PageSpeed and finish faster. The Reviews checks themselves use only Google Maps data.
 
 > **Example:** One made-up test business, Sunrise Family Dental in Austin, TX, scores 50 in Web Design, 55 in Local SEO, 40 in Social Media & Ads and 65 in AI Chatbots & Booking. In Reviews it scores 0: 4.6 stars from 212 reviews is a strong profile.
 
 ## Setting up the other niches
 
-You reuse the four credentials from your first workflow. You do not need new keys.
+You reuse the four credentials from your first workflow.
 
 ### 1. Import the file
 
@@ -60,7 +58,7 @@ Import each file only once. It appears as, for example, "Client Finder: Local SE
 
 ### 2. Select the same four credentials
 
-Open each node below and choose the credential you created before.
+Open each node and choose the credential you created before.
 
 | Credential | Nodes |
 |---|---|
@@ -69,7 +67,7 @@ Open each node below and choose the credential you created before.
 | Google Sheets account | *Read Saved Leads*, *Save to Google Sheet* |
 | Gmail account | *Create Gmail Draft* |
 
-> **Tip:** Check every node, even if n8n filled in a credential by itself. In Reviews, select Gmail on *Create Gmail Draft* too.
+> **Tip:** Check every node, even if n8n filled in a credential by itself.
 
 ### 3. Fill in its ⚙️ Settings
 
@@ -88,7 +86,7 @@ Each workflow has its own *⚙️ Settings*. A change in one does not change the
 
 ### 5. Bookmark its form
 
-Each niche has its own form. Open *Find Clients Form*, switch to **Production URL** and bookmark it.
+Open *Find Clients Form*, switch to **Production URL** and bookmark it.
 
 | Workflow | Form address ends in |
 |---|---|
@@ -132,7 +130,7 @@ For each lead it searches your Gmail for the last 120 days: emails you **sent** 
 
 Each follow-up uses the angle of the niche that found the lead (the **Niche** column) and builds on your original email. Claude is asked for 2-4 sentences in #1 and 2-3 in #2. Your signature is added, but no "P.S." opt-out line: your first email in the thread has one.
 
-The Autopilot writes only the columns that change. All other cells stay as they are.
+It writes only the columns that change.
 
 ![The Follow-up Autopilot workflow in the n8n editor](img/followup-canvas.png)
 *The Follow-up Autopilot. Top: triggers, settings and your sheet. Bottom: Gmail search, follow-up drafts and the sheet update.*
@@ -159,7 +157,7 @@ The wait counts full 24-hour days from the moment you sent your last email, and 
 
 > **Tip:** It runs at weekends too. You can send Saturday's drafts on Monday; the next wait starts when you send.
 
-After the last follow-up, the lead stays **Contacted**. When you decide it is over, set it to **Lost**.
+After the last follow-up, the lead stays **Contacted** until you set it to **Lost**.
 
 ### Set it up
 
@@ -173,7 +171,7 @@ After the last follow-up, the lead stays **Contacted**. When you decide it is ov
 | Anthropic API Key | *Write Follow-up with Claude* |
 
 3. **Fill in *⚙️ Settings*** (table below), close the node and click **Save**.
-4. **Test it.** Click **Execute workflow** (**Test workflow** in some versions). "From Every Morning" or "from Run Now" both run the same steps. A test is a real run: it updates your sheet and can create drafts.
+4. **Test it.** Click **Execute workflow** (**Test workflow** in some versions). If the button says "from Every Morning" or "from Run Now", either is fine. A test is a real run: it updates your sheet and can create drafts.
 5. **Read the result** in the *Report* node. If there was nothing to do, the run ends at *Nothing To Do* instead.
 6. **Switch it on:** **Active** in n8n 1.x, or **Publish** in n8n 2.x (again after every change). The 9:00 schedule runs only then.
 
@@ -235,8 +233,7 @@ Each Client Finder workflow has a block called `NICHE_PACK` in its *Prepare Sear
 
 A check works only if the workflow collects its facts (**Uses**, below):
 
-- **Google Maps checks only:** copy any workflow. Reviews is the fastest.
-- **Homepage checks:** copy any workflow except Reviews.
+- **Google Maps and homepage checks:** copy any workflow. Those without PageSpeed are faster.
 - **PageSpeed checks** (Slow on mobile, Not secure): copy Web Design or Local SEO.
 
 Changing `needsWebsiteCheck` or `needsPageSpeed` does not add or remove nodes. Leave them, `tagline` and `exampleSearch` as they are.
@@ -255,7 +252,7 @@ Changing `needsWebsiteCheck` or `needsPageSpeed` does not add or remove nodes. L
 
 | Field | What it does |
 |---|---|
-| `title` | The name in the **Niche** column. The Autopilot uses it to find the angle. |
+| `title` | The name in the **Niche** column (the Autopilot reads it too) |
 | `id` | A short name without spaces |
 | `weights` | The checks that run and their points. Delete a line or set it to 0 to switch a check off. |
 | `thresholds` | Your own limits, for example `{ "lowRating": 4.3 }`. `{}` = the defaults. |
@@ -269,11 +266,11 @@ Changing `needsWebsiteCheck` or `needsPageSpeed` does not add or remove nodes. L
 
 ### All available checks
 
-**Uses**: *Maps* = the Google Maps listing. *Home* = the homepage. *PSI* = the PageSpeed test; *(+ PSI)* = also uses it when the workflow has it. *Search* = the other businesses in the same search.
+**Uses**: **Maps** = the Google Maps listing. **Home** = the homepage. **PSI** = the PageSpeed test; **(+ PSI)** = also uses it when the workflow has it. **Search** = the other businesses in the same search.
 
 | Check id | Label | Counts when | Uses |
 |---|---|---|---|
-| `no_website` | No website | Google lists no website | Maps |
+| `no_website` | No website | Google lists no website, or only a social, directory or booking page (such as a Facebook page) | Maps |
 | `site_down` | Website down | The site did not load (expired domain, error page, 404, no answer in 20 seconds) | Home |
 | `ssl_error` | Security certificate error | The certificate is broken or expired | Home |
 | `placeholder_site` | Placeholder website | Only a "coming soon", parked or default page | Home |
@@ -303,7 +300,7 @@ Homepage checks run only when the homepage loaded and is a real site. A blocked 
 | **minReviewsForRating** | 5 | ...but only with at least this many reviews |
 | **fewReviewsMax** | 25 | Few Google reviews needs fewer reviews than this... |
 | **fewReviewsRatio** | 0.35 | ...and fewer than 35% of the median of the same search |
-| **minMarketForComparison** | 5 | Few Google reviews is judged only when the search found at least this many businesses |
+| **minMarketForComparison** | 5 | Few Google reviews needs at least this many businesses in the search |
 | **outdatedYears** | 3 | Footer year this many years old or more = Outdated website |
 | **earlyCloseWeekdays** | 3 | Closing before 6 pm on at least this many weekdays = Limited opening hours |
 
