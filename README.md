@@ -45,7 +45,7 @@ tests/                     unit, structure and end-to-end tests
 ## Tests
 
 ```bash
-npm test                   # 45 unit tests + build check + structure tests (no n8n needed)
+npm test                   # 74 unit tests + build check + 21 structure tests (no n8n needed)
 N8N_MODULES=/path/to/n8n/node_modules npm run test:structure   # + checks every node/parameter against a real n8n
 N8N_BIN=/path/to/n8n/node_modules/.bin/n8n npm run test:e2e    # runs every workflow inside a real n8n
 ```
@@ -54,10 +54,16 @@ The end-to-end test starts a real n8n, imports every product workflow exactly as
 credentials and submits the real forms. Google Maps, PageSpeed, Google Sheets, Gmail, Claude and 14 fake
 business websites are replaced by local mock servers that validate each request like the real APIs.
 Nothing leaves the machine. It needs `openssl` and permission to listen on ports 80/443.
-12 scenarios cover the Lite CSV download, error pages, the full Starter run (scoring, pitches, the
-AI retry, Gmail drafts, the sheet), re-runs without duplicates, all 5 Pro niches and the Follow-up
-Autopilot (sent/reply detection, threaded drafts, no duplicate follow-ups). They pass on
-**n8n 1.123.83** (Node 22) and **n8n 2.42.3** (Node 24).
+13 scenarios cover the Lite CSV download, error pages (Google API off, no results, unset Settings,
+a sheet without a "Leads" tab), the full Starter run (scoring, the second check of failing sites,
+PageSpeed confirming a certificate error, pitches, the AI retry, the sheet saved before the Gmail
+drafts, a refused draft), re-runs without duplicates, all 5 Pro niches and the Follow-up Autopilot
+(sent/reply detection incl. replies from another address in the thread and deleted replies, bounces,
+opt-outs on another row, duplicated rows, threaded drafts with an opt-out line, no duplicate
+follow-ups). They pass on **n8n 1.123.83** (Node 22) and **n8n 2.42.3** (Node 24).
+
+`tests/unit/review-fixes.test.js` holds a regression test for every finding of the code review
+(false claims, wrong recipients, follow-up edge cases, slow regexes on hostile pages...).
 
 Screenshots in `docs/img` come from `scripts/screenshots.js`, which runs the same setup and captures
 the real n8n editor and form pages.

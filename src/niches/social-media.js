@@ -6,7 +6,7 @@ module.exports = {
   needsWebsiteCheck: true,
   needsPageSpeed: false,
   defaultService: 'social media management and Instagram/Facebook ads',
-  defaultOffer: '3 ready-to-post content ideas for their Instagram, free',
+  defaultOffer: '3 ready-to-post content ideas for your Instagram, free',
   exampleSearch: { businessType: 'gyms', location: 'Pune, India' },
   weights: {
     no_social: 40,

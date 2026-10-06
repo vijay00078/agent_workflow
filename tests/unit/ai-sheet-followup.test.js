@@ -59,7 +59,7 @@ function claudeResponse(json, extra = {}) {
 test('pitch request for the default model uses structured outputs, effort and refusal fallbacks', () => {
   const { body, headers } = ai.buildPitchRequest(lead, settings, webPack);
   assert.equal(body.model, 'claude-opus-5-5');
-  assert.equal(body.max_tokens, 16000);
+  assert.equal(body.max_tokens, 4000); // small at low effort: max_tokens counts against new accounts' output-tokens-per-minute limit
   assert.equal(body.fallbacks, 'default');
   assert.equal(headers['anthropic-beta'], 'server-side-fallback-2026-07-01');
   assert.equal(headers['anthropic-version'], '2023-06-01');
@@ -94,6 +94,9 @@ test('request shape adapts to the model', () => {
   assert.equal(badEffort.body.output_config.effort, 'low');
   const defaults = ai.buildPitchRequest(lead, {}, webPack);
   assert.equal(defaults.body.model, ai.DEFAULT_MODEL);
+  assert.equal(sonnet.body.max_tokens, 8000); // more room for thinking at higher effort
+  assert.equal(ai.buildPitchRequest(lead, Object.assign({}, settings, { aiEffort: 'max' }), webPack).body.max_tokens, 32000);
+  assert.equal(ai.buildFollowUpRequest({ Business: 'B' }, settings, webPack, 1).body.max_tokens, 2000);
 });
 
 test('parsePitchResponse: structured JSON, fenced JSON, prose around JSON', () => {
@@ -135,12 +138,14 @@ test('fallback pitch and final email body', () => {
   const p = ai.fallbackPitch(lead, settings, webPack);
   assert.equal(p.subject, 'quick question about Sunrise Family Dental');
   assert.match(p.body, /^Hi Sunrise Family Dental team,/);
-  assert.match(p.body, /google PageSpeed scores the mobile site 23\/100/);
+  assert.match(p.body, /one thing stood out: Google PageSpeed scores the mobile site 23\/100/); // "Google" keeps its capital
+  assert.match(p.callOpener, /\(slow on mobile\)/);
   assert.match(p.body, /a free 2-minute video audit/);
   assert.ok(p.dm.length <= 300);
   const full = ai.finalEmailBody('Body text.', settings);
   assert.equal(full, 'Body text.\n\nThanks,\nAsha Rao\nPixel & Pine Studio\npixelpine.test\n\nP.S. Not relevant? Reply "no thanks".');
   assert.equal(ai.finalEmailBody('Body', {}), 'Body\n\nThanks');
+  assert.equal(ai.finalEmailBody('Body', Object.assign({}, settings, { signOff: 'Best regards,', optOutLine: '' })), 'Body\n\nBest regards,\nAsha Rao\nPixel & Pine Studio\npixelpine.test');
   assert.match(ai.finalEmailBody('Body', Object.assign({}, settings, { yourAddress: '12 Main St, Austin, TX 78701' })), /pixelpine\.test\n12 Main St, Austin, TX 78701\n\nP\.S\./);
   const none = ai.fallbackPitch(Object.assign({}, lead, { problems: [] }), {}, webPack);
   assert.match(none.body, /a few quick wins/);
@@ -197,7 +202,7 @@ test('Gmail queries cover every pitched address and skip finished leads', () => 
   const qs = fu.buildGmailQueries(rows);
   assert.deepEqual(qs, [
     { kind: 'sent', q: 'in:sent newer_than:120d {to:a@x.test to:b@y.test}' },
-    { kind: 'reply', q: '-in:sent -in:drafts newer_than:120d {from:a@x.test from:b@y.test}' },
+    { kind: 'reply', q: 'in:anywhere -in:sent -in:drafts newer_than:120d {from:a@x.test from:b@y.test}' },
   ]);
   const many = Array.from({ length: 30 }, (_, i) => baseRow({ 'Place ID': 'p' + i, Email: `o${i}@b.test` }));
   assert.equal(fu.buildGmailQueries(many).length, 4);
@@ -226,7 +231,8 @@ test('sent 18 days ago, no reply → first follow-up in the same thread', () => 
   assert.equal(a[0].update.Status, 'Follow-up drafted');
   assert.equal(a[0].update['Last Draft On'], '2026-10-20');
   const sheetOnly = decide([baseRow({ Status: 'Contacted', 'Last Contacted': '2026-10-02' })], []);
-  assert.equal(sheetOnly[0].threadId, 't-1'); // no Gmail data → the sheet's thread id
+  assert.equal(sheetOnly[0].threadId, ''); // a hand-entered date has no Gmail thread to reply in: a new thread
+  assert.equal(sheetOnly[0].update['Thread ID'], 't-1'); // the sheet's own value is left as it was
 });
 
 test('sent 2 days ago → not due yet, but status becomes Contacted', () => {

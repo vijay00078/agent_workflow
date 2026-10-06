@@ -23,7 +23,11 @@ test('classifyFetch maps every outcome', () => {
   assert.equal(web.classifyFetch({ error: { message: 'certificate has expired', code: 'CERT_HAS_EXPIRED' } }).status, 'ssl-error');
   assert.equal(web.classifyFetch({ error: { message: "Hostname/IP does not match certificate's altnames" } }).status, 'ssl-error');
   assert.equal(web.classifyFetch({ error: { message: 'timeout of 20000ms exceeded' } }).status, 'timeout');
-  assert.equal(web.classifyFetch({ error: { message: 'connect ECONNREFUSED 1.2.3.4:443' } }).status, 'connection-failed');
+  assert.equal(web.classifyFetch({ error: { message: 'connect ECONNREFUSED 1.2.3.4:443' } }).status, 'connection-refused');
+  assert.equal(web.classifyFetch({ error: { message: 'read ECONNRESET' } }).status, 'connection-failed');
+  assert.equal(web.classifyFetch({ error: { message: 'getaddrinfo EAI_AGAIN x.test' } }).status, 'dns-error');
+  assert.equal(web.classifyFetch({ error: { message: 'certificate has expired', code: 'CERT_HAS_EXPIRED' } }).sslKind, 'expired');
+  assert.equal(web.classifyFetch({ error: { message: "SSL Issue: consider using the 'Ignore SSL issues' option" } }).sslKind, 'unverified');
   assert.equal(web.classifyFetch({ error: { message: 'Maximum number of redirects exceeded' } }).status, 'redirect-loop');
   assert.equal(web.classifyFetch({}).status, 'unknown');
 });
@@ -124,7 +128,8 @@ test('parsePageSpeed handles success, runtime errors and API errors', () => {
 function fetchResultFor(b) {
   if (!b.place.website) return null;
   if (b.unresolvable) return { error: { message: `getaddrinfo ENOTFOUND ${new URL(b.place.website).hostname}` } };
-  if (b.badCert) return { error: { message: "Hostname/IP does not match certificate's altnames: Host: pearl-dental.test" } };
+  // What n8n really reports for any certificate problem (no detail): only Chrome via PageSpeed can confirm it.
+  if (b.badCert) return { error: { message: "SSL Issue: consider using the 'Ignore SSL issues' option", name: 'NodeSslError' } };
   if (b.status) return { statusCode: b.status, html: 'blocked', headers: {} };
   return { statusCode: 200, html: b.html, headers: { 'content-type': 'text/html' } };
 }
@@ -137,8 +142,9 @@ function processedLeads(packId) {
     const b = fx.BUSINESSES.find((x) => x.place.id === lead.placeId);
     let l = Object.assign({}, lead, { market });
     if (p.needsWebsiteCheck && l.website) {
-      l = steps.stepCheckWebsite(l, fetchResultFor(b));
-      if (p.needsPageSpeed && l.site.status === 'ok') {
+      l = steps.stepCheckWebsite(l, fetchResultFor(b), NOW);
+      if (p.weights.site_down && l.needsRecheck) l = steps.stepRecheckWebsite(l, fetchResultFor(b), NOW);
+      if (p.needsPageSpeed && ['ok', 'ssl-error'].includes(l.site.status) && !l.websitePlatform) {
         const resp = b.psi && b.psi.error ? { error: { message: 'The service is currently unavailable.' } } : fx.psiResponse(b);
         l = steps.stepReadPageSpeed(l, resp);
       }
@@ -169,7 +175,8 @@ test('evidence strings quote the real numbers', () => {
   const slow = found.find((p) => p.id === 'slow_mobile');
   assert.match(slow.evidence, /23\/100/);
   assert.match(slow.evidence, /9\.8 s/);
-  assert.match(slow.evidence, /Real-visitor data/);
+  assert.match(slow.evidence, /real visitors also rates the site slow/);
+  assert.match(slow.evidence, /PageSpeed mobile test/);
   const outdated = found.find((p) => p.id === 'outdated_site');
   assert.match(outdated.evidence, /© 2019/);
   assert.match(outdated.evidence, /7 years/);

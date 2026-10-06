@@ -12,6 +12,7 @@ const https = require('https');
 const tls = require('tls');
 const fs = require('fs');
 const fx = require('../fixtures/businesses');
+const { PAGESPEED_FIELDS } = require('../../src/lib/pagespeed');
 
 const KEYS = { google: 'test-google-key', anthropic: 'test-anthropic-key', oauth: 'ya29.test-access-token' };
 const API_HOSTS = ['places.googleapis.com', 'www.googleapis.com', 'sheets.googleapis.com', 'oauth2.googleapis.com', 'gmail.googleapis.com', 'api.anthropic.com'];
@@ -194,10 +195,11 @@ class Mocks {
     this.gmailMessages = [];
     this.claudeAttempts = new Map();
     this.counter = 0;
+    this.seq = this.seq || 0; // one sequence across every mock, to check the order of calls
   }
 
   record(kind, req, extra) {
-    this.calls[kind].push(Object.assign({ method: req.method, host: req.headers.host, url: req.url, headers: req.headers }, extra || {}));
+    this.calls[kind].push(Object.assign({ method: req.method, host: req.headers.host, url: req.url, headers: req.headers, seq: ++this.seq }, extra || {}));
   }
 
   async start() {
@@ -277,8 +279,10 @@ class Mocks {
 
   // --- PageSpeed Insights ---
   pagespeed(req, res, url) {
-    this.record('psi', req, { target: url.searchParams.get('url'), strategy: url.searchParams.get('strategy'), categories: url.searchParams.getAll('category') });
+    this.record('psi', req, { target: url.searchParams.get('url'), strategy: url.searchParams.get('strategy'), categories: url.searchParams.getAll('category'), fields: url.searchParams.get('fields') });
     if (req.headers['x-goog-api-key'] !== KEYS.google) return this.send(res, 400, { error: { code: 400, message: 'API key not valid.', status: 'INVALID_ARGUMENT' } });
+    // The workflow must ask for the trimmed response (no screenshots): see PAGESPEED_FIELDS in src/lib/pagespeed.js.
+    if (url.searchParams.get('fields') !== PAGESPEED_FIELDS) return this.send(res, 400, { error: { code: 400, message: `Invalid field selection: ${url.searchParams.get('fields')}`, status: 'INVALID_ARGUMENT' } });
     const target = url.searchParams.get('url') || '';
     let host = '';
     try {
@@ -392,7 +396,21 @@ class Mocks {
       return this.send(res, 200, {
         id: thread[1],
         historyId: '1',
-        messages: msgs.map((m) => ({ id: m.id, threadId: m.threadId, labelIds: m.labelIds, payload: { headers: [{ name: 'Message-ID', value: `<${m.id}@mail.test>` }] } })),
+        messages: msgs.map((m) => ({
+          id: m.id,
+          threadId: m.threadId,
+          labelIds: m.labelIds,
+          snippet: m.snippet || '',
+          internalDate: String(m.internalDate),
+          payload: {
+            headers: [
+              { name: 'Message-ID', value: `<${m.id}@mail.test>` },
+              { name: 'From', value: m.from },
+              { name: 'To', value: m.to },
+              { name: 'Subject', value: m.subject || '' },
+            ],
+          },
+        })),
       });
     }
     const one = p.match(/^\/messages\/([^/]+)$/);
@@ -417,7 +435,7 @@ class Mocks {
   // --- Sheets ---
   sheetsApi(req, res, raw, url) {
     const body = raw ? JSON.parse(raw) : {};
-    this.sheets.log.push({ method: req.method, path: url.pathname, query: Object.fromEntries(url.searchParams), body });
+    this.sheets.log.push({ method: req.method, path: url.pathname, query: Object.fromEntries(url.searchParams), body, seq: ++this.seq });
     if (req.headers.authorization !== `Bearer ${KEYS.oauth}`) return this.send(res, 401, { error: { code: 401, message: 'Request had invalid authentication credentials.', status: 'UNAUTHENTICATED' } });
     const m = url.pathname.match(/^\/v4\/spreadsheets\/([^/:]+)(.*)$/);
     if (!m) return this.send(res, 404, { error: { code: 404, message: 'Not found' } });
@@ -485,7 +503,9 @@ function matchesGmailQuery(m, q) {
   const neg = take(/-in:(\w+)/g);
   const pos = take(/(?:^|\s)in:(\w+)/g);
   const newer = take(/newer_than:(\d+)d/g);
-  for (const l of pos) if (!labels.includes(l.toUpperCase())) return false;
+  const anywhere = pos.includes('anywhere');
+  if (!anywhere && (labels.includes('TRASH') || labels.includes('SPAM'))) return false; // Gmail search skips them unless in:anywhere
+  for (const l of pos) if (l !== 'anywhere' && !labels.includes(l.toUpperCase())) return false;
   for (const l of neg) if (labels.includes(l.toUpperCase())) return false;
   for (const d of newer) if (Number(m.internalDate) < Date.now() - Number(d) * 86400000) return false;
   for (const group of braces) {

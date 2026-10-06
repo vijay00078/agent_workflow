@@ -46,7 +46,8 @@ function buildSearch(input) {
   const requested = int(firstValue(input[FORM_FIELDS.maxLeads], input.maxLeads), 0);
   const maxLeads = clamp(requested > 0 ? requested : 40, 1, MAX_LEADS_LIMIT);
   const textQuery = `${businessType} in ${location}`;
-  const body = { textQuery, pageSize: Math.min(20, maxLeads) };
+  // Service-area businesses (plumbers, cleaners, mobile trades) have no storefront address; Google leaves them out unless asked.
+  const body = { textQuery, pageSize: Math.min(20, maxLeads), includePureServiceAreaBusinesses: true };
   const languageCode = str(input.searchLanguage).toLowerCase();
   if (/^[a-z]{2}(-[a-z]{2})?$/.test(languageCode)) body.languageCode = languageCode;
   const regionCode = str(input.searchCountryCode).toUpperCase();
@@ -110,13 +111,16 @@ function explainGoogleError(page, apiName) {
     return `${api}: your Google API key was rejected. Open the "Google API Key" credential in n8n and paste the key again (Header Name must be X-Goog-Api-Key).`;
   }
   if (/has not been used|is disabled|SERVICE_DISABLED|not been enabled|API not enabled/i.test(text)) {
-    return `${api}: this API is not enabled in your Google Cloud project yet. Follow step 2 of the setup guide to enable it, wait 2 minutes, then run again.`;
+    return `${api}: this API is not enabled in your Google Cloud project yet. Follow the "Google Cloud" step of the setup guide to enable it, wait 2 minutes, then run again.`;
   }
   if (/billing/i.test(text)) {
-    return `${api}: Google requires a billing account on your Cloud project (the free monthly allowance still applies). See step 2 of the setup guide.`;
+    return `${api}: Google requires a billing account on your Cloud project (the free monthly allowance still applies). See the "Google Cloud" step of the setup guide.`;
   }
-  if (/referer|referrer|API_KEY_HTTP_REFERRER_BLOCKED|IP address|API_KEY_IP_ADDRESS_BLOCKED|blocked/i.test(text)) {
-    return `${api}: your API key has an application restriction that blocks n8n. In Google Cloud > Credentials, set "Application restrictions" to None and restrict the key by API instead.`;
+  if (/API_KEY_SERVICE_BLOCKED|Requests to this API .{0,200} are blocked|API_KEY_API_BLOCKED/i.test(text)) {
+    return `${api}: your API key is restricted to other APIs. In Google Cloud > Credentials, open the key and under "API restrictions" tick both "Places API (New)" and "PageSpeed Insights API", then save.`;
+  }
+  if (/referer|referrer|API_KEY_HTTP_REFERRER_BLOCKED|IP address|API_KEY_IP_ADDRESS_BLOCKED|API_KEY_ANDROID_APP_BLOCKED|API_KEY_IOS_APP_BLOCKED|blocked/i.test(text)) {
+    return `${api}: your API key has an application restriction (websites, IP addresses or apps) that blocks n8n. In Google Cloud > Credentials, set "Application restrictions" to None and restrict the key by API instead.`;
   }
   if (code === 429 || /quota|RESOURCE_EXHAUSTED|rate/i.test(text)) {
     return `${api}: Google says you hit a quota or rate limit. Wait a few minutes or raise the quota in Google Cloud.`;
@@ -127,8 +131,9 @@ function explainGoogleError(page, apiName) {
   return `${api} returned an error: ${message || JSON.stringify(err).slice(0, 300)}`;
 }
 
-// Google listings often link to a social profile or a booking page instead of a real website.
-// Those businesses have no website of their own; we must not judge facebook.com's HTML as theirs.
+// Google listings often link to a social profile, a booking or delivery page or a directory listing instead of a
+// real website. Those businesses have no website of their own: we must not judge facebook.com's HTML as theirs.
+// (Hosted site builders such as square.site, wixsite.com or sites.google.com ARE their own website.)
 const PLATFORM_HOSTS = [
   ['Facebook page', /(^|\.)(facebook\.com|fb\.com|fb\.me|m\.me)$/],
   ['Instagram profile', /(^|\.)(instagram\.com|instagr\.am)$/],
@@ -136,13 +141,20 @@ const PLATFORM_HOSTS = [
   ['X/Twitter profile', /(^|\.)(twitter\.com|x\.com)$/],
   ['YouTube channel', /(^|\.)(youtube\.com|youtu\.be)$/],
   ['LinkedIn page', /(^|\.)linkedin\.com$/],
-  ['link-in-bio page', /(^|\.)(linktr\.ee|linkin\.bio|beacons\.ai|lnk\.bio|taplink\.cc|bio\.link)$/],
-  ['WhatsApp link', /(^|\.)(wa\.me|whatsapp\.com)$/],
+  ['link-in-bio page', /(^|\.)(linktr\.ee|linkin\.bio|beacons\.ai|lnk\.bio|taplink\.cc|bio\.link|msha\.ke|solo\.to|campsite\.bio|allmylinks\.com|linkpop\.com)$/],
+  ['WhatsApp link', /(^|\.)(wa\.me|wa\.link|whatsapp\.com)$/],
   ['Google Maps link', /(^|\.)(g\.page|goo\.gl|maps\.app\.goo\.gl|business\.site)$/],
-  ['Yelp page', /(^|\.)yelp\.[a-z.]+$/],
-  ['Tripadvisor page', /(^|\.)tripadvisor\.[a-z.]+$/],
-  ['Justdial page', /(^|\.)justdial\.com$/],
-  ['booking page', /(^|\.)(calendly\.com|booksy\.com|fresha\.com|vagaro\.com|setmore\.com|square\.site|squareup\.com|zocdoc\.com|practo\.com|opentable\.[a-z.]+|resy\.com|treatwell\.[a-z.]+|mindbodyonline\.com|schedulicity\.com|acuityscheduling\.com)$/],
+  ['Yelp page', /(^|\.)yelp\.[a-z.]{2,6}$/],
+  ['Tripadvisor page', /(^|\.)tripadvisor\.[a-z.]{2,6}$/],
+  [
+    'directory listing',
+    /(^|\.)(justdial\.com|sulekha\.com|indiamart\.com|yell\.com|yellowpages\.[a-z.]{2,6}|checkatrade\.com|trustatrade\.com|bark\.com|thumbtack\.com|houzz\.[a-z.]{2,6}|angi\.com|homeadvisor\.com|nextdoor\.com|healthgrades\.com|jameda\.de|lybrate\.com|urbancompany\.com|booking\.com|airbnb\.[a-z.]{2,6})$/,
+  ],
+  [
+    'booking page',
+    /(^|\.)(calendly\.com|booksy\.com|fresha\.com|vagaro\.com|setmore\.com|squareup\.com|zocdoc\.com|practo\.com|opentable\.[a-z.]{2,6}|resy\.com|treatwell\.[a-z.]{2,6}|mindbodyonline\.com|schedulicity\.com|acuityscheduling\.com|styleseat\.com|glossgenius\.com|joinblvd\.com|phorest\.com|gettimely\.com|zenoti\.com|planity\.com|doctolib\.[a-z.]{2,6}|exploretock\.com|sevenrooms\.com|thefork\.[a-z.]{2,6}|quandoo\.[a-z.]{2,6}|simplybook\.(me|it)|janeapp\.com|cliniko\.com|setmore\.com|booker\.com)$/,
+  ],
+  ['ordering or delivery page', /(^|\.)(toasttab\.com|order\.online|doordash\.com|ubereats\.com|grubhub\.com|chownow\.com|zomato\.com|swiggy\.com|deliveroo\.[a-z.]{2,6}|just-eat\.[a-z.]{2,6}|menufy\.com|slicelife\.com)$/],
 ];
 
 function websitePlatform(url) {

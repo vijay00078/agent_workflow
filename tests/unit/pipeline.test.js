@@ -30,46 +30,53 @@ function fakeClaude(lead) {
   };
 }
 
-function runPipeline({ input, savedRows = [], aiFailsFor = [], draftFailsFor = [] }) {
+// Mirrors the generated workflow node by node (see src/workflows/client-finder.js).
+function fetchFor(b) {
+  if (b.unresolvable) return { error: { message: 'getaddrinfo ENOTFOUND maple-dental-expired.test' } };
+  if (b.badCert) return { error: { message: "SSL Issue: consider using the 'Ignore SSL issues' option", name: 'NodeSslError' } };
+  if (b.status) return { statusCode: b.status, html: '' };
+  return { statusCode: 200, html: b.html };
+}
+
+function applyUpdates(rows, updates) {
+  const byId = new Map(updates.map((u) => [u['Place ID'], u]));
+  return rows.map((r) => Object.assign({}, r, byId.get(r['Place ID']) || {}));
+}
+
+function runPipeline({ input, savedRows = [], savedNow, aiFailsFor = [], draftFailsFor = [] }) {
   const job = steps.stepPrepareJob(input, webPack, { requireSheet: true, now: NOW });
   if (job.stop) return { job };
   let leads = steps.stepCleanLeads(fx.placesPages(), job);
   leads = steps.stepSkipSaved(leads, savedRows, job);
   if (leads[0] && leads[0].stop) return { job, stopItem: leads[0] };
   const checked = leads.map((lead) => {
-    if (!lead.website) return lead;
+    if (!lead.website || lead.websitePlatform) return lead;
     const b = fx.BUSINESSES.find((x) => x.place.id === lead.placeId);
-    let resp;
-    if (b.unresolvable) resp = { error: { message: 'getaddrinfo ENOTFOUND maple-dental-expired.test' } };
-    else if (b.badCert) resp = { error: { message: "Hostname/IP does not match certificate's altnames" } };
-    else if (b.status) resp = { statusCode: b.status, html: '' };
-    else resp = { statusCode: 200, html: b.html };
-    let l = steps.stepCheckWebsite(lead, resp);
-    if (l.site.status === 'ok') l = steps.stepReadPageSpeed(l, b.psi && b.psi.error ? { error: { message: '500' } } : fx.psiResponse(b));
+    let l = steps.stepCheckWebsite(lead, fetchFor(b), NOW);
+    if (l.needsRecheck) l = steps.stepRecheckWebsite(l, fetchFor(b), NOW);
+    if (['ok', 'ssl-error'].includes(l.site.status) && !l.websitePlatform) l = steps.stepReadPageSpeed(l, b.psi && b.psi.error ? { error: { message: '500' } } : fx.psiResponse(b));
     return l;
   });
-  const scored = steps.stepScoreLeads(checked, job, NOW);
+  const scored = steps.stepScoreLeads(checked, job, NOW, savedRows);
   const withPitches = scored.map((lead) => {
     if (!lead.wantsPitch) return lead;
     const req = steps.stepBuildPitchRequest(lead, job);
     const resp = aiFailsFor.includes(lead.placeId) ? { error: { message: '500 - overloaded' } } : fakeClaude(req);
     return steps.stepReadPitch(req, resp, job);
   });
-  const drafted = withPitches.map((lead) => {
-    if (!steps.wantsDraft(lead, job)) return lead;
-    const resp = draftFailsFor.includes(lead.placeId) ? { error: { message: 'Gmail quota' } } : { id: `r-${lead.placeId}`, message: { id: 'm', threadId: `t-${lead.placeId}` } };
-    return steps.stepReadDraft(lead, resp);
-  });
-  const rows = steps.stepSheetRows(drafted, job, NOW);
-  return { job, rows, summary: steps.stepSummary(rows, job) };
+  const rows = steps.stepSheetRows(withPitches, job, NOW, savedNow || savedRows);
+  const updates = rows
+    .filter((r) => r.Status === 'Draft ready' && r.Email)
+    .map((r) => steps.stepReadDraft(r, draftFailsFor.includes(r['Place ID']) ? { error: { message: 'Gmail quota' } } : { id: `r-${r['Place ID']}`, message: { id: 'm', threadId: `t-${r['Place ID']}` } }));
+  return { job, scored, rows, updates, sheet: applyUpdates(rows, updates), summary: steps.stepSummary(rows, updates, job, {}) };
 }
 
 test('happy path: 13 businesses, correct ranking, pitches, drafts and summary', () => {
   const bright = 'ChIJbright0003';
-  const { rows, summary } = runPipeline({ input: Object.assign(form(), settings()), aiFailsFor: [bright], draftFailsFor: [bright] });
+  const { rows, sheet, summary } = runPipeline({ input: Object.assign(form(), settings()), aiFailsFor: [bright], draftFailsFor: [bright] });
   assert.equal(rows.length, 13);
   for (let i = 1; i < rows.length; i++) assert.ok(rows[i - 1].Score >= rows[i].Score, 'sorted by score');
-  const byId = Object.fromEntries(rows.map((r) => [r['Place ID'], r]));
+  const byId = Object.fromEntries(sheet.map((r) => [r['Place ID'], r]));
   const lakeside = byId.ChIJlakeside0002;
   assert.equal(lakeside.Problems, 'No website');
   assert.equal(lakeside.Status, 'Pitch ready'); // pitched but no email → call or DM
@@ -155,7 +162,8 @@ test('Lite rows: no-website businesses first', () => {
   assert.equal(rows[0]['Has Website'], 'NO');
   assert.equal(rows[0].Opportunity, 'No website: pitch a website');
   assert.equal(rows[1]['Has Website'], 'Yes');
-  assert.deepEqual(Object.keys(rows[0]), ['Business', 'Has Website', 'Opportunity', 'Phone', 'Website', 'Category', 'Rating', 'Reviews', 'Address', 'Google Maps', 'Search']);
+  assert.deepEqual(Object.keys(rows[0]), ['Business', 'Has Website', 'Opportunity', 'Phone', 'Website', 'Category', 'Rating', 'Reviews', 'Address', 'Google Maps', 'Search', 'Source']);
+  assert.equal(rows[0].Source, 'Google Maps');
 });
 
 test('follow-up pipeline: plan → decide → request → read → updates → report', () => {
@@ -175,13 +183,14 @@ test('follow-up pipeline: plan → decide → request → read → updates → r
     { id: '2', threadId: 't-b', internalDate: ms('2026-09-21T10:00:00Z'), From: 'me@x.test', To: 'B Dental <b@b.test>', labels: [{ id: 'SENT', name: 'SENT' }] },
     { id: '3', threadId: 't-b', internalDate: ms('2026-09-22T10:00:00Z'), From: 'Bob <b@b.test>', To: 'me@x.test', labels: [{ id: 'INBOX', name: 'INBOX' }] },
   ];
-  const actions = steps.stepDecideFollowUps(rows, messages, job.settings, new Date('2026-10-06T09:00:00Z'));
+  const actions = steps.stepDecideFollowUps(rows, messages, [], job.settings, new Date('2026-10-06T09:00:00Z'));
   assert.deepEqual(actions.map((a) => [a.update['Place ID'], a.action]), [['a', 'follow-up'], ['b', 'replied']]);
   const req = steps.stepBuildFollowUpRequest(actions[0], job);
   assert.match(req.aiRequest.body.system, /local SEO/i); // the lead's own niche angle
   const read = steps.stepReadFollowUp(req, { model: 'm', stop_reason: 'end_turn', content: [{ type: 'text', text: '{"email_body":"Quick nudge."}' }] }, job);
   assert.equal(read.followUp.subject, 'Re: Your site');
   assert.match(read.followUp.body, /^Quick nudge\.\n\nThanks,\nAsha Rao/);
+  assert.match(read.followUp.body, /just reply and I'll stop\.$/); // follow-ups carry an opt-out line too
   const upd = steps.stepReadFollowUpDraft(read, { id: 'r-2', message: { threadId: 't-a' } });
   assert.equal(upd['Follow-ups'], 1);
   const failed = steps.stepReadFollowUpDraft(read, { error: { message: 'Bad thread' } });
@@ -192,7 +201,7 @@ test('follow-up pipeline: plan → decide → request → read → updates → r
   assert.equal(report.followUpsDrafted, 1);
   assert.equal(report.markedReplied, 1);
   assert.equal(report.draftsFailed, 1);
-  const nothing = steps.stepDecideFollowUps(rows.slice(2), [], job.settings, new Date());
+  const nothing = steps.stepDecideFollowUps(rows.slice(2), [], [], job.settings, new Date());
   assert.equal(nothing[0].stop, true);
   assert.equal(nothing[0].fatal, false);
   assert.equal(steps.stepPrepareFollowUpJob(Object.assign({}, s, { googleSheetUrl: 'x' }), packs).fatal, true);

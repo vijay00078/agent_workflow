@@ -5,6 +5,7 @@ const { V, WorkflowBuilder, sticky, code, condition, ifNode, merge, setNode, she
 const { httpNode } = require('./client-finder');
 const { LEAD_COLUMNS } = require('../lib/sheet');
 const { DEFAULT_MODEL } = require('../lib/ai');
+const { FOLLOW_UP_OPT_OUT } = require('../lib/steps');
 const product = require('../../config/product.json');
 
 const FJOB = "$('Prepare Follow-ups').first().json";
@@ -17,7 +18,7 @@ function buildFollowUp(packs) {
     sticky(
       'Start Here',
       [-560, -160],
-      `## 🔁 Follow-up Autopilot (Pro)\nRuns every morning at 9:00 (your n8n timezone). For every lead in your sheet that has an email address it:\n- checks **Gmail Sent** to see if you actually sent the pitch,\n- checks your **inbox for replies** → marks the lead **Replied** and never emails them again,\n- drafts a short follow-up **in the same thread** after 3 days, and a last polite one after 7 more days.\n\nDrafts only: you review and send. Change the timing in **⚙️ Settings** (followUpDays, maxFollowUps).\n\n**Setup:** reuse the same Google Sheets, Gmail and Anthropic credentials as Client Finder, paste your sheet URL in Settings, then activate/publish.`,
+      `## 🔁 Follow-up Autopilot (Pro)\nRuns every morning at 9:00 (your n8n timezone). For every lead in your sheet that has an email address it:\n- checks **Gmail Sent** to see if you actually sent the pitch,\n- checks your **inbox and the pitch's Gmail thread for replies** (from any address) → marks the lead **Replied** and never emails them again,\n- spots **bounced** emails in the thread → marks the lead **Bounced**,\n- drafts a short follow-up **in the same thread** after 3 days, and a last polite one after 7 more days.\n\nDrafts only: you review and send. Change the timing in **⚙️ Settings** (followUpDays, maxFollowUps).\n\n**Setup:** reuse the same Google Sheets, Gmail and Anthropic credentials as Client Finder, paste your sheet URL in Settings, then activate/publish.`,
       { width: 500, height: 520, color: 4 },
     ),
   );
@@ -42,6 +43,8 @@ function buildFollowUp(packs) {
       yourAddress: '',
       yourService: '',
       yourOffer: '',
+      signOff: 'Thanks,',
+      followUpOptOutLine: FOLLOW_UP_OPT_OUT,
       emailLanguage: 'English',
       emailTone: 'friendly, direct and human',
       aiModel: DEFAULT_MODEL,
@@ -63,12 +66,16 @@ function buildFollowUp(packs) {
     executeOnce: true,
     alwaysOutputData: true,
     onError: 'continueRegularOutput',
-    parameters: Object.assign({ authentication: 'oAuth2', resource: 'sheet', operation: 'read' }, sheetLocator(`={{ ${FJOB}.settings.googleSheetUrl }}`), { filtersUI: {}, options: {} }),
+    // Dates typed by hand arrive as serial numbers, so "05/10/2026" means what the sheet's locale says it means.
+    parameters: Object.assign({ authentication: 'oAuth2', resource: 'sheet', operation: 'read' }, sheetLocator(`={{ ${FJOB}.settings.googleSheetUrl }}`), {
+      filtersUI: {},
+      options: { outputFormatting: { values: { general: 'UNFORMATTED_VALUE', date: 'SERIAL_NUMBER' } } },
+    }),
   });
   wf.add(
     code('Plan Gmail Searches', [1100, 300], {
       purpose: 'Builds Gmail searches for the addresses you pitched: what you sent, and what they replied.',
-      adapter: `const job = ${FJOB};\nconst rows = $input.all().map((i) => i.json);\nreturn stepPlanGmailSearches(rows, job.settings).map((json) => ({ json }));`,
+      adapter: `const job = ${FJOB};\nconst rows = sheetRowsFrom($input.all());\nreturn stepPlanGmailSearches(rows, job.settings).map((json) => ({ json }));`,
     }),
   );
   wf.add(stopCheck('Anyone to Check?', [1320, 300]));
@@ -82,15 +89,31 @@ function buildFollowUp(packs) {
     parameters: { resource: 'message', operation: 'getAll', returnAll: true, simple: true, filters: { q: '={{ $json.q }}', readStatus: 'both' } },
   });
   wf.add(
-    code('Decide Follow-ups', [1760, 280], {
-      purpose: 'Replied → mark Replied. Sent and quiet for long enough → draft a follow-up. Draft not sent yet → wait.',
-      adapter: `const job = ${FJOB};\nconst rows = $('Read Leads').all().map((i) => i.json);\nconst messages = $input.all().map((i) => i.json);\nreturn stepDecideFollowUps(rows, messages, job.settings, new Date()).map((json) => ({ json }));`,
+    code('Plan Thread Checks', [1760, 280], {
+      purpose: 'Lists the Gmail threads your pitches were sent in, to catch replies from any address and bounces.',
+      adapter: `const rows = sheetRowsFrom($('Read Leads').all());\nconst messages = $input.all().map((i) => i.json);\nreturn stepPlanThreadChecks(rows, messages).map((json) => ({ json }));`,
     }),
   );
-  wf.add(stopCheck('Any Changes?', [1980, 280]));
-  wf.add(ifNode('Needs Follow-up?', [2200, 280], [condition('isFollowUp', '={{ $json.action }}', 'equals', 'string', 'follow-up')]));
+  wf.add(ifNode('Any Threads?', [1980, 280], [condition('hasThread', '={{ $json.threadId }}', 'notEmpty', 'string')]));
+  wf.add({
+    name: 'Read Gmail Threads',
+    type: 'n8n-nodes-base.gmail',
+    typeVersion: V.gmail,
+    position: [2200, 200],
+    onError: 'continueRegularOutput',
+    parameters: { resource: 'thread', operation: 'get', threadId: '={{ $json.threadId }}', simple: true, options: { returnOnlyMessages: true } },
+  });
+  wf.add(merge('Gmail Results', [2420, 280], 2));
   wf.add(
-    code('Build Follow-up Request', [2420, 200], {
+    code('Decide Follow-ups', [2640, 280], {
+      purpose: 'Replied or bounced → mark it. Sent and quiet for long enough → draft a follow-up. Draft not sent yet → wait.',
+      adapter: `const job = ${FJOB};\nconst rows = sheetRowsFrom($('Read Leads').all());\nconst messages = $('Search Gmail').all().map((i) => i.json);\nconst threadMessages = $input.all().map((i) => i.json);\nreturn stepDecideFollowUps(rows, messages, threadMessages, job.settings, new Date()).map((json) => ({ json }));`,
+    }),
+  );
+  wf.add(stopCheck('Any Changes?', [2860, 280]));
+  wf.add(ifNode('Needs Follow-up?', [3080, 280], [condition('isFollowUp', '={{ $json.action }}', 'equals', 'string', 'follow-up')]));
+  wf.add(
+    code('Build Follow-up Request', [3300, 200], {
       purpose: 'Asks Claude for a short follow-up based on the original pitch.',
       adapter: `const job = ${FJOB};\nconst items = $input.all();\nreturn items.map((item, i) => ({ json: stepBuildFollowUpRequest(item.json, job), pairedItem: { item: i } }));`,
     }),
@@ -98,7 +121,7 @@ function buildFollowUp(packs) {
   wf.add(
     httpNode(
       'Write Follow-up with Claude',
-      [2640, 200],
+      [3520, 200],
       {
         method: 'POST',
         url: 'https://api.anthropic.com/v1/messages',
@@ -110,13 +133,13 @@ function buildFollowUp(packs) {
         sendBody: true,
         specifyBody: 'json',
         jsonBody: '={{ JSON.stringify($json.aiRequest.body) }}',
-        options: { batching: { batch: { batchSize: 5, batchInterval: 1500 } }, timeout: 180000 },
+        options: { batching: { batch: { batchSize: 3, batchInterval: 4000 } }, timeout: 180000 },
       },
       { onError: 'continueRegularOutput' },
     ),
   );
   wf.add(
-    code('Read Follow-up', [2860, 200], {
+    code('Read Follow-up', [3740, 200], {
       purpose: "Reads Claude's follow-up (or uses a polite template if the AI call failed).",
       adapter: `const job = ${FJOB};\nconst items = $input.all();\nreturn items.map((item, i) => ({\n  json: stepReadFollowUp($('Build Follow-up Request').itemMatching(i).json, item.json, job),\n  pairedItem: { item: i },\n}));`,
     }),
@@ -125,7 +148,7 @@ function buildFollowUp(packs) {
     name: 'Create Follow-up Draft',
     type: 'n8n-nodes-base.gmail',
     typeVersion: V.gmail,
-    position: [3080, 200],
+    position: [3960, 200],
     onError: 'continueRegularOutput',
     parameters: {
       resource: 'draft',
@@ -137,14 +160,14 @@ function buildFollowUp(packs) {
     },
   });
   wf.add(
-    code('Read Follow-up Draft', [3300, 200], {
+    code('Read Follow-up Draft', [4180, 200], {
       purpose: 'Prepares the sheet update for each drafted follow-up.',
-      adapter: `const items = $input.all();\nreturn items.map((item, i) => ({\n  json: stepReadFollowUpDraft($('Read Follow-up').itemMatching(i).json, item.json),\n  pairedItem: { item: i },\n}));`,
+      adapter: `const items = $input.all();\nreturn items.map((item, i) => ({\n  json: stepReadFollowUpDraft($('Read Follow-up').itemMatching(i).json, item.json, new Date()),\n  pairedItem: { item: i },\n}));`,
     }),
   );
-  wf.add(merge('All Updates', [3520, 300], 2));
+  wf.add(merge('All Updates', [4400, 300], 2));
   wf.add(
-    code('Sheet Updates', [3740, 300], {
+    code('Sheet Updates', [4620, 300], {
       purpose: 'Only the changed columns are written; everything else in your sheet is left alone.',
       adapter: `const items = $input.all().map((i) => i.json);\nreturn stepSheetUpdates(items).map((json) => ({ json }));`,
     }),
@@ -153,7 +176,10 @@ function buildFollowUp(packs) {
     name: 'Update Leads',
     type: 'n8n-nodes-base.googleSheets',
     typeVersion: V.googleSheets,
-    position: [3960, 300],
+    position: [4840, 300],
+    retryOnFail: true,
+    maxTries: 4,
+    waitBetweenTries: 5000,
     parameters: Object.assign({ authentication: 'oAuth2', resource: 'sheet', operation: 'update' }, sheetLocator(`={{ ${FJOB}.settings.googleSheetUrl }}`), {
       columns: {
         mappingMode: 'autoMapInputData',
@@ -161,11 +187,11 @@ function buildFollowUp(packs) {
         matchingColumns: ['Place ID'],
         schema: LEAD_COLUMNS.map((c) => ({ id: c, displayName: c, required: false, defaultMatch: c === 'Place ID', display: true, type: 'string', canBeUsedToMatch: true })),
       },
-      options: { cellFormat: 'RAW' },
+      options: { cellFormat: 'RAW', handlingExtraData: 'ignoreIt' },
     }),
   });
   wf.add(
-    code('Report', [4180, 300], {
+    code('Report', [5060, 300], {
       purpose: 'One-line summary of this run (visible in the execution log).',
       adapter: `const updates = $('Sheet Updates').all().map((i) => i.json);\nreturn [{ json: stepFollowUpReport(updates) }];`,
     }),
@@ -184,7 +210,11 @@ function buildFollowUp(packs) {
   wf.chain('Read Leads', 'Plan Gmail Searches', 'Anyone to Check?');
   wf.connect('Anyone to Check?', 'Search Gmail', 0);
   wf.connect('Anyone to Check?', 'Setup Problem?', 1);
-  wf.chain('Search Gmail', 'Decide Follow-ups', 'Any Changes?');
+  wf.chain('Search Gmail', 'Plan Thread Checks', 'Any Threads?');
+  wf.connect('Any Threads?', 'Read Gmail Threads', 0);
+  wf.connect('Read Gmail Threads', 'Gmail Results', 0, 0);
+  wf.connect('Any Threads?', 'Gmail Results', 1, 1);
+  wf.chain('Gmail Results', 'Decide Follow-ups', 'Any Changes?');
   wf.connect('Any Changes?', 'Needs Follow-up?', 0);
   wf.connect('Any Changes?', 'Setup Problem?', 1);
   wf.connect('Needs Follow-up?', 'Build Follow-up Request', 0);
@@ -197,7 +227,7 @@ function buildFollowUp(packs) {
 
   wf.layoutRows([
     ['Start Here', 'Every Morning', 'Run Now', '⚙️ Settings', 'Prepare Follow-ups', 'Settings OK?', 'Read Leads', 'Plan Gmail Searches', 'Anyone to Check?', 'Setup Problem?', 'Stop With Error', 'Nothing To Do'],
-    ['Search Gmail', 'Decide Follow-ups', 'Any Changes?', 'Needs Follow-up?', 'Build Follow-up Request', 'Write Follow-up with Claude', 'Read Follow-up', 'Create Follow-up Draft', 'Read Follow-up Draft', 'All Updates', 'Sheet Updates', 'Update Leads', 'Report'],
+    ['Search Gmail', 'Plan Thread Checks', 'Any Threads?', 'Read Gmail Threads', 'Gmail Results', 'Decide Follow-ups', 'Any Changes?', 'Needs Follow-up?', 'Build Follow-up Request', 'Write Follow-up with Claude', 'Read Follow-up', 'Create Follow-up Draft', 'Read Follow-up Draft', 'All Updates', 'Sheet Updates', 'Update Leads', 'Report'],
   ]);
   const json = wf.toJSON();
   json.meta.clientFinder = { tier: 'pro', role: 'follow-up', product: product.productName, version: product.version };

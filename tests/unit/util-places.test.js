@@ -67,7 +67,7 @@ test('buildSearch validates and clamps', () => {
   assert.equal(s.textQuery, 'dentists in Austin, TX');
   assert.equal(s.maxLeads, 60);
   assert.equal(s.maxPages, 3);
-  assert.deepEqual(s.requestBody, { textQuery: 'dentists in Austin, TX', pageSize: 20, languageCode: 'en', regionCode: 'US' });
+  assert.deepEqual(s.requestBody, { textQuery: 'dentists in Austin, TX', pageSize: 20, includePureServiceAreaBusinesses: true, languageCode: 'en', regionCode: 'US' });
   assert.equal(places.buildSearch({ businessType: 'gyms', location: 'Pune', maxLeads: 500 }).maxLeads, 60);
   assert.equal(places.buildSearch({ businessType: 'gyms', location: 'Pune', maxLeads: 7 }).requestBody.pageSize, 7);
   assert.equal(places.buildSearch({ businessType: 'gyms', location: 'Pune' }).maxLeads, 40);

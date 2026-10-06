@@ -38,6 +38,7 @@ const SHEETS = {
   social: '1SOCIALsheet00000000000000000000000000',
   ai: '1AICHATBOTsheet000000000000000000000000',
   followup: '1FOLLOWUPsheet0000000000000000000000000',
+  noLeadsTab: '1NOLEADSTABsheet00000000000000000000000',
 };
 
 const results = [];
@@ -164,7 +165,7 @@ function startServer(vars, logFile) {
 }
 
 function stripTags(s) {
-  return s.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
+  return s.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&#x([0-9a-f]+);/gi, (m, h) => String.fromCharCode(parseInt(h, 16))).replace(/&#(\d+);/g, (m, d) => String.fromCharCode(Number(d))).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
 }
 
 async function submitForm(formPath, values) {
@@ -271,6 +272,7 @@ async function main() {
   await mocks.start();
   const header = [LEAD_COLUMNS];
   for (const id of Object.values(SHEETS)) mocks.sheets.create(id, { Leads: header, 'How to use': [['Read me']] });
+  mocks.sheets.create(SHEETS.noLeadsTab, { Sheet1: [['Name', 'Phone']] }); // a buyer pasted the wrong sheet
 
   // credentials + workflows
   fs.writeFileSync(path.join(WORK, 'credentials.json'), JSON.stringify(CREDENTIALS, null, 2));
@@ -281,6 +283,7 @@ async function main() {
     { id: 'cfLite', rel: 'lite/client-finder-lite.json', settings: {} },
     { id: 'cfStarterWeb', rel: 'starter/client-finder-web-design.json', settings: Object.assign({ googleSheetUrl: SHEET(SHEETS.web) }, SETTINGS) },
     { id: 'cfUnsetWeb', rel: 'starter/client-finder-web-design.json', settings: { __formPath: 'client-finder-unset' } },
+    { id: 'cfNoLeadsTab', rel: 'starter/client-finder-web-design.json', settings: Object.assign({ googleSheetUrl: SHEET(SHEETS.noLeadsTab), __formPath: 'client-finder-noleads' }, SETTINGS) },
     { id: 'cfSeo', rel: 'pro/workflows/client-finder-seo.json', settings: Object.assign({ googleSheetUrl: SHEET(SHEETS.seo) }, SETTINGS) },
     { id: 'cfReviews', rel: 'pro/workflows/client-finder-reviews.json', settings: Object.assign({ googleSheetUrl: SHEET(SHEETS.reviews) }, SETTINGS) },
     { id: 'cfSocial', rel: 'pro/workflows/client-finder-social-media.json', settings: Object.assign({ googleSheetUrl: SHEET(SHEETS.social) }, SETTINGS) },
@@ -376,11 +379,21 @@ async function formScenarios(mocks) {
     assert.equal(mocks.calls.places.length, 0);
   });
 
+  await scenario('Starter (web design): sheet without a "Leads" tab → friendly message, nothing pitched', async () => {
+    mocks.reset();
+    const res = await submitForm('client-finder-noleads', AUSTIN);
+    assert.equal(res.title, "Couldn't open your Google Sheet");
+    assert.match(res.message, /"Leads" tab/);
+    assert.equal(mocks.calls.claude.length, 0);
+    assert.equal(mocks.drafts.length, 0);
+  });
+
   await scenario('Starter (web design): full run → scored sheet rows, pitches, Gmail draft', async () => {
     mocks.reset();
     const res = await submitForm('client-finder-web-design', AUSTIN);
     assert.equal(res.title, 'Done: 13 new leads found');
     assert.match(res.message, /1 Gmail draft ready/);
+    assert.match(res.message, /1 draft could not be created: see the Notes column/);
     const rows = rowsOf(mocks, SHEETS.web);
     assert.deepEqual(mocks.sheets.rows(SHEETS.web, 'Leads')[0], LEAD_COLUMNS, 'header row untouched');
     assert.equal(rows.length, 13);
@@ -396,19 +409,25 @@ async function formScenarios(mocks) {
     assert.match(sun['Thread ID'], /^t-\d+$/);
     assert.equal(sun['Email Subject'], 'slow on mobile at Sunrise Family Dental');
     assert.match(sun['AI Status'], /^Written by claude-opus-5-5$/);
-    assert.match(sun.Evidence, /^1\. Google PageSpeed scores the mobile site 23\/100/);
+    assert.match(sun.Evidence, /^1\. In Google's PageSpeed mobile test \(a simulated phone on a 4G connection\) the homepage scored 23\/100/);
     assert.equal(b['Lakeside Dental Care'].Problems, 'No website');
     assert.equal(b['Lakeside Dental Care'].Status, 'Pitch ready');
     assert.equal(b['Bright Smile Studio'].Problems, 'Not mobile-friendly, Not secure (no HTTPS), Outdated website, Weak SEO basics');
     assert.match(b['Bright Smile Studio']['AI Status'], /^Template used \(AI error: 529/);
-    assert.match(b['Bright Smile Studio'].Notes, /Gmail draft failed/);
+    assert.match(b['Bright Smile Studio'].Notes, /^Gmail draft failed: Gmail rejected it \(check the email address\)/);
     assert.equal(b['Bright Smile Studio'].Status, 'Pitch ready');
+    assert.equal(b['Bright Smile Studio']['Last Draft On'], '');
+    assert.equal(b['Bright Smile Studio']['Draft ID'], '');
     assert.match(b['Cedar Park Smiles']['AI Status'], /after a retry/);
     assert.equal(b['Cedar Park Smiles'].Problems, 'Placeholder website');
     assert.equal(b['Oak Hill Orthodontics'].Problems, 'Website down');
     assert.equal(b['Maple Dental Group'].Problems, 'Website down');
-    assert.match(b['Maple Dental Group'].Evidence, /doesn't resolve/);
+    assert.match(b['Maple Dental Group'].Evidence, /didn't load in two checks a few seconds apart: the domain doesn't resolve/);
+    assert.match(b['Oak Hill Orthodontics'].Evidence, /the homepage returns "page not found" \(404\)/);
+    assert.equal(mocks.calls.sites.filter((c) => c.key === 'oakhill').length, 2, 'a failing site is checked twice');
+    assert.equal(mocks.calls.sites.filter((c) => c.key === 'sunrise').length, 1, 'a working site is loaded once');
     assert.equal(b['Pearl Dental Spa'].Problems, 'Security certificate error');
+    assert.match(b['Pearl Dental Spa'].Evidence, /PageSpeed test hit the same error in Chrome/);
     assert.equal(b['Downtown Dentistry'].Score, 0);
     assert.equal(b['Downtown Dentistry'].Status, 'New');
     assert.equal(b['Riverside Dental'].Score, 0, 'bot-protected site is not judged');
@@ -431,10 +450,18 @@ async function formScenarios(mocks) {
       assert.equal(c.headers['anthropic-beta'], 'server-side-fallback-2026-07-01');
       assert.equal(c.body.output_config.effort, 'low');
       assert.equal(c.body.output_config.format.type, 'json_schema');
+      assert.equal(c.body.max_tokens, 4000);
     }
-    // PageSpeed only for sites that loaded
+    // PageSpeed for sites that loaded, and for the certificate error (Chrome confirms it)
     const psiHosts = mocks.calls.psi.map((c) => new URL(c.target).hostname).sort();
-    assert.deepEqual(psiHosts, ['bright-smile.test', 'cedarpark-smiles.test', 'downtown-dentistry.test', 'elm-dental.test', 'gentlecare-dental.test', 'hillcrest-dentistry.test', 'sunrise-dental.test', 'westlake-dental.test']);
+    assert.deepEqual(psiHosts, ['bright-smile.test', 'cedarpark-smiles.test', 'downtown-dentistry.test', 'elm-dental.test', 'gentlecare-dental.test', 'hillcrest-dentistry.test', 'pearl-dental.test', 'sunrise-dental.test', 'westlake-dental.test']);
+    assert.ok(mocks.calls.places.every((c) => c.body.includePureServiceAreaBusinesses === true), 'service-area businesses included');
+    // Sheet first, then drafts: the rows were saved before the first Gmail call.
+    const webWrites = mocks.sheets.log.filter((l) => l.path.includes(SHEETS.web) && (l.method === 'PUT' || /:append$|values:batchUpdate$/.test(l.path)));
+    const firstDraft = mocks.calls.gmail.find((c) => c.method === 'POST' && /\/drafts$/.test(c.url));
+    assert.ok(webWrites.length >= 2 && firstDraft, 'rows saved, drafts created, draft IDs written');
+    assert.ok(webWrites[0].seq < firstDraft.seq, 'rows are saved before the first Gmail draft is created');
+    assert.ok(webWrites[webWrites.length - 1].seq > firstDraft.seq && /values:batchUpdate$/.test(webWrites[webWrites.length - 1].path), 'draft IDs are written back after the drafts');
     assert.ok(mocks.calls.psi.every((c) => c.strategy === 'mobile' && c.categories.includes('PERFORMANCE') && c.categories.includes('SEO')));
     assert.ok(mocks.calls.sites.every((c) => /Mozilla\/5\.0/.test(c.ua)), 'browser-like user agent');
   });
@@ -517,6 +544,13 @@ function seedFollowUp(mocks) {
     Object.assign({}, base, { 'Place ID': 'fu-won', Business: 'Won Dental', Email: 'owner8@won.test', Status: 'Won', 'Last Contacted': iso(30) }),
     Object.assign({}, base, { 'Place ID': 'fu-aifail', Business: 'AI Fail Co', Email: 'owner9@aifail.test', Status: 'Draft ready', 'Last Draft On': iso(8), 'Thread ID': 't-aifail' }),
     Object.assign({}, base, { 'Place ID': 'fu-draftfail', Business: 'Draft Fail Co', Email: 'owner10@bad.test', Status: 'Draft ready', 'Last Draft On': iso(8), 'Thread ID': 't-draftfail' }),
+    Object.assign({}, base, { 'Place ID': 'fu-colleague', Business: 'Colleague Dental', Email: 'info@colleague.test', Status: 'Draft ready', 'Last Draft On': iso(10), 'Thread ID': 't-colleague' }),
+    Object.assign({}, base, { 'Place ID': 'fu-bounce', Business: 'Bounce Dental', Email: 'nobody@bounce.test', Status: 'Draft ready', 'Last Draft On': iso(6), 'Thread ID': 't-bounce' }),
+    Object.assign({}, base, { 'Place ID': 'fu-trash', Business: 'Trash Dental', Email: 'owner11@trash.test', Status: 'Draft ready', 'Last Draft On': iso(9), 'Thread ID': 't-trash' }),
+    Object.assign({}, base, { 'Place ID': 'fu-optout-old', Business: 'Optout Dental (old listing)', Email: 'owner12@optout.test', Status: 'Do not contact', 'Last Contacted': iso(30) }),
+    Object.assign({}, base, { 'Place ID': 'fu-optout-new', Business: 'Optout Dental', Email: 'owner12@optout.test', Status: 'Contacted', 'Last Contacted': iso(9), 'Thread ID': 't-optout' }),
+    Object.assign({}, base, { 'Place ID': 'fu-duprow', Business: 'Dup Row Dental', Email: 'owner13@duprow.test', Status: 'Draft ready', 'Last Draft On': iso(8), 'Thread ID': 't-duprow' }),
+    Object.assign({}, base, { 'Place ID': 'fu-duprow', Business: 'Dup Row Dental', Email: 'owner13@duprow.test', Status: 'Draft ready', 'Last Draft On': iso(8), 'Thread ID': 't-duprow', Notes: 'second copy of the row' }),
     Object.assign({}, base, { 'Place ID': 'fu-noemail', Business: 'No Email Co', Email: '', Status: 'Pitch ready' }),
   ];
   mocks.sheets.create(SHEETS.followup, { Leads: [LEAD_COLUMNS, ...rows.map(row)] });
@@ -535,6 +569,17 @@ function seedFollowUp(mocks) {
     sent('owner9@aifail.test', 7, 't-aifail'),
     sent('owner10@bad.test', 7, 't-draftfail'),
     reply('Someone Else <other@else.test>', 2, 't-x'),
+    // the pitch went to info@, the owner answered from a personal address in the same thread
+    sent('info@colleague.test', 9, 't-colleague'),
+    reply('Dr Lee <dr.lee.colleague@gmail.com>', 5, 't-colleague'),
+    // the address bounced: Gmail puts the failure notice in the same thread
+    sent('nobody@bounce.test', 5, 't-bounce'),
+    { id: `b${++n}`, threadId: 't-bounce', labelIds: ['INBOX'], internalDate: daysAgo(5).getTime() + 60000, from: 'Mail Delivery Subsystem <mailer-daemon@googlemail.com>', to: 'asha@pixelpine.test', subject: 'Delivery Status Notification (Failure)' },
+    // the owner replied in a new thread, then the buyer deleted it: in:anywhere still finds it
+    sent('owner11@trash.test', 8, 't-trash'),
+    { id: `x${++n}`, threadId: 't-trash-reply', labelIds: ['TRASH'], internalDate: daysAgo(4).getTime(), from: 'owner11@trash.test', to: 'asha@pixelpine.test', subject: 'Not interested, thanks' },
+    sent('owner12@optout.test', 9, 't-optout'),
+    sent('owner13@duprow.test', 7, 't-duprow'),
   ]);
   return { iso };
 }
@@ -596,10 +641,22 @@ async function followUpScenarios(mocks, vars) {
     assert.equal(rows['fu-aifail'].Status, 'Follow-up drafted');
     assert.equal(rows['fu-draftfail'].Status, 'Draft ready');
     assert.equal(Number(rows['fu-draftfail']['Follow-ups']), 0);
-    assert.match(rows['fu-draftfail'].Notes, /Follow-up draft failed/);
+    assert.match(rows['fu-draftfail'].Notes, /^\d{4}-\d{2}-\d{2} follow-up draft failed: Gmail rejected it/);
     assert.equal(rows['fu-replied']['Email Body'], 'Hi team,\n\nOriginal pitch.', 'other columns are left alone');
     const drafts = Object.fromEntries(mocks.drafts.map((d) => [d.to, d]));
-    assert.deepEqual(Object.keys(drafts).sort(), ['owner2@due.test', 'owner4@due2.test', 'owner9@aifail.test']);
+    assert.equal(rows['fu-colleague'].Status, 'Replied', 'a reply from another address in the thread counts');
+    assert.match(rows['fu-colleague'].Notes, /Reply came from dr\.lee\.colleague@gmail\.com/);
+    assert.equal(rows['fu-bounce'].Status, 'Bounced');
+    assert.match(rows['fu-bounce'].Notes, /email bounced/);
+    assert.equal(rows['fu-trash'].Status, 'Replied', 'a deleted reply still counts');
+    assert.equal(rows['fu-optout-new'].Status, 'Contacted', 'same address as a "Do not contact" row: left alone');
+    const dupRows = rowsOf(mocks, SHEETS.followup).filter((r) => r['Place ID'] === 'fu-duprow');
+    assert.deepEqual(dupRows.map((r) => r.Status), ['Follow-up drafted', 'Draft ready'], 'only the first copy of a duplicated row is used');
+    assert.equal(mocks.drafts.filter((d) => d.to === 'owner13@duprow.test').length, 1, 'one follow-up for a duplicated row');
+    assert.equal(mocks.drafts.filter((d) => /optout|bounce|colleague|trash/.test(d.to)).length, 0, 'nobody who replied, bounced or opted out gets a follow-up');
+    assert.match(drafts['owner2@due.test'].body, /just reply and I'll stop\.$/, 'follow-ups carry an opt-out line');
+    assert.ok(mocks.calls.gmail.some((c) => /\/threads\/t-colleague\?/.test(c.url) && /format=metadata/.test(c.url)), 'pitch threads are read');
+    assert.deepEqual(Object.keys(drafts).sort(), ['owner13@duprow.test', 'owner2@due.test', 'owner4@due2.test', 'owner9@aifail.test']);
     assert.equal(drafts['owner2@due.test'].threadId, 't-due1');
     assert.match(drafts['owner2@due.test'].headers['in-reply-to'] || '', /^<s\d+@mail\.test>$/, 'threaded reply headers');
     assert.equal(drafts['owner2@due.test'].subject, 'Re: your website on phones');
@@ -610,8 +667,9 @@ async function followUpScenarios(mocks, vars) {
     const due1Claude = mocks.calls.claude.find((c) => c.business === 'Due One Dental');
     assert.match(due1Claude.body.system, /local SEO/i, 'uses the niche of the workflow that found the lead');
     const report = run.runData.Report[0].data.main[0][0].json;
-    assert.equal(report.followUpsDrafted, 3);
-    assert.equal(report.markedReplied, 1);
+    assert.equal(report.followUpsDrafted, 4);
+    assert.equal(report.markedReplied, 3);
+    assert.equal(report.markedBounced, 1);
     assert.equal(report.markedContacted, 1);
     assert.equal(report.draftsFailed, 1);
   });

@@ -6,7 +6,7 @@ module.exports = {
   needsWebsiteCheck: true, // only to find the contact email: the reviews checks use Google data
   needsPageSpeed: false,
   defaultService: 'getting more 5-star Google reviews from happy customers',
-  defaultOffer: 'a free one-page plan to get more reviews from customers they already have',
+  defaultOffer: 'a free one-page plan to get more reviews from customers you already have',
   exampleSearch: { businessType: 'hair salons', location: 'Manchester, UK' },
   weights: {
     low_rating: 45,

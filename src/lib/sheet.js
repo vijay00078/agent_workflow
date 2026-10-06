@@ -51,21 +51,26 @@ const STATUS = {
   WON: 'Won',
   LOST: 'Lost',
   DO_NOT_CONTACT: 'Do not contact',
+  NOT_INTERESTED: 'Not interested',
+  BOUNCED: 'Bounced',
 };
 
-// Statuses after which the follow-up workflow must never email the business again.
-const FINAL_STATUSES = [STATUS.REPLIED, STATUS.MEETING, STATUS.WON, STATUS.LOST, STATUS.DO_NOT_CONTACT, 'Not interested', 'Bounced'];
+// Statuses after which the workflows must never email that address again.
+const FINAL_STATUSES = [STATUS.REPLIED, STATUS.MEETING, STATUS.WON, STATUS.LOST, STATUS.DO_NOT_CONTACT, STATUS.NOT_INTERESTED, STATUS.BOUNCED];
 
 function evidenceText(problems) {
   return (problems || []).map((p, i) => `${i + 1}. ${p.evidence}`).join('\n');
 }
 
-// lead = fully processed lead (problems, score, pitch...). ctx = { niche, search, now, draftsEnabled }.
+// lead = fully processed lead (problems, score, pitch...).
+// ctx = { niche, search, now, draftsEnabled, status?, notes? }: status overrides the computed one, notes is a list.
 function toSheetRow(lead, ctx) {
   const c = ctx || {};
   const problems = lead.problems || [];
   const hasPitch = Boolean(lead.pitch && lead.pitch.subject && lead.pitch.body);
-  const status = !hasPitch ? STATUS.NEW : lead.email && c.draftsEnabled ? STATUS.DRAFT_READY : STATUS.PITCH_READY;
+  const status = c.status || (!hasPitch ? STATUS.NEW : lead.email && c.draftsEnabled ? STATUS.DRAFT_READY : STATUS.PITCH_READY);
+  const defaultNote = lead.websitePlatform ? `Their "website" on Google is a ${lead.websitePlatform}.` : lead.website ? '' : 'No website: call or DM instead.';
+  const notes = c.notes ? c.notes : [defaultNote];
   return {
     'Place ID': lead.placeId,
     Business: lead.name,
@@ -96,7 +101,7 @@ function toSheetRow(lead, ctx) {
     Niche: c.niche || '',
     Search: c.search || '',
     'AI Status': lead.aiStatus || '',
-    Notes: lead.websitePlatform ? `Their "website" on Google is a ${lead.websitePlatform}.` : lead.website ? '' : 'No website: call or DM instead.',
+    Notes: notes.filter(Boolean).join(' | ').slice(0, 1500),
   };
 }
 

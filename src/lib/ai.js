@@ -66,7 +66,15 @@ function settingsOf(s) {
     model: str(x.aiModel) || DEFAULT_MODEL,
     effort: EFFORT_LEVELS.includes(str(x.aiEffort).toLowerCase()) ? str(x.aiEffort).toLowerCase() : 'low',
     optOutLine: str(x.optOutLine),
+    signOff: str(x.signOff) || 'Thanks,',
   };
+}
+
+// Room for adaptive thinking plus the JSON answer. Kept small at low effort: a request's max_tokens counts
+// against the account's output-tokens-per-minute limit while it runs, and new Anthropic accounts have low limits.
+function maxTokensFor(effort, base) {
+  const factor = { low: 1, medium: 2, high: 4, xhigh: 6, max: 8 }[effort] || 1;
+  return Math.min(32000, base * factor);
 }
 
 function pitchSystemPrompt(pack, s) {
@@ -143,7 +151,7 @@ function buildPitchRequest(lead, settings, pack) {
     ? ''
     : '\n\nReply with only a JSON object with the keys "subject", "email_body", "dm_message" and "call_opener". No other text.';
   const userText = `${leadFactsText(lead)}\n\n${senderText(s)}${jsonHint}`;
-  return baseRequest(s, pitchSystemPrompt(pack, s), userText, PITCH_SCHEMA, 16000);
+  return baseRequest(s, pitchSystemPrompt(pack, s), userText, PITCH_SCHEMA, maxTokensFor(s.effort, 4000));
 }
 
 function extractJson(text) {
@@ -237,6 +245,20 @@ function lowerFirst(s) {
   return s ? s.charAt(0).toLowerCase() + s.slice(1) : s;
 }
 
+// The evidence sentences describe the business in the third person ("their homepage"); the template pitch
+// speaks to them directly.
+function toSecondPerson(s) {
+  return str(s)
+    .replace(/\bThey're\b/g, "You're")
+    .replace(/\bthey're\b/g, "you're")
+    .replace(/\bThey\b/g, 'You')
+    .replace(/\bthey\b/g, 'you')
+    .replace(/\bTheir\b/g, 'Your')
+    .replace(/\btheir\b/g, 'your')
+    .replace(/\bthemselves\b/g, 'yourselves')
+    .replace(/\bthem\b/g, 'you');
+}
+
 // Deterministic pitch used when the AI call fails, so every lead still gets a usable draft.
 function fallbackPitch(lead, settings, pack) {
   const s = settingsOf(settings);
@@ -244,15 +266,16 @@ function fallbackPitch(lead, settings, pack) {
   const shortName = shortBusinessName(lead.name);
   const vars = { shortName, name: lead.name, domain: hostOf(lead.website) || 'your website', service: s.service || pack.defaultService, offer: s.offer || pack.defaultOffer };
   const subject = fillTemplate(pack.fallback.subject, vars);
-  const evidence = top ? lowerFirst(top.evidence.replace(/\.$/, '')) : 'a few quick wins on your online presence';
+  const evidence = top ? toSecondPerson(top.evidence) : '';
   const body = [
     `Hi ${shortName} team,`,
-    `I took a quick look at how ${shortName} shows up online and noticed that ${evidence}.`,
+    evidence ? `I was looking at how ${shortName} shows up online, and one thing stood out: ${evidence}` : `I was looking at how ${shortName} shows up online and spotted a few quick wins.`,
     pack.fallback.impact,
     `I help businesses like yours with ${vars.service}. Would it be useful if I sent you ${vars.offer}?`,
   ].join('\n\n');
-  const dm = truncate(`Hi! I noticed that ${evidence}. I help with ${vars.service}. Want me to send you ${vars.offer}?`, 300);
-  const callOpener = `Hi, this is ${s.senderName || 'calling'} — I noticed that ${evidence}, and I had a quick idea for ${shortName}. Is the owner or manager around?`;
+  const dm = truncate(`Hi! Quick note about ${shortName}: ${evidence || 'I spotted a few quick wins online.'} I help with ${vars.service}. Want me to send you ${vars.offer}?`, 300);
+  const issue = top ? ` (${lowerFirst(top.label)})` : '';
+  const callOpener = `Hi, this is ${s.senderName || 'calling about your website'}. I was looking at ${shortName} online and noticed something worth fixing${issue}. Is the owner or manager around?`;
   return { subject, body, dm, callOpener };
 }
 
@@ -266,7 +289,7 @@ function finalEmailBody(pitchBody, settings) {
   const s = settingsOf(settings);
   const parts = [pitchBody.trim()];
   const sig = signatureBlock(settings);
-  parts.push(sig ? `Thanks,\n${sig}` : 'Thanks');
+  parts.push(sig ? `${s.signOff}\n${sig}` : s.signOff.replace(/,$/, ''));
   if (s.optOutLine) parts.push(s.optOutLine);
   return parts.join('\n\n');
 }
@@ -297,7 +320,7 @@ function buildFollowUpRequest(row, settings, pack, followUpNumber) {
     senderText(s),
     caps.structured ? '' : '\nReply with only a JSON object with the key "email_body". No other text.',
   ].join('\n');
-  return baseRequest(s, system, user, FOLLOWUP_SCHEMA, 8000);
+  return baseRequest(s, system, user, FOLLOWUP_SCHEMA, maxTokensFor(s.effort, 2000));
 }
 
 function parseFollowUpResponse(resp) {
@@ -327,6 +350,8 @@ module.exports = {
   FOLLOWUP_SCHEMA,
   modelCaps,
   settingsOf,
+  maxTokensFor,
+  toSecondPerson,
   pitchSystemPrompt,
   leadFactsText,
   buildPitchRequest,

@@ -75,7 +75,8 @@ def build(path):
     st = f"{col['Status']}2:{col['Status']}5000"
     for value, fill, font in [
         ("Replied", "DCFCE7", "166534"), ("Meeting booked", "DBEAFE", "1E40AF"), ("Won", "D1FAE5", "065F46"),
-        ("Lost", "F3F4F6", "6B7280"), ("Do not contact", "F3F4F6", "6B7280"), ("Draft ready", "EEF2FF", "3730A3"),
+        ("Lost", "F3F4F6", "6B7280"), ("Do not contact", "F3F4F6", "6B7280"), ("Not interested", "F3F4F6", "6B7280"),
+        ("Bounced", "FEE2E2", "991B1B"), ("Draft ready", "EEF2FF", "3730A3"),
     ]:
         leads.conditional_formatting.add(st, CellIsRule(operator="equal", formula=[f'"{value}"'], fill=PatternFill("solid", fgColor=fill), font=Font(color=font)))
     leads.conditional_formatting.add(f"{col['Score']}2:{col['Score']}5000", FormulaRule(formula=[f"{col['Score']}2>=60"], font=Font(bold=True, color="B91C1C")))
@@ -115,12 +116,13 @@ def build(path):
         ("How to use this sheet", True),
         ("1. Keep the tab name \"Leads\" and its header row exactly as they are: the n8n workflows read and write these columns by name.", False),
         ("2. Copy this sheet's URL (the address bar, starting with https://docs.google.com/spreadsheets/d/) into the googleSheetUrl field of the ⚙️ Settings node.", False),
-        ("3. Every run adds new businesses at the bottom. A business that is already in the sheet is never added or pitched twice.", False),
-        ("4. Statuses: New = no pitch (score too low) · Pitch ready = pitch written, no email found (call/DM) · Draft ready = a Gmail draft is waiting for you.", False),
-        ("   After you send: Contacted · Follow-up drafted (Pro) · Replied · Meeting booked · Won · Lost · Do not contact.", False),
-        ("5. Pro follow-ups read Gmail to see what you actually sent and who replied. You can also set Status and Last Contacted by hand.", False),
-        ("6. Set Status to \"Do not contact\" for anyone who asks you to stop. They are never emailed again.", False),
+        ("3. Every run adds new businesses at the bottom. A business that is already in the sheet is never added twice, and an email address or website that is already here is never pitched again.", False),
+        ("4. Statuses: New = no pitch (score too low, or already pitched under another listing) · Pitch ready = pitch written, no email found or the draft failed (call/DM) · Draft ready = a Gmail draft is waiting for you.", False),
+        ("   After you send: Contacted · Follow-up drafted (Pro) · Replied · Meeting booked · Won · Lost · Do not contact · Not interested · Bounced (Pro sets it when an email bounces).", False),
+        ("5. Pro follow-ups read Gmail to see what you actually sent and who replied (from any address in the thread). You can also set Status and Last Contacted by hand.", False),
+        ("6. Set Status to \"Do not contact\" (or \"Not interested\") for anyone who asks you to stop. That email address and website are never emailed or pitched again, even from another row.", False),
         ("7. Add your own columns to the right of Notes if you like: the workflows ignore them.", False),
+        ("8. Business details come from Google Maps (source: Google Maps). Google's Maps Platform Terms limit storing them long term, so treat this tab as a working list and delete leads you don't pursue.", False),
     ]
     for text, bold in lines:
         how.append([text])

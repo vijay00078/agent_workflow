@@ -17,6 +17,7 @@ function defaultSettings(pack) {
     yourAddress: '',
     yourService: pack.defaultService,
     yourOffer: pack.defaultOffer,
+    signOff: 'Thanks,',
     googleSheetUrl: 'PASTE_YOUR_GOOGLE_SHEET_URL_HERE',
     createGmailDrafts: true,
     minScoreToPitch: 20,
@@ -40,7 +41,7 @@ function formTrigger(name, position, pack, path) {
     webhookId: require('./common').stableUuid('webhook', path),
     parameters: {
       formTitle: `Client Finder: ${pack.title}`,
-      formDescription: `${pack.tagline}\nType a business type and a city. The agent finds up to 60 businesses on Google Maps, checks each one, writes a personalized pitch for the best leads and saves everything to your Google Sheet. It takes about 2-8 minutes; keep this tab open.`,
+      formDescription: `${pack.tagline}\nType a business type and a city. The agent finds up to 60 businesses on Google Maps, checks each one, writes a personalized pitch for the best leads and saves everything to your Google Sheet. It takes about 2-8 minutes; keep this tab open and don't submit another search until this one is done.`,
       formFields: {
         values: [
           { fieldLabel: 'Business type', placeholder: `e.g. ${pack.exampleSearch.businessType}`, requiredField: true },
@@ -111,22 +112,23 @@ function buildClientFinder(pack) {
   const path = `client-finder-${pack.id}`;
   const wf = new WorkflowBuilder(`client-finder-${pack.id}`, `Client Finder: ${pack.title}`);
   const stopCheck = (name, pos) => ifNode(name, pos, [condition('notStopped', '={{ $json.stop === true }}', 'false')]);
+  const allLeadsX = pack.needsPageSpeed ? 4400 : pack.weights.site_down ? 3740 : 2640;
 
   // --- notes ---
   wf.add(
     sticky(
       'Start Here',
       [-520, -120],
-      `## 👋 Client Finder: ${pack.title}\n${pack.tagline}\n\n**One-time setup (about 15 min, full guide in SETUP-GUIDE.pdf):**\n1. **Google API Key** credential: Header Auth, Name \`X-Goog-Api-Key\`. Used by *Search Google Maps*${pack.needsPageSpeed ? ' and *PageSpeed Test*' : ''}.\n2. **Anthropic API Key** credential: Header Auth, Name \`x-api-key\`. Used by *Write Pitch with Claude*.\n3. **Google Sheets** + **Gmail** credentials (Google OAuth). Select them on the 2 Google nodes.\n4. Open **⚙️ Settings**: your name, offer, and your Google Sheet URL.\n\n**Run it:** open *Find Clients Form* → copy the Production URL → open it in your browser (activate/publish the workflow first). Or click *Execute workflow* to test.\n\nResults: every lead lands in your **Leads** sheet; pitches for leads with an email are saved as **Gmail drafts**. Nothing is ever sent automatically.`,
+      `## 👋 Client Finder: ${pack.title}\n${pack.tagline}\n\n**One-time setup (about 30-45 min the first time, full guide in SETUP-GUIDE.pdf):**\n1. **Google API Key** credential: Header Auth, Name \`X-Goog-Api-Key\`. Used by *Search Google Maps*${pack.needsPageSpeed ? ' and *PageSpeed Test*' : ''}.\n2. **Anthropic API Key** credential: Header Auth, Name \`x-api-key\`. Used by *Write Pitch with Claude*.\n3. **Google Sheets** + **Gmail** credentials (Google OAuth). Select them on every Google Sheets node (4) and the Gmail node.\n4. Open **⚙️ Settings**: your name, offer, and your Google Sheet URL.\n\n**Run it:** open *Find Clients Form* → copy the Production URL → open it in your browser (activate/publish the workflow first). Or click *Execute workflow* to test.\n\nResults: every lead lands in your **Leads** sheet; pitches for leads with an email are saved as **Gmail drafts**. Nothing is ever sent automatically.`,
       { width: 480, height: 560, color: 4 },
     ),
   );
   wf.add(sticky('Step 1 Note', [820, 120], '### 1 · Find businesses\nGoogle Maps search (up to 60 results), then removes duplicates, closed businesses and anything already in your sheet.', { width: 960, height: 340, color: 7 }));
   if (pack.needsWebsiteCheck) {
-    wf.add(sticky('Step 2 Note', [1920, 0], `### 2 · Check their website\nLoads each homepage${pack.needsPageSpeed ? ', runs Google PageSpeed on mobile,' : ''} and reads contact email, booking/chat tools, social links and more. Unreachable sites are flagged, never guessed.`, { width: 1320, height: 480, color: 7 }));
+    wf.add(sticky('Step 2 Note', [1920, 0], `### 2 · Check their website\nLoads each homepage${pack.weights.site_down ? ' (a site that fails is checked again 15 s later)' : ''}${pack.needsPageSpeed ? ', runs Google PageSpeed on mobile (in Chrome, which also confirms certificate errors),' : ''} and reads contact email, booking/chat tools, social links and more. Anything we can't verify is skipped, never guessed.`, { width: allLeadsX + 320 - 1920, height: 480, color: 7 }));
   }
   wf.add(sticky('Step 3 Note', [3260, -100], '### 3 · Score & write pitches\nApplies the niche checks, scores every lead 0-100 and asks Claude for a short, evidence-based pitch for each lead above your minimum score. Temporary AI errors get one retry after 15 s; if it still fails, a template pitch is used.', { width: 2380, height: 560, color: 7 }));
-  wf.add(sticky('Step 4 Note', [5660, 60], '### 4 · Save & draft\nCreates a Gmail draft for every lead with an email address (you review and send), then saves all leads to your sheet.', { width: 1760, height: 400, color: 7 }));
+  wf.add(sticky('Step 4 Note', [5660, 60], '### 4 · Save & draft\nRe-reads your sheet (so two runs never save the same business twice), saves every lead, then creates a Gmail draft for each lead with an email address (you review and send) and stores the draft IDs.', { width: 2420, height: 400, color: 7 }));
 
   // --- trigger + settings ---
   wf.add(formTrigger('Find Clients Form', [0, 300], pack, path));
@@ -162,7 +164,7 @@ function buildClientFinder(pack) {
   wf.add(
     code('Skip Saved Leads', [1540, 280], {
       purpose: 'Removes businesses that are already in your sheet, so nobody gets pitched twice.',
-      adapter: `const job = ${JOB};\nconst leads = $('Clean Leads').all().map((i) => i.json);\nconst saved = $input.all().map((i) => i.json);\nreturn stepSkipSaved(leads, saved, job).map((json) => ({ json }));`,
+      adapter: `const job = ${JOB};\nconst leads = $('Clean Leads').all().map((i) => i.json);\nconst saved = sheetRowsFrom($input.all());\nreturn stepSkipSaved(leads, saved, job).map((json) => ({ json }));`,
     }),
   );
   wf.add(stopCheck('Any New Leads?', [1760, 280]));
@@ -177,47 +179,69 @@ function buildClientFinder(pack) {
   // --- 2. website checks ---
   let scoreInput;
   if (pack.needsWebsiteCheck) {
+    const fetchParams = {
+      url: '={{ $json.website }}',
+      sendHeaders: true,
+      headerParameters: {
+        parameters: [
+          { name: 'User-Agent', value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36' },
+          { name: 'Accept', value: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8' },
+        ],
+      },
+      options: {
+        batching: { batch: { batchSize: 10, batchInterval: 300 } },
+        redirect: { redirect: { followRedirects: true, maxRedirects: 10 } },
+        response: { response: { fullResponse: true, neverError: true, responseFormat: 'text', outputPropertyName: 'html' } },
+        timeout: 20000,
+      },
+    };
     // A Facebook/Instagram/booking-platform link is not the business's own website: don't fetch or judge it.
     wf.add(ifNode('Has Website?', [1980, 280], [condition('hasSite', '={{ !!$json.website && !$json.websitePlatform }}', 'true')]));
-    wf.add(
-      httpNode(
-        'Fetch Website',
-        [2200, 200],
-        {
-          url: '={{ $json.website }}',
-          sendHeaders: true,
-          headerParameters: {
-            parameters: [
-              { name: 'User-Agent', value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36' },
-              { name: 'Accept', value: 'text/html,application/xhtml+xml;q=0.9,*/*;q=0.8' },
-            ],
-          },
-          options: {
-            batching: { batch: { batchSize: 10, batchInterval: 300 } },
-            redirect: { redirect: { followRedirects: true, maxRedirects: 5 } },
-            response: { response: { fullResponse: true, neverError: true, responseFormat: 'text', outputPropertyName: 'html' } },
-            timeout: 20000,
-          },
-        },
-        { onError: 'continueRegularOutput' },
-      ),
-    );
+    wf.add(httpNode('Fetch Website', [2200, 200], fetchParams, { onError: 'continueRegularOutput' }));
     wf.add(
       code('Check Website', [2420, 200], {
         purpose: 'Reads each homepage: did it load, contact email, booking/chat tools, social links, copyright year...',
-        adapter: `const items = $input.all();\nreturn items.map((item, i) => ({\n  json: stepCheckWebsite($('Has Website?').itemMatching(i).json, item.json),\n  pairedItem: { item: i },\n}));`,
+        adapter: `const items = $input.all();\nreturn items.map((item, i) => ({\n  json: stepCheckWebsite($('Has Website?').itemMatching(i).json, item.json, new Date()),\n  pairedItem: { item: i },\n}));`,
       }),
     );
     wf.connect('Any New Leads?', 'Has Website?', 0);
     wf.connect('Has Website?', 'Fetch Website', 0);
     wf.chain('Fetch Website', 'Check Website');
+    let checked = 'Check Website';
+    if (pack.weights.site_down) {
+      // "Website down" is only claimed when a second attempt 15 seconds later fails too.
+      wf.add(ifNode('Recheck Needed?', [2640, 200], [condition('recheck', '={{ $json.needsRecheck === true }}', 'true')]));
+      wf.add({
+        name: 'Wait Before Recheck',
+        type: 'n8n-nodes-base.wait',
+        typeVersion: V.wait,
+        position: [2860, 60],
+        webhookId: require('./common').stableUuid('wait-recheck', wf.key),
+        parameters: { amount: 15, unit: 'seconds' },
+      });
+      wf.add(httpNode('Fetch Website Again', [3080, 60], fetchParams, { onError: 'continueRegularOutput' }));
+      wf.add(
+        code('Recheck Website', [3300, 60], {
+          purpose: 'Second look at sites that failed the first time. Only a failure seen twice is reported.',
+          adapter: `const items = $input.all();\nreturn items.map((item, i) => ({\n  json: stepRecheckWebsite($('Wait Before Recheck').itemMatching(i).json, item.json, new Date()),\n  pairedItem: { item: i },\n}));`,
+        }),
+      );
+      wf.add(merge('Checked', [3520, 200], 2));
+      wf.chain('Check Website', 'Recheck Needed?');
+      wf.connect('Recheck Needed?', 'Wait Before Recheck', 0);
+      wf.chain('Wait Before Recheck', 'Fetch Website Again', 'Recheck Website');
+      wf.connect('Recheck Website', 'Checked', 0, 0);
+      wf.connect('Recheck Needed?', 'Checked', 1, 1);
+      checked = 'Checked';
+    }
     if (pack.needsPageSpeed) {
-      wf.add(merge('All Leads', [3300, 300], 3));
-      wf.add(ifNode('Site Loaded?', [2640, 200], [condition('loaded', '={{ $json.site.status }}', 'equals', 'string', 'ok')]));
+      wf.add(merge('All Leads', [allLeadsX, 300], 3));
+      // Sites with a certificate error go to PageSpeed too: Chrome confirms (or not) what our check saw.
+      wf.add(ifNode('Run PageSpeed?', [3740, 200], [condition('psi', "={{ ['ok', 'ssl-error'].includes($json.site.status) && !$json.websitePlatform }}", 'true')]));
       wf.add(
         httpNode(
           'PageSpeed Test',
-          [2860, 120],
+          [3960, 120],
           {
             url: '={{ $json.pageSpeedUrl }}',
             authentication: 'genericCredentialType',
@@ -228,20 +252,20 @@ function buildClientFinder(pack) {
         ),
       );
       wf.add(
-        code('Read PageSpeed', [3080, 120], {
+        code('Read PageSpeed', [4180, 120], {
           purpose: "Reads Google's mobile PageSpeed (Lighthouse) result for each site.",
-          adapter: `const items = $input.all();\nreturn items.map((item, i) => ({\n  json: stepReadPageSpeed($('Site Loaded?').itemMatching(i).json, item.json),\n  pairedItem: { item: i },\n}));`,
+          adapter: `const items = $input.all();\nreturn items.map((item, i) => ({\n  json: stepReadPageSpeed($('Run PageSpeed?').itemMatching(i).json, item.json),\n  pairedItem: { item: i },\n}));`,
         }),
       );
-      wf.chain('Check Website', 'Site Loaded?');
-      wf.connect('Site Loaded?', 'PageSpeed Test', 0);
+      wf.chain(checked, 'Run PageSpeed?');
+      wf.connect('Run PageSpeed?', 'PageSpeed Test', 0);
       wf.chain('PageSpeed Test', 'Read PageSpeed');
       wf.connect('Read PageSpeed', 'All Leads', 0, 0);
-      wf.connect('Site Loaded?', 'All Leads', 1, 1);
+      wf.connect('Run PageSpeed?', 'All Leads', 1, 1);
       wf.connect('Has Website?', 'All Leads', 1, 2);
     } else {
-      wf.add(merge('All Leads', [3300, 300], 2));
-      wf.connect('Check Website', 'All Leads', 0, 0);
+      wf.add(merge('All Leads', [allLeadsX, 300], 2));
+      wf.connect(checked, 'All Leads', 0, 0);
       wf.connect('Has Website?', 'All Leads', 1, 1);
     }
     scoreInput = 'All Leads';
@@ -252,8 +276,8 @@ function buildClientFinder(pack) {
   // --- 3. score + pitch ---
   wf.add(
     code('Find Problems & Score', [3520, 300], {
-      purpose: 'Runs the niche checks, scores each lead 0-100 and ranks them (Hot / Warm / Low).',
-      adapter: `const job = ${JOB};\nconst leads = $input.all().map((i) => i.json);\nreturn stepScoreLeads(leads, job, new Date()).map((json) => ({ json }));`,
+      purpose: 'Runs the niche checks, scores each lead 0-100 and ranks them (Hot / Warm / Low). One email address or website is pitched once.',
+      adapter: `const job = ${JOB};\nconst leads = $input.all().map((i) => i.json);\nconst saved = sheetRowsFrom($('Read Saved Leads').all());\nreturn stepScoreLeads(leads, job, new Date(), saved).map((json) => ({ json }));`,
     }),
   );
   if (scoreInput === 'Any New Leads?') wf.connect('Any New Leads?', 'Find Problems & Score', 0);
@@ -280,7 +304,7 @@ function buildClientFinder(pack) {
         sendBody: true,
         specifyBody: 'json',
         jsonBody: '={{ JSON.stringify($json.aiRequest.body) }}',
-        options: { batching: { batch: { batchSize: 5, batchInterval: 1500 } }, timeout: 180000 },
+        options: { batching: { batch: { batchSize: 3, batchInterval: 4000 } }, timeout: 180000 },
       },
       { onError: 'continueRegularOutput' },
     ),
@@ -315,7 +339,7 @@ function buildClientFinder(pack) {
         sendBody: true,
         specifyBody: 'json',
         jsonBody: '={{ JSON.stringify($json.aiRequest.body) }}',
-        options: { batching: { batch: { batchSize: 2, batchInterval: 3000 } }, timeout: 180000 },
+        options: { batching: { batch: { batchSize: 2, batchInterval: 5000 } }, timeout: 180000 },
       },
       { onError: 'continueRegularOutput' },
     ),
@@ -336,77 +360,98 @@ function buildClientFinder(pack) {
   wf.connect('Read Retried Pitch', 'Pitched + Skipped', 0, 1);
   wf.connect('Worth a Pitch?', 'Pitched + Skipped', 1, 2);
 
-  // --- 4. drafts + sheet ---
+  // --- 4. sheet first, then drafts (a failure can never leave Gmail drafts without rows) ---
+  const sheetWrite = (name, position, operation, extraColumns) => ({
+    name,
+    type: 'n8n-nodes-base.googleSheets',
+    typeVersion: V.googleSheets,
+    position,
+    retryOnFail: true,
+    maxTries: 4,
+    waitBetweenTries: 5000,
+    parameters: Object.assign({ authentication: 'oAuth2', resource: 'sheet', operation }, sheetLocator(`={{ ${JOB}.settings.googleSheetUrl }}`), {
+      columns: Object.assign(
+        {
+          mappingMode: 'autoMapInputData',
+          value: {},
+          matchingColumns: [],
+          schema: LEAD_COLUMNS.map((c) => ({ id: c, displayName: c, required: false, defaultMatch: c === 'Place ID' && operation === 'update', display: true, type: 'string', canBeUsedToMatch: true })),
+        },
+        extraColumns || {},
+      ),
+      options: { cellFormat: 'RAW', handlingExtraData: 'ignoreIt' },
+    }),
+  });
+  wf.add({
+    name: 'Recheck Sheet',
+    type: 'n8n-nodes-base.googleSheets',
+    typeVersion: V.googleSheets,
+    position: [5720, 300],
+    executeOnce: true,
+    alwaysOutputData: true,
+    onError: 'continueRegularOutput',
+    parameters: Object.assign({ authentication: 'oAuth2', resource: 'sheet', operation: 'read' }, sheetLocator(`={{ ${JOB}.settings.googleSheetUrl }}`), { filtersUI: {}, options: {} }),
+  });
   wf.add(
-    ifNode('Create Draft?', [5720, 300], [
-      condition('hasEmail', '={{ $json.email }}', 'notEmpty', 'string'),
-      condition('hasPitch', '={{ !!($json.pitch && $json.pitch.subject) }}', 'true'),
-      condition('enabled', `={{ String(${JOB}.settings.createGmailDrafts).toLowerCase() === 'true' }}`, 'true'),
+    code('Build Sheet Rows', [5940, 300], {
+      purpose: 'One row per lead, best leads first, matching the columns of the Leads sheet. Skips businesses another run saved in the meantime.',
+      adapter: `const job = ${JOB};\nconst leads = $('Pitched + Skipped').all().map((i) => i.json);\nconst savedNow = sheetRowsFrom($input.all()).filter((r) => !r.error);\nconst rows = stepSheetRows(leads, job, new Date(), savedNow);\nif (!rows.length) return [{ json: stop('Nothing new this time', 'Another run saved these businesses to your sheet a moment ago, so they were skipped.') }];\nreturn rows.map((json) => ({ json }));`,
+    }),
+  );
+  wf.add(stopCheck('Anything to Save?', [6160, 300]));
+  wf.add(sheetWrite('Save to Google Sheet', [6380, 300], 'append'));
+  wf.add(
+    ifNode('Create Draft?', [6600, 300], [
+      condition('ready', '={{ $json.Status }}', 'equals', 'string', 'Draft ready'),
+      condition('hasEmail', '={{ $json.Email }}', 'notEmpty', 'string'),
     ]),
   );
   wf.add({
     name: 'Create Gmail Draft',
     type: 'n8n-nodes-base.gmail',
     typeVersion: V.gmail,
-    position: [5940, 220],
+    position: [6820, 220],
     onError: 'continueRegularOutput',
     parameters: {
       resource: 'draft',
       operation: 'create',
-      subject: '={{ $json.pitch.subject }}',
+      subject: "={{ $json['Email Subject'] }}",
       emailType: 'text',
-      message: '={{ $json.pitch.fullBody }}',
-      options: { sendTo: '={{ $json.email }}' },
+      message: "={{ $json['Email Body'] }}",
+      options: { sendTo: '={{ $json.Email }}' },
     },
   });
   wf.add(
-    code('Read Draft IDs', [6160, 220], {
+    code('Read Draft IDs', [7040, 220], {
       purpose: 'Keeps the Gmail draft and thread IDs so follow-ups land in the same email thread.',
       adapter: `const items = $input.all();\nreturn items.map((item, i) => ({\n  json: stepReadDraft($('Create Draft?').itemMatching(i).json, item.json),\n  pairedItem: { item: i },\n}));`,
     }),
   );
-  wf.add(merge('Ready to Save', [6380, 300], 2));
+  wf.add(sheetWrite('Save Draft IDs', [7260, 220], 'update', { matchingColumns: ['Place ID'] }));
+  wf.add(merge('Saved', [7480, 300], 2));
   wf.add(
-    code('Build Sheet Rows', [6600, 300], {
-      purpose: 'One row per lead, best leads first, matching the columns of the Leads sheet.',
-      adapter: `const job = ${JOB};\nconst leads = $input.all().map((i) => i.json);\nreturn stepSheetRows(leads, job, new Date()).map((json) => ({ json }));`,
-    }),
-  );
-  wf.add({
-    name: 'Save to Google Sheet',
-    type: 'n8n-nodes-base.googleSheets',
-    typeVersion: V.googleSheets,
-    position: [6820, 300],
-    parameters: Object.assign({ authentication: 'oAuth2', resource: 'sheet', operation: 'append' }, sheetLocator(`={{ ${JOB}.settings.googleSheetUrl }}`), {
-      columns: {
-        mappingMode: 'autoMapInputData',
-        value: {},
-        matchingColumns: [],
-        schema: LEAD_COLUMNS.map((c) => ({ id: c, displayName: c, required: false, defaultMatch: false, display: true, type: 'string', canBeUsedToMatch: true })),
-      },
-      options: { cellFormat: 'RAW' },
-    }),
-  });
-  wf.add(
-    code('Summary', [7040, 300], {
+    code('Summary', [7700, 300], {
       purpose: 'Counts what was found for the results page.',
-      adapter: `const job = ${JOB};\nconst rows = $('Build Sheet Rows').all().map((i) => i.json);\nreturn [{ json: stepSummary(rows, job) }];`,
+      adapter: `const job = ${JOB};\nconst rows = $('Build Sheet Rows').all().map((i) => i.json);\nlet drafts = [];\ntry {\n  drafts = $('Read Draft IDs').all().map((i) => i.json);\n} catch (e) {\n  drafts = []; // no lead needed a draft\n}\nconst leads = $('Pitched + Skipped').all().filter((i) => !i.json.stop).length;\nreturn [{ json: stepSummary(rows, drafts, job, { savedElsewhere: Math.max(0, leads - rows.length) }) }];`,
     }),
   );
-  wf.add(formEnd(wf.key, 'Show Results', [7260, 300], '={{ $json.title }}', '={{ $json.message }}\n\n<a href="{{ $json.sheetUrl }}" target="_blank">Open your Google Sheet</a>'));
+  wf.add(formEnd(wf.key, 'Show Results', [7920, 300], '={{ $json.title }}', '={{ $json.message }}\n\n<a href="{{ $json.sheetUrl }}" target="_blank">Open your Google Sheet</a>'));
 
-  wf.chain('Pitched + Skipped', 'Create Draft?');
+  wf.chain('Pitched + Skipped', 'Recheck Sheet', 'Build Sheet Rows', 'Anything to Save?');
+  wf.connect('Anything to Save?', 'Save to Google Sheet', 0);
+  wf.connect('Anything to Save?', 'Show Message', 1);
+  wf.chain('Save to Google Sheet', 'Create Draft?');
   wf.connect('Create Draft?', 'Create Gmail Draft', 0);
-  wf.chain('Create Gmail Draft', 'Read Draft IDs');
-  wf.connect('Read Draft IDs', 'Ready to Save', 0, 0);
-  wf.connect('Create Draft?', 'Ready to Save', 1, 1);
-  wf.chain('Ready to Save', 'Build Sheet Rows', 'Save to Google Sheet', 'Summary', 'Show Results');
+  wf.chain('Create Gmail Draft', 'Read Draft IDs', 'Save Draft IDs');
+  wf.connect('Save Draft IDs', 'Saved', 0, 0);
+  wf.connect('Create Draft?', 'Saved', 1, 1);
+  wf.chain('Saved', 'Summary', 'Show Results');
 
   wf.layoutRows([
     ['Start Here', 'Step 1 Note', 'Find Clients Form', '⚙️ Settings', 'Prepare Search', 'Settings OK?', 'Search Google Maps', 'Clean Leads', 'Read Saved Leads', 'Skip Saved Leads', 'Any New Leads?', 'Show Message'],
-    ['Step 2 Note', 'Has Website?', 'Fetch Website', 'Check Website', 'Site Loaded?', 'PageSpeed Test', 'Read PageSpeed', 'All Leads'],
+    ['Step 2 Note', 'Has Website?', 'Fetch Website', 'Check Website', 'Recheck Needed?', 'Wait Before Recheck', 'Fetch Website Again', 'Recheck Website', 'Checked', 'Run PageSpeed?', 'PageSpeed Test', 'Read PageSpeed', 'All Leads'],
     ['Step 3 Note', 'Find Problems & Score', 'Worth a Pitch?', 'Build AI Request', 'Write Pitch with Claude', 'Read AI Pitch', 'Retry Needed?', 'Wait Before Retry', 'Retry Pitch with Claude', 'Read Retried Pitch', 'Pitched + Skipped'],
-    ['Step 4 Note', 'Create Draft?', 'Create Gmail Draft', 'Read Draft IDs', 'Ready to Save', 'Build Sheet Rows', 'Save to Google Sheet', 'Summary', 'Show Results'],
+    ['Step 4 Note', 'Recheck Sheet', 'Build Sheet Rows', 'Anything to Save?', 'Save to Google Sheet', 'Create Draft?', 'Create Gmail Draft', 'Read Draft IDs', 'Save Draft IDs', 'Saved', 'Summary', 'Show Results'],
   ]);
   const json = wf.toJSON();
   json.meta.clientFinder = { tier: 'paid', niche: pack.id, product: product.productName, version: product.version };

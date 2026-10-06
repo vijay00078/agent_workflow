@@ -111,12 +111,21 @@ function resolveUrl(href, pageUrl) {
 }
 
 function isoDate(value) {
+  if (value === null || value === undefined || value === '') return '';
   const d = value instanceof Date ? value : new Date(value);
   return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
 }
 
-// Parses dates written by people or by Google Sheets ("2026-10-06", "10/6/2026", "2026-10-06T09:00:00Z").
-function parseDate(value) {
+function utcDate(y, m, d) {
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  // Date.UTC silently rolls 25/09 into the 9th month of the next year: reject impossible dates instead.
+  return dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d ? dt : null;
+}
+
+// Parses dates written by people or by Google Sheets ("2026-10-06", "10/6/2026", "25/09/2026", "06.10.2026",
+// a Sheets serial day number, "2026-10-06T09:00:00Z"). Slashed dates are month-first unless the first number is
+// over 12 or options.dayFirst is set; dotted dates (06.10.2026) are day-first. Impossible dates return null.
+function parseDate(value, options) {
   if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
   if (typeof value === 'number' && Number.isFinite(value)) {
     // Google Sheets serial day number (days since 1899-12-30) or epoch milliseconds.
@@ -126,10 +135,18 @@ function parseDate(value) {
   }
   const s = str(value);
   if (!s) return null;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s + 'T00:00:00Z');
-  const us = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if (us) return new Date(Date.UTC(Number(us[3]), Number(us[1]) - 1, Number(us[2])));
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (iso) return utcDate(Number(iso[1]), Number(iso[2]), Number(iso[3]));
+  const parts = s.match(/^(\d{1,2})([/.])(\d{1,2})\2(\d{4})$/);
+  if (parts) {
+    const a = Number(parts[1]);
+    const b = Number(parts[3]);
+    const y = Number(parts[4]);
+    const dayFirst = a > 12 || (b <= 12 && (parts[2] === '.' || Boolean(options && options.dayFirst)));
+    return dayFirst ? utcDate(y, b, a) : utcDate(y, a, b);
+  }
   if (/^\d+(\.\d+)?$/.test(s)) return parseDate(Number(s));
+  if (/^\d{1,2}[/.]\d{1,2}[/.]\d{2,4}$/.test(s)) return null; // other numeric forms are too ambiguous to guess
   const d = new Date(s);
   return Number.isNaN(d.getTime()) ? null : d;
 }

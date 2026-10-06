@@ -2,11 +2,12 @@
 // evidence. A check returns null when the facts don't support the claim (or we could not verify it).
 
 // @node-only-start
-const { hostOf, plural } = require('./util');
+const { str, hostOf, parseUrl, plural } = require('./util');
+const { DOWN_STATUSES } = require('./website');
 // @node-only-end
 
 const DEFAULT_THRESHOLDS = {
-  slowMobileScore: 50, // PageSpeed mobile performance below this = slow
+  slowMobileScore: 45, // PageSpeed mobile performance below this = slow (a margin below Google's 50 "poor" line: lab scores vary between runs)
   weakSeoScore: 80, // Lighthouse SEO score below this = weak basics
   lowRating: 4.0, // Google rating below this (with enough reviews) = reputation problem
   minReviewsForRating: 5,
@@ -21,48 +22,88 @@ function siteName(lead) {
   return hostOf(lead.website) || 'their website';
 }
 
+// The listed URL without the scheme, e.g. "brightsmiles.com/locations/austin/".
+function listedLink(lead) {
+  const u = parseUrl(lead.website);
+  return u ? u.hostname.replace(/^www\./, '') + (u.pathname !== '/' ? u.pathname : '') : siteName(lead);
+}
+
+function isHomepage(lead) {
+  const u = parseUrl(lead.website);
+  return !u || u.pathname === '/' || u.pathname === '';
+}
+
+// Wording for fetch failures that were seen twice, 15 seconds apart (see the "Recheck" step).
 const FETCH_REASONS = {
   'domain-not-found': "the domain doesn't resolve (it may have expired)",
-  'connection-failed': 'the server refused the connection',
+  'connection-refused': 'the server refused the connection',
   timeout: 'it took more than 20 seconds to respond',
   'not-found': 'the homepage returns "page not found" (404)',
   'server-error': 'the server returns an error page',
-  'redirect-loop': 'it gets stuck in a redirect loop',
-  error: 'it failed to load',
 };
 
+const CERT_WORDS = {
+  expired: 'an expired security certificate',
+  'not-yet-valid': 'a security certificate that is not valid yet',
+  'wrong-host': 'a security certificate issued for a different domain',
+  'self-signed': 'a self-signed security certificate',
+};
+
+function certWording(site, psi) {
+  const chrome = str(psi && psi.certError);
+  if (/DATE_INVALID|EXPIRED/i.test(chrome)) return CERT_WORDS.expired;
+  if (/COMMON_NAME_INVALID|NAME_INVALID/i.test(chrome)) return CERT_WORDS['wrong-host'];
+  if (/AUTHORITY_INVALID/i.test(chrome)) return 'a security certificate that browsers do not trust';
+  return CERT_WORDS[site.sslKind] || 'an invalid security certificate';
+}
+
+// HTML-based absence checks only run on pages we could really read: their own site, loaded, not a placeholder,
+// not a bot-protection page or an empty JavaScript shell.
 function htmlChecked(ctx) {
-  return Boolean(!ctx.lead.websitePlatform && ctx.site && ctx.site.status === 'ok' && ctx.analysis && !ctx.analysis.isPlaceholder);
+  return Boolean(
+    !ctx.lead.websitePlatform && ctx.site && ctx.site.status === 'ok' && ctx.analysis && !ctx.analysis.isPlaceholder && ctx.analysis.verifiable !== false,
+  );
 }
 
 const PROBLEMS = {
   no_website: {
     label: 'No website',
     detect: (ctx) => {
-      if (ctx.lead.websitePlatform) return `Their Google Business Profile links to a ${ctx.lead.websitePlatform} (${siteName(ctx.lead)}) instead of a website of their own.`;
-      return ctx.lead.website ? null : 'No website is listed on their Google Business Profile, so people who find them on Maps have nowhere to learn more or book.';
+      const l = ctx.lead;
+      if (l.websitePlatform && l.redirectedTo) return `Their Google listing links to ${siteName(l)}, which forwards to a ${l.websitePlatform} (${hostOf(l.redirectedTo)}), not a website of their own.`;
+      if (l.websitePlatform) return `Their Google Business Profile links to a ${l.websitePlatform} (${siteName(l)}) instead of a website of their own.`;
+      return l.website ? null : 'No website is listed on their Google Business Profile, so people who find them on Maps have nowhere to learn more or book.';
     },
   },
   site_down: {
     label: 'Website down',
     detect: (ctx) => {
-      if (!ctx.lead.website || !ctx.site || ctx.site.reachable !== false || ctx.site.status === 'ssl-error') return null;
-      const reason = FETCH_REASONS[ctx.site.status] || FETCH_REASONS.error;
-      return `The website listed on Google (${siteName(ctx.lead)}) didn't load when checked: ${reason}.`;
+      const site = ctx.site;
+      if (!ctx.lead.website || !site || !DOWN_STATUSES.includes(site.status)) return null;
+      if (site.status === 'not-found' && !isHomepage(ctx.lead)) {
+        return { label: 'Broken website link', evidence: `The website link on their Google listing (${listedLink(ctx.lead)}) leads to a "page not found" error (404).` };
+      }
+      return `The website listed on Google (${siteName(ctx.lead)}) didn't load in two checks a few seconds apart: ${FETCH_REASONS[site.status]}.`;
     },
   },
   ssl_error: {
     label: 'Security certificate error',
-    detect: (ctx) =>
-      ctx.site && ctx.site.status === 'ssl-error'
-        ? `${siteName(ctx.lead)} has a broken or expired security certificate, so browsers show visitors a "your connection is not private" warning.`
-        : null,
+    detect: (ctx) => {
+      const site = ctx.site;
+      if (!site || site.status !== 'ssl-error') return null;
+      const chromeAgrees = Boolean(ctx.psi && ctx.psi.certError);
+      // Node rejects some certificates that Chrome accepts (a missing intermediate certificate, for example):
+      // claim it only when Chrome (via PageSpeed) also refused it, or the fault is one every browser rejects.
+      if (!chromeAgrees && !CERT_WORDS[site.sslKind]) return null;
+      const how = chromeAgrees ? " (Google's PageSpeed test hit the same error in Chrome)" : '';
+      return `${siteName(ctx.lead)} has ${certWording(site, ctx.psi)}, so browsers show visitors a "Your connection is not private" warning instead of the site${how}.`;
+    },
   },
   placeholder_site: {
     label: 'Placeholder website',
     detect: (ctx) =>
       ctx.site && ctx.site.status === 'ok' && ctx.analysis && ctx.analysis.isPlaceholder
-        ? `${siteName(ctx.lead)} is only a placeholder page ("coming soon", parked or default server page), not a real website.`
+        ? `${siteName(ctx.lead)} only shows a placeholder page ("coming soon", parked or default server page), not a real website.`
         : null,
   },
   slow_mobile: {
@@ -70,27 +111,31 @@ const PROBLEMS = {
     detect: (ctx) => {
       const p = ctx.psi;
       if (!p || !p.ok || p.performance === null || p.performance >= ctx.t.slowMobileScore) return null;
-      const lcp = p.lcp ? `; the main content takes ${p.lcp} to appear on a phone` : '';
-      const field = p.fieldSpeed === 'SLOW' ? ' Real-visitor data from Chrome also rates it slow.' : '';
-      return `Google PageSpeed scores the mobile site ${p.performance}/100${lcp}.${field}`;
+      const lcp = p.lcp ? ` and the main content took ${p.lcp} to appear` : '';
+      const field = p.fieldSpeed === 'SLOW' ? " Chrome's data from real visitors also rates the site slow." : '';
+      return `In Google's PageSpeed mobile test (a simulated phone on a 4G connection) the homepage scored ${p.performance}/100${lcp}.${field}`;
     },
   },
   no_https: {
     label: 'Not secure (no HTTPS)',
     detect: (ctx) => {
       const p = ctx.psi;
-      if (!p || !p.ok) return null;
-      const insecure = p.isOnHttps === 0 || (p.finalUrl && /^http:\/\//i.test(p.finalUrl));
-      return insecure ? `${siteName(ctx.lead)} doesn't use HTTPS, so Chrome marks it "Not secure" next to the address.` : null;
+      // Decided by the address the page finally loads on. Lighthouse's "is-on-https" audit also fails for a single
+      // http:// image or an http→https redirect, which would make the claim false.
+      if (!p || !p.ok || !p.finalUrl) return null;
+      return /^http:\/\//i.test(p.finalUrl) ? `${siteName(ctx.lead)} loads without HTTPS, so Chrome marks it "Not secure" next to the address.` : null;
     },
   },
   not_mobile_friendly: {
     label: 'Not mobile-friendly',
     detect: (ctx) => {
-      if (!htmlChecked(ctx)) return null;
-      const psiSaysOk = ctx.psi && ctx.psi.ok && ctx.psi.viewport === 1;
-      if (ctx.analysis.hasViewport || psiSaysOk) return null;
-      return `${siteName(ctx.lead)} isn't set up for phones (no mobile viewport), so it shows as a shrunken desktop page on mobile.`;
+      if (ctx.lead.websitePlatform) return null;
+      const p = ctx.psi;
+      const psiViewport = p && p.ok ? p.viewport : null;
+      if (psiViewport === 1) return null;
+      const claim = `${siteName(ctx.lead)} isn't set up for phones (no mobile viewport), so it shows as a shrunken desktop page on mobile.`;
+      if (psiViewport === 0) return claim; // Lighthouse confirms it
+      return htmlChecked(ctx) && !ctx.analysis.hasViewport ? claim : null;
     },
   },
   outdated_site: {
@@ -100,19 +145,22 @@ const PROBLEMS = {
       const year = ctx.now.getUTCFullYear();
       const age = year - ctx.analysis.copyrightYear;
       if (age < ctx.t.outdatedYears || age > 40) return null;
-      return `The website footer still says © ${ctx.analysis.copyrightYear}, which suggests it hasn't been updated in about ${plural(age, 'year')}.`;
+      return `The footer of their homepage still shows © ${ctx.analysis.copyrightYear}, which suggests the site hasn't been updated in about ${plural(age, 'year')}.`;
     },
   },
   weak_seo: {
     label: 'Weak SEO basics',
     detect: (ctx) => {
-      if (!htmlChecked(ctx)) return null;
+      const psi = ctx.psi && ctx.psi.ok ? ctx.psi : null;
       const missing = [];
-      if (!ctx.analysis.hasTitle) missing.push('no page title');
-      if (!ctx.analysis.hasMetaDescription) missing.push('no meta description');
-      if (!ctx.analysis.hasH1) missing.push('no main heading (H1)');
-      const seo = ctx.psi && ctx.psi.ok ? ctx.psi.seo : null;
-      const lowScore = seo !== null && seo < ctx.t.weakSeoScore;
+      if (htmlChecked(ctx)) {
+        // Lighthouse runs the page in Chrome, so its verdict wins over our reading of the raw HTML.
+        if (!ctx.analysis.hasTitle && !(psi && psi.documentTitle === 1)) missing.push('no page title');
+        if (!ctx.analysis.hasMetaDescription && !(psi && psi.metaDescription === 1)) missing.push('no meta description');
+        if (!ctx.analysis.hasH1) missing.push('no main heading (H1)');
+      }
+      const seo = psi ? psi.seo : null;
+      const lowScore = seo !== null && seo !== undefined && seo < ctx.t.weakSeoScore;
       if (!missing.length && !lowScore) return null;
       const parts = [];
       if (lowScore) parts.push(`Google's Lighthouse SEO check scores the homepage ${seo}/100`);
@@ -125,14 +173,14 @@ const PROBLEMS = {
     label: 'No schema markup',
     detect: (ctx) =>
       htmlChecked(ctx) && !ctx.analysis.hasSchema
-        ? `The homepage has no structured data (schema.org LocalBusiness), which helps Google show their hours, reviews and services in search.`
+        ? `We found no structured data (schema.org LocalBusiness) on their homepage; it helps Google show their hours, reviews and services in search.`
         : null,
   },
   low_rating: {
     label: 'Low Google rating',
     detect: (ctx) => {
       const { rating, reviewCount } = ctx.lead;
-      if (rating === null || reviewCount < ctx.t.minReviewsForRating || rating >= ctx.t.lowRating) return null;
+      if (rating === null || rating === undefined || reviewCount < ctx.t.minReviewsForRating || rating >= ctx.t.lowRating) return null;
       const m = ctx.market && ctx.market.medianRating;
       const comparison = m && m > rating ? ` (similar businesses nearby average ${m}★)` : '';
       return `They're rated ${rating}★ on Google from ${plural(reviewCount, 'review')}${comparison}.`;
@@ -153,15 +201,17 @@ const PROBLEMS = {
     label: 'No online booking',
     detect: (ctx) =>
       htmlChecked(ctx) && !ctx.analysis.hasBooking
-        ? `There's no way to book online on ${siteName(ctx.lead)}; customers have to call during opening hours.`
+        ? `We couldn't find an online booking button or booking widget on their homepage (${siteName(ctx.lead)}).`
         : null,
   },
   no_chat: {
     label: 'No chat or WhatsApp',
-    detect: (ctx) =>
-      htmlChecked(ctx) && !ctx.analysis.hasChat && !ctx.analysis.hasWhatsApp
-        ? `The website has no live chat, chatbot or WhatsApp button, so questions outside office hours go unanswered.`
-        : null,
+    detect: (ctx) => {
+      if (!htmlChecked(ctx) || ctx.analysis.hasChat || ctx.analysis.hasWhatsApp) return null;
+      // A tag manager can add a chat widget that only appears in a browser: we can't be sure, so no claim.
+      if (ctx.analysis.hasTagManager) return null;
+      return `We didn't see a live chat, chatbot or WhatsApp button on their homepage (${siteName(ctx.lead)}).`;
+    },
   },
   limited_hours: {
     label: 'Limited opening hours',
@@ -175,22 +225,24 @@ const PROBLEMS = {
       const parts = [];
       if (early) parts.push(`close before 6pm on ${plural(h.earlyCloseWeekdays, 'weekday')}`);
       if (closedWeekend) parts.push('are closed all weekend');
-      return `According to Google they ${parts.join(' and ')}, so calls and enquiries outside those hours go to voicemail.`;
+      return `According to their Google listing they ${parts.join(' and ')}.`;
     },
   },
   no_social: {
     label: 'No social media links',
-    detect: (ctx) =>
-      htmlChecked(ctx) && !ctx.analysis.hasSocial
-        ? `${siteName(ctx.lead)} doesn't link to any Instagram, Facebook or TikTok account.`
-        : null,
+    detect: (ctx) => {
+      if (!htmlChecked(ctx) || ctx.analysis.hasSocial || ctx.analysis.hasSocialWidget) return null;
+      return `Their homepage (${siteName(ctx.lead)}) doesn't link to an Instagram, Facebook or TikTok account.`;
+    },
   },
   no_tracking: {
     label: 'No analytics or ad pixel',
-    detect: (ctx) =>
-      htmlChecked(ctx) && !ctx.analysis.hasAnalytics && !ctx.analysis.hasMetaPixel
-        ? `The website has no Google Analytics or Meta Pixel installed, so they can't measure visitors or retarget them with ads.`
-        : null,
+    detect: (ctx) => {
+      if (!htmlChecked(ctx) || ctx.analysis.hasAnalytics || ctx.analysis.hasMetaPixel) return null;
+      // Wix, Squarespace, Shopify and similar builders track visitors themselves; tags can also hide in a tag manager.
+      if (ctx.analysis.builder || ctx.analysis.hasTagManager) return null;
+      return `We didn't find a Google Analytics tag or a Meta Pixel in their homepage code, so they likely can't retarget website visitors with Instagram or Facebook ads.`;
+    },
   },
 };
 
@@ -200,12 +252,18 @@ function detectProblems(ctx, pack) {
   const full = Object.assign({ now: new Date() }, ctx, { t });
   // A social/booking-platform link is not their website: never judge that page's speed, HTML or SSL.
   if (full.lead && full.lead.websitePlatform) Object.assign(full, { site: null, analysis: null, psi: null });
+  // A "coming soon" or parked page is the problem; its speed or SEO score is beside the point.
+  if (full.analysis && full.analysis.isPlaceholder) full.psi = null;
   const out = [];
   for (const [id, points] of Object.entries((pack && pack.weights) || {})) {
     const def = PROBLEMS[id];
     if (!def || !(points > 0)) continue;
-    const evidence = def.detect(full);
-    if (evidence) out.push({ id, label: def.label, evidence, points });
+    const found = def.detect(full);
+    if (!found) continue;
+    // A check returns its evidence sentence, or { label, evidence } when the finding needs a more precise label.
+    const evidence = typeof found === 'string' ? found : found.evidence;
+    const label = typeof found === 'string' ? def.label : found.label || def.label;
+    if (evidence) out.push({ id, label, evidence, points });
   }
   out.sort((a, b) => b.points - a.points);
   return out;
@@ -227,4 +285,4 @@ function rankLeads(leads) {
 }
 
 // @export
-module.exports = { DEFAULT_THRESHOLDS, PROBLEMS, FETCH_REASONS, detectProblems, scoreProblems, priorityFor, rankLeads };
+module.exports = { DEFAULT_THRESHOLDS, PROBLEMS, FETCH_REASONS, htmlChecked, detectProblems, scoreProblems, priorityFor, rankLeads };

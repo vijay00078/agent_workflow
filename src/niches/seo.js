@@ -6,7 +6,7 @@ module.exports = {
   needsWebsiteCheck: true,
   needsPageSpeed: true,
   defaultService: 'local SEO (getting found on Google Search and Google Maps)',
-  defaultOffer: 'a free mini SEO audit with the 3 fixes that would help them most',
+  defaultOffer: 'a free mini SEO audit with the 3 fixes that would help you most',
   exampleSearch: { businessType: 'plumbers', location: 'Denver, CO' },
   weights: {
     weak_seo: 35,

@@ -13,7 +13,7 @@ function buildLite() {
     sticky(
       'Start Here',
       [-520, -140],
-      `## 👋 Client Finder Lite (free)\nFinds local businesses on Google Maps and flags the ones with **no website**, which are perfect leads for web designers. You get a CSV with name, phone, rating and Maps link.\n\n**Setup (5 min, see QUICKSTART.pdf):**\n1. Create a Google API key with **Places API (New)** enabled.\n2. In n8n create a **Header Auth** credential: Name \`X-Goog-Api-Key\`, Value = your key. Select it on *Search Google Maps*.\n3. Activate/publish the workflow, open *Find Leads Form* and copy the Production URL.\n\nSubmit the form and your CSV downloads automatically.`,
+      `## 👋 Client Finder Lite (free)\nFinds local businesses on Google Maps and flags the ones with **no website**, which are perfect leads for web designers. You get a CSV with name, phone, rating and Maps link.\n\n**Setup (about 10 min, see QUICKSTART.pdf):**\n1. Create a Google API key with **Places API (New)** enabled.\n2. In n8n create a **Header Auth** credential: Name \`X-Goog-Api-Key\`, Value = your key. Select it on *Search Google Maps*.\n3. Activate/publish the workflow, open *Find Leads Form* and copy the Production URL.\n\nSubmit the form and your CSV downloads automatically.`,
       { width: 480, height: 470, color: 4 },
     ),
   );

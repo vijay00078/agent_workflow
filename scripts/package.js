@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Assembles the three Gumroad downloads in dist/:
-//   Client-Finder-Lite.zip, Client-Finder-Starter.zip, Client-Finder-Pro.zip
+//   Client-Finder-Lite-v<version>.zip, Client-Finder-Starter-v<version>.zip, Client-Finder-Pro-v<version>.zip
 // Run after `npm run build`, `python3 scripts/make-crm.py` and `npm run docs`.
 
 const fs = require('fs');

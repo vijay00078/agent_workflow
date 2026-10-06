@@ -6,7 +6,7 @@ module.exports = {
   needsWebsiteCheck: true,
   needsPageSpeed: false,
   defaultService: 'AI assistants that answer enquiries and book appointments 24/7',
-  defaultOffer: 'a free 5-minute demo of an AI assistant trained on their own website',
+  defaultOffer: 'a free 5-minute demo of an AI assistant trained on your own website',
   exampleSearch: { businessType: 'physiotherapy clinics', location: 'Bangalore, India' },
   weights: {
     no_booking: 35,

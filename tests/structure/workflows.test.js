@@ -188,35 +188,40 @@ test('every Code node runs in a sandbox and returns n8n items', async () => {
   const sun = leads.find((l) => l.placeId === 'ChIJsunrise0001');
   const checked = steps.stepCheckWebsite(sun, { statusCode: 200, html: fx.byKey('sunrise').html });
   const withPsi = steps.stepReadPageSpeed(checked, fx.psiResponse(fx.byKey('sunrise')));
-  const scored = steps.stepScoreLeads([withPsi], job, new Date());
+  const scored = steps.stepScoreLeads([withPsi], job, new Date(), []);
+  const oak = leads.find((l) => l.placeId === 'ChIJoakhill0005');
+  const oakFirst = steps.stepCheckWebsite(oak, { statusCode: 404, html: '' });
   const req = steps.stepBuildPitchRequest(scored[0], job);
   const claude = { model: 'claude-opus-5-5', stop_reason: 'end_turn', content: [{ type: 'text', text: '{"subject":"s","email_body":"b","dm_message":"d","call_opener":"c"}' }] };
   const pitched = steps.stepReadPitch(req, claude, job);
-  const rows = steps.stepSheetRows([pitched], job, new Date());
+  const rows = steps.stepSheetRows([pitched], job, new Date(), []);
   const cases = {
     'Prepare Search': { input: [Object.assign({}, FORM, settings)], check: (out) => assert.equal(out[0].json.stop, false) },
     'Clean Leads': { input: fx.placesPages(), nodes: { 'Prepare Search': [job] }, check: (out) => assert.equal(out.length, 13) },
     'Skip Saved Leads': { input: [{}], nodes: { 'Prepare Search': [job], 'Clean Leads': leads }, check: (out) => assert.equal(out.length, 13) },
     'Check Website': { input: [{ statusCode: 200, html: fx.byKey('sunrise').html }], nodes: { 'Has Website?': [sun] }, check: (out) => assert.equal(out[0].json.email, 'info@sunrise-dental.test') },
-    'Read PageSpeed': { input: [fx.psiResponse(fx.byKey('sunrise'))], nodes: { 'Site Loaded?': [checked] }, check: (out) => assert.equal(out[0].json.psi.performance, 23) },
-    'Find Problems & Score': { input: [withPsi], nodes: { 'Prepare Search': [job] }, check: (out) => assert.ok(out[0].json.score > 0) },
+    'Recheck Website': { input: [{ statusCode: 404, html: '' }], nodes: { 'Wait Before Recheck': [oakFirst] }, check: (out) => assert.deepEqual([out[0].json.site.status, out[0].json.site.rechecked, out[0].json.needsRecheck], ['not-found', true, false]) },
+    'Read PageSpeed': { input: [fx.psiResponse(fx.byKey('sunrise'))], nodes: { 'Run PageSpeed?': [checked] }, check: (out) => assert.equal(out[0].json.psi.performance, 23) },
+    'Find Problems & Score': { input: [withPsi], nodes: { 'Prepare Search': [job], 'Read Saved Leads': [{}] }, check: (out) => assert.ok(out[0].json.score > 0) },
     'Build AI Request': { input: [scored[0]], nodes: { 'Prepare Search': [job] }, check: (out) => assert.ok(out[0].json.aiRequest.body.messages) },
     'Read AI Pitch': { input: [claude], nodes: { 'Prepare Search': [job], 'Build AI Request': [req] }, check: (out) => assert.equal(out[0].json.pitch.subject, 's') },
     'Read Retried Pitch': { input: [{ error: { message: '529 - overloaded', status: 529 } }], nodes: { 'Prepare Search': [job], 'Wait Before Retry': [req] }, check: (out) => assert.match(out[0].json.aiStatus, /Template used/) },
-    'Read Draft IDs': { input: [{ id: 'r1', message: { threadId: 't1' } }], nodes: { 'Create Draft?': [pitched] }, check: (out) => assert.equal(out[0].json.draftId, 'r1') },
-    'Build Sheet Rows': { input: [pitched], nodes: { 'Prepare Search': [job] }, check: (out) => assert.equal(out[0].json['Place ID'], 'ChIJsunrise0001') },
-    Summary: { input: rows, nodes: { 'Prepare Search': [job], 'Build Sheet Rows': rows }, check: (out) => assert.match(out[0].json.title, /1 new lead/) },
+    'Read Draft IDs': { input: [{ id: 'r1', message: { threadId: 't1' } }], nodes: { 'Create Draft?': [rows[0]] }, check: (out) => assert.deepEqual(out[0].json, { 'Place ID': 'ChIJsunrise0001', 'Draft ID': 'r1', 'Thread ID': 't1' }) },
+    'Build Sheet Rows': { input: [{}], nodes: { 'Prepare Search': [job], 'Pitched + Skipped': [pitched] }, check: (out) => assert.equal(out[0].json['Place ID'], 'ChIJsunrise0001') },
+    // 'Read Draft IDs' is deliberately missing: the Summary must cope with a run that created no drafts.
+    Summary: { input: rows, nodes: { 'Prepare Search': [job], 'Build Sheet Rows': rows, 'Pitched + Skipped': [pitched] }, check: (out) => assert.match(out[0].json.title, /1 new lead/) },
     'Build CSV Rows': { input: leads, nodes: { 'Prepare Search': [job] }, check: (out) => assert.equal(out.length, 13) },
   };
   const fjob = steps.stepPrepareFollowUpJob(Object.assign({}, settings, { followUpDays: '3,7', maxFollowUps: 2 }), packs);
   const fRows = [{ 'Place ID': 'a', Business: 'A', Email: 'a@a.test', Status: 'Contacted', 'Last Contacted': '2026-01-01', 'Follow-ups': 0, 'Email Subject': 'Hi', Niche: 'Web Design' }];
-  const actions = steps.stepDecideFollowUps(fRows, [], fjob.settings, new Date('2026-10-06'));
+  const actions = steps.stepDecideFollowUps(fRows, [], [], fjob.settings, new Date('2026-10-06'));
   const fReq = steps.stepBuildFollowUpRequest(actions[0], fjob);
   const fRead = steps.stepReadFollowUp(fReq, claude, fjob);
   Object.assign(cases, {
     'Prepare Follow-ups': { input: [Object.assign({}, settings)], check: (out) => assert.equal(out[0].json.stop, false) },
     'Plan Gmail Searches': { input: fRows, nodes: { 'Prepare Follow-ups': [fjob] }, check: (out) => assert.equal(out.length, 2) },
-    'Decide Follow-ups': { input: [{}], nodes: { 'Prepare Follow-ups': [fjob], 'Read Leads': fRows }, check: (out) => assert.equal(out[0].json.action, 'follow-up') },
+    'Plan Thread Checks': { input: [{}], nodes: { 'Read Leads': fRows }, check: (out) => assert.deepEqual(out[0].json, { threadId: '', noThreads: true }) },
+    'Decide Follow-ups': { input: [{ threadId: '', noThreads: true }], nodes: { 'Prepare Follow-ups': [fjob], 'Read Leads': fRows, 'Search Gmail': [{}] }, check: (out) => assert.equal(out[0].json.action, 'follow-up') },
     'Build Follow-up Request': { input: [actions[0]], nodes: { 'Prepare Follow-ups': [fjob] }, check: (out) => assert.ok(out[0].json.aiRequest) },
     'Read Follow-up': { input: [{ model: 'm', stop_reason: 'end_turn', content: [{ type: 'text', text: '{"email_body":"Nudge"}' }] }], nodes: { 'Prepare Follow-ups': [fjob], 'Build Follow-up Request': [fReq] }, check: (out) => assert.match(out[0].json.followUp.body, /^Nudge/) },
     'Read Follow-up Draft': { input: [{ id: 'r', message: { threadId: 't' } }], nodes: { 'Read Follow-up': [fRead] }, check: (out) => assert.equal(out[0].json['Follow-ups'], 1) },

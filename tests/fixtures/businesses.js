@@ -11,7 +11,10 @@ function cfEncode(email, key) {
   return out;
 }
 
-function page({ title = '', description = '', h1 = '', viewport = true, body = '', head = '', footerYear = YEAR }) {
+// A short "about" paragraph like real homepages have: the checks skip pages with almost no text (JavaScript shells).
+const ABOUT = '<section><p>We are a friendly, family-run local practice. Our experienced team offers check-ups, cleanings, whitening, fillings and emergency care for patients of all ages, with modern equipment and clear prices. New patients are always welcome, and we accept most insurance plans. Free parking is available behind the building.</p></section>';
+
+function page({ title = '', description = '', h1 = '', viewport = true, body = '', head = '', footerYear = YEAR, about = ABOUT }) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -24,6 +27,7 @@ ${head}
 <body>
 ${h1 ? `<h1>${h1}</h1>` : ''}
 ${body}
+${about}
 <footer><p>${footerYear ? `&copy; ${footerYear} ${title.split('|')[0].trim()}. All rights reserved.` : ''}</p></footer>
 </body>
 </html>`;
@@ -178,7 +182,8 @@ const BUSINESSES = [
       hours: 'weekday-9-6',
     },
     badCert: true,
-    psi: { runtimeError: 'FAILED_DOCUMENT_REQUEST' },
+    // Chrome (PageSpeed) refuses the certificate too, which is what makes the claim safe.
+    psi: { runtimeError: 'INSECURE_DOCUMENT_REQUEST', runtimeMessage: 'The URL you have provided does not have a valid security certificate. net::ERR_CERT_AUTHORITY_INVALID' },
     expect: { webDesign: ['ssl_error'], email: '' },
   },
   {
@@ -372,7 +377,7 @@ function psiResponse(b) {
   const url = b.place.website;
   const p = b.psi || {};
   if (p.runtimeError) {
-    return { id: url, lighthouseResult: { requestedUrl: url, finalUrl: url, runtimeError: { code: p.runtimeError, message: 'Lighthouse was unable to reliably load the page you requested.' }, categories: {}, audits: {} } };
+    return { id: url, lighthouseResult: { requestedUrl: url, finalUrl: url, runtimeError: { code: p.runtimeError, message: p.runtimeMessage || 'Lighthouse was unable to reliably load the page you requested.' }, categories: {}, audits: {} } };
   }
   const audits = {
     'largest-contentful-paint': { id: 'largest-contentful-paint', score: p.performance / 100, numericValue: p.lcpMs, displayValue: `${(p.lcpMs / 1000).toFixed(1)} s` },
@@ -405,4 +410,4 @@ function byKey(key) {
   return BUSINESSES.find((b) => b.key === key);
 }
 
-module.exports = { cfEncode, YEAR, BUSINESSES, DUPLICATE_PLACE_ID, toPlace, placesPages, psiResponse, hoursFor, byKey, page };
+module.exports = { cfEncode, ABOUT, YEAR, BUSINESSES, DUPLICATE_PLACE_ID, toPlace, placesPages, psiResponse, hoursFor, byKey, page };
