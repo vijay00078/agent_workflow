@@ -1,0 +1,41 @@
+{{productName}} - License (version {{version}})
+Copyright (c) {{sellerName}}. All rights reserved.
+
+This license applies to everything in this download: the n8n workflow files (.json),
+the guides (.pdf), the CRM template (.xlsx) and any other file included.
+
+WHAT YOU CAN DO
+1. Use the workflows and documents for your own business, as often as you like,
+   on any number of n8n instances that you or your business control.
+2. Set up and run the workflows for your own clients, as part of a service you provide
+   (for example: you find leads for a client, or you install the workflow in a client's
+   n8n account and maintain it for them).
+3. Change the workflows, prompts, niche packs and templates in any way you like.
+4. Use the emails, scripts and templates in the guides in your own outreach.
+
+WHAT YOU CANNOT DO
+1. Sell, share, give away, publish or upload the workflow files, guides or template
+   (original or modified) to anyone else, including on marketplaces, template sites,
+   communities, courses or file-sharing services.
+2. Present the product, or a modified version of it, as your own product for sale.
+3. Share your purchase or download link.
+
+A team or agency license is needed if more than one person in your business uses the
+files. Contact {{supportEmail}}.
+
+YOUR RESPONSIBILITIES
+- You are responsible for how you use the workflows and the messages you send:
+  follow the email, privacy and marketing laws that apply to you and to the people you
+  contact, honor every opt-out request, and review every draft before sending it.
+- You are responsible for your own accounts and costs with third-party services
+  (n8n, Google Cloud / Google Maps Platform, Anthropic, Google Workspace / Gmail).
+  Their terms of service apply to your use of their services.
+
+NO WARRANTY
+The files are provided "as is", without warranty of any kind. No results, number of
+leads, replies or clients are promised. To the maximum extent permitted by law, the
+author is not liable for any damages, losses or costs arising from the use of the files.
+Third-party services can change at any time; updates are provided at the author's
+discretion.
+
+Questions: {{supportEmail}}

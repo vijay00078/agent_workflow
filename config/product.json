@@ -1,0 +1,9 @@
+{
+  "productName": "Client Finder Agent",
+  "version": "1.0.0",
+  "sellerName": "Your Name",
+  "storeUrl": "https://YOUR-STORE.gumroad.com/l/client-finder",
+  "supportEmail": "support@example.com",
+  "minN8nVersion": "1.123",
+  "testedN8nVersions": ["1.123.83", "2.42.3"]
+}

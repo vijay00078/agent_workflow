@@ -1,0 +1,26 @@
+{
+  "name": "client-finder-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Client Finder Agent: n8n workflows that find local businesses with a problem you can fix, prove it, and draft the pitch.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "check": "node scripts/build.js --check",
+    "test": "node --test tests/unit/*.test.js && node scripts/build.js --check && node --test tests/structure/*.test.js",
+    "test:unit": "node --test tests/unit/*.test.js",
+    "test:structure": "node --test tests/structure/*.test.js",
+    "test:e2e": "node tests/e2e/run.js",
+    "docs": "node scripts/render-docs.js",
+    "package": "node scripts/package.js"
+  },
+  "devDependencies": {
+    "acorn": "^8.19.0",
+    "acorn-walk": "^8.3.5",
+    "marked": "^14.1.4",
+    "playwright-core": "^1.56.1"
+  }
+}

@@ -1,0 +1,63 @@
+@page { size: Letter; margin: 0.7in 0.75in 0.75in; }
+@page :first { margin: 0; }
+:root {
+  --ink: #111827; --muted: #6B7280; --line: #E5E7EB; --soft: #F9FAFB;
+  --accent: #4F46E5; --accent-soft: #EEF2FF; --green: #059669; --amber: #B45309; --red: #B91C1C;
+}
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: Inter, 'Segoe UI', Roboto, Arial, sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.55; margin: 0; }
+
+/* cover */
+.cover { width: 8.5in; height: 11in; display: flex; flex-direction: column; justify-content: space-between; page-break-after: always; overflow: hidden;
+  background: linear-gradient(150deg, #1E1B4B 0%, #312E81 45%, #4F46E5 100%); color: #fff; margin: 0; padding: 1in 0.9in 0.8in; }
+.cover-top { display: flex; align-items: center; gap: 12px; font-weight: 600; letter-spacing: .02em; }
+.brand { font-size: 12pt; opacity: .95; }
+.tier { font-size: 8.5pt; text-transform: uppercase; letter-spacing: .12em; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); }
+.tier-free { background: #10B981; border-color: #10B981; }
+.tier-pro { background: #F59E0B; border-color: #F59E0B; color: #1F2937; }
+.kicker { font-size: 10pt; text-transform: uppercase; letter-spacing: .16em; opacity: .75; margin-bottom: 14px; }
+.cover-title { font-size: 34pt; line-height: 1.1; margin: 0 0 16px; font-weight: 800; letter-spacing: -.02em; }
+.cover-sub { font-size: 13pt; line-height: 1.5; opacity: .9; max-width: 5.6in; margin: 0; }
+.cover-foot { font-size: 9pt; opacity: .7; }
+
+/* contents */
+.toc { page-break-after: always; }
+.toc h2 { border: 0; margin-top: 0; }
+.toc ol { padding-left: 1.2em; columns: 1; }
+.toc li { margin: 6px 0; font-size: 11pt; }
+.toc a { color: var(--ink); text-decoration: none; }
+
+/* body */
+main { max-width: 100%; }
+h1 { font-size: 22pt; margin: 0 0 10px; letter-spacing: -.01em; }
+h2 { font-size: 16pt; margin: 30px 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft); page-break-after: avoid; letter-spacing: -.01em; }
+h3 { font-size: 12.5pt; margin: 22px 0 6px; page-break-after: avoid; }
+h4 { font-size: 11pt; margin: 16px 0 4px; color: var(--accent); page-break-after: avoid; }
+p { margin: 6px 0 10px; }
+a { color: var(--accent); }
+strong { font-weight: 650; }
+ul, ol { padding-left: 1.3em; margin: 6px 0 12px; }
+li { margin: 3px 0; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 24px 0; }
+code { font-family: 'DejaVu Sans Mono', Menlo, monospace; font-size: 9pt; background: #F3F4F6; border: 1px solid var(--line); border-radius: 4px; padding: 1px 4px; word-break: break-word; }
+pre { background: #0F172A; color: #E2E8F0; border-radius: 8px; padding: 12px 14px; font-size: 8.6pt; line-height: 1.5; white-space: pre-wrap; word-break: break-word; page-break-inside: avoid; }
+pre code { background: none; border: 0; padding: 0; color: inherit; font-size: inherit; }
+table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 9.2pt; page-break-inside: auto; }
+tr { page-break-inside: avoid; }
+th { text-align: left; background: var(--soft); border-bottom: 2px solid var(--line); padding: 7px 8px; font-weight: 650; }
+td { border-bottom: 1px solid var(--line); padding: 7px 8px; vertical-align: top; }
+img { max-width: 100%; border: 1px solid var(--line); border-radius: 8px; margin: 8px 0 4px; page-break-inside: avoid; }
+img + em { display: block; color: var(--muted); font-size: 8.5pt; margin-bottom: 12px; }
+
+/* callouts: > **Tip:** ... */
+.callout { border-radius: 8px; padding: 10px 14px; margin: 12px 0 16px; border-left: 4px solid var(--accent); background: var(--accent-soft); page-break-inside: avoid; }
+.callout p { margin: 4px 0; }
+.callout-tip { border-color: var(--green); background: #ECFDF5; }
+.callout-warning, .callout-important { border-color: var(--red); background: #FEF2F2; }
+.callout-cost { border-color: var(--amber); background: #FFFBEB; }
+.callout-example { border-color: #6366F1; background: #F5F3FF; }
+
+/* step boxes: ### Step N headings get a badge look */
+h3[id^="step-"] { display: flex; align-items: baseline; gap: 8px; }
+.pagebreak { page-break-after: always; }
