@@ -5,12 +5,24 @@ CFG = "$('Config').first().json"
 KB_KEY = "website_knowledge"
 
 CHAT_CSS = """:root {
-  /* 🎨 Change the brand colour here */
-  --chat--color-primary: #6d28d9;
-  --chat--color-primary-shade-50: #5b21b6;
-  --chat--color-primary-shade-100: #4c1d95;
-  --chat--color-secondary: #10b981;
+  /* 🎨 Change your brand colours here (one place) */
+  --brand: #6d28d9;
+  --brand-dark: #5b21b6;
+  --brand-darker: #4c1d95;
+  --accent: #10b981;
+
+  /* n8n 2.x variable names */
+  --chat--color--primary: var(--brand);
+  --chat--color--primary-shade-50: var(--brand-dark);
+  --chat--color--primary--shade-100: var(--brand-darker);
+  --chat--color--secondary: var(--accent);
+  /* n8n 1.x variable names */
+  --chat--color-primary: var(--brand);
+  --chat--color-primary-shade-50: var(--brand-dark);
+  --chat--color-primary-shade-100: var(--brand-darker);
+  --chat--color-secondary: var(--accent);
   --chat--color-secondary-shade-50: #059669;
+
   --chat--color-white: #ffffff;
   --chat--color-light: #f5f3ff;
   --chat--color-light-shade-50: #ede9fe;
@@ -19,29 +31,20 @@ CHAT_CSS = """:root {
   --chat--color-dark: #1f1b2e;
   --chat--color-disabled: #777980;
   --chat--color-typing: #404040;
-  --chat--spacing: 1rem;
   --chat--border-radius: 0.75rem;
-  --chat--transition-duration: 0.15s;
   --chat--window--width: 400px;
   --chat--window--height: 600px;
-  --chat--header-height: auto;
-  --chat--header--padding: var(--chat--spacing);
-  --chat--header--background: linear-gradient(135deg, #6d28d9, #9333ea);
+  --chat--header--background: linear-gradient(135deg, var(--brand), #9333ea);
   --chat--header--color: #ffffff;
   --chat--heading--font-size: 1.6em;
-  --chat--subtitle--font-size: 0.95em;
-  --chat--message--font-size: 1rem;
-  --chat--message--padding: 0.75rem 1rem;
-  --chat--message--border-radius: 0.75rem;
-  --chat--message-line-height: 1.5;
   --chat--message--bot--background: #ffffff;
   --chat--message--bot--color: #1f1b2e;
   --chat--message--bot--border: 1px solid #ede9fe;
-  --chat--message--user--background: #6d28d9;
+  --chat--message--user--background: var(--brand);
   --chat--message--user--color: #ffffff;
-  --chat--toggle--background: #6d28d9;
-  --chat--toggle--hover--background: #5b21b6;
-  --chat--toggle--active--background: #4c1d95;
+  --chat--toggle--background: var(--brand);
+  --chat--toggle--hover--background: var(--brand-dark);
+  --chat--toggle--active--background: var(--brand-darker);
   --chat--toggle--color: #ffffff;
   --chat--toggle--size: 64px;
 }"""

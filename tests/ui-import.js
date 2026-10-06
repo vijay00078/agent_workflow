@@ -2,15 +2,20 @@
 // that every node renders with a known type, lists node issues (missing
 // credentials are expected, anything else is a problem) and saves screenshots.
 //
-// usage: node tests/ui-import.js [outDir]
+// usage: node tests/ui-import.js [outDir] [--clean] [--crop]
+//   --clean  attach placeholder credentials so no warning icons show (marketing shots)
+//   --crop   (implies --clean) zoom so the text is readable, hide the editor UI and
+//            save only the workflow itself -> build/screenshots/canvas (guide + listing images)
 const path = require('path');
 const fs = require('fs');
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 
 const BASE = process.env.N8N_URL || 'http://localhost:5678';
 const ROOT = path.join(__dirname, '..');
-const CLEAN = process.argv.includes('--clean');
-const OUT = process.argv.slice(2).find((a) => !a.startsWith('--')) || path.join(ROOT, 'build', 'screenshots', CLEAN ? 'clean' : 'raw');
+const CROP = process.argv.includes('--crop');
+const CLEAN = CROP || process.argv.includes('--clean');
+const OUT = process.argv.slice(2).find((a) => !a.startsWith('--'))
+  || path.join(ROOT, 'build', 'screenshots', CROP ? 'canvas' : CLEAN ? 'clean' : 'raw');
 const os = require('os');
 const client = require('./n8n-client');
 
@@ -27,6 +32,67 @@ function credentialTypeFor(node) {
   return null;
 }
 const WF_DIR = path.join(ROOT, 'product', 'workflows');
+
+// Floating editor UI on top of the canvas (tabs, zoom buttons, execute button, node panel, toasts)
+const HIDE_UI_CSS = `
+  .tab-bar-container, [data-test-id="canvas-controls"], [class*="_executionButtons_"],
+  [class*="_nodeButtonsWrapper_"], [data-test-id="resize-handle"], .el-notification { display: none !important; }`;
+
+// Screen-space bounding box of everything drawn for the nodes (incl. labels below them) + current zoom
+function measureCanvas(page) {
+  return page.evaluate(() => {
+    const w = document.querySelector('[data-test-id="canvas-wrapper"]').getBoundingClientRect();
+    const pane = document.querySelector('.vue-flow__transformationpane');
+    const zoom = parseFloat(((pane && pane.style.transform) || '').match(/scale\(([\d.]+)\)/)?.[1] || '1');
+    const box = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+    for (const el of document.querySelectorAll('.vue-flow__node, .vue-flow__node *, .vue-flow__edge-path')) {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) continue;
+      const cs = getComputedStyle(el);
+      if (cs.visibility === 'hidden' || cs.opacity === '0') continue;
+      box.x0 = Math.min(box.x0, r.left); box.y0 = Math.min(box.y0, r.top);
+      box.x1 = Math.max(box.x1, r.right); box.y1 = Math.max(box.y1, r.bottom);
+    }
+    return { wrap: { x: w.left, y: w.top, w: w.width, h: w.height }, zoom, box };
+  });
+}
+
+async function zoomToFit(page) {
+  await page.locator('[data-test-id="zoom-to-fit"]').first().click();
+  await page.waitForTimeout(800);
+}
+
+// Resizes the window so "zoom to fit" lands on a readable zoom, then screenshots just the workflow
+async function croppedScreenshot(page, file) {
+  const original = page.viewportSize();
+  const m1 = await measureCanvas(page);
+  const widthAt1 = (m1.box.x1 - m1.box.x0) / m1.zoom;
+  const heightAt1 = (m1.box.y1 - m1.box.y0) / m1.zoom;
+  const zoom = Math.min(0.9, Math.max(0.45, 1500 / widthAt1));
+  const chromeW = original.width - m1.wrap.w;
+  const chromeH = original.height - m1.wrap.h;
+  await page.setViewportSize({
+    width: Math.ceil(widthAt1 * zoom * 1.3 + chromeW + 40),
+    height: Math.ceil(heightAt1 * zoom * 1.3 + chromeH + 40),
+  });
+  await page.waitForTimeout(500);
+  await zoomToFit(page);
+  await page.addStyleTag({ content: HIDE_UI_CSS });
+  await page.mouse.move(1, 1);
+  await page.waitForTimeout(300);
+  const m2 = await measureCanvas(page);
+  const pad = 28;
+  const x = Math.max(m2.wrap.x, Math.floor(m2.box.x0 - pad));
+  const y = Math.max(m2.wrap.y, Math.floor(m2.box.y0 - pad));
+  const clip = {
+    x, y,
+    width: Math.min(m2.wrap.x + m2.wrap.w, Math.ceil(m2.box.x1 + pad)) - x,
+    height: Math.min(m2.wrap.y + m2.wrap.h, Math.ceil(m2.box.y1 + pad)) - y,
+  };
+  await page.screenshot({ path: path.join(OUT, file.replace('.json', '.png')), clip });
+  console.log(`  📸 cropped at zoom ${m2.zoom.toFixed(2)} → ${Math.round(clip.width)}×${Math.round(clip.height)} css px`);
+  await page.setViewportSize(original);
+}
 
 (async () => {
   fs.mkdirSync(OUT, { recursive: true });
@@ -95,13 +161,12 @@ const WF_DIR = path.join(ROOT, 'product', 'workflows');
     console.log(`  ℹ️ needs credentials (${credNodes.length}): ${credNodes.join(', ') || 'none'}`);
 
     // Fit the canvas, hide toasts and take a screenshot
-    const fit = page.locator('[data-test-id="zoom-to-fit"]');
-    if (await fit.count()) await fit.first().click();
-    await page.waitForTimeout(800);
+    await zoomToFit(page);
     await page.evaluate(() => document.querySelectorAll('.el-notification, [role="alert"], .el-message').forEach((e) => e.remove()));
     await page.mouse.click(5, 500);
     await page.waitForTimeout(300);
-    await page.screenshot({ path: path.join(OUT, file.replace('.json', '.png')) });
+    if (CROP) await croppedScreenshot(page, file);
+    else await page.screenshot({ path: path.join(OUT, file.replace('.json', '.png')) });
   }
   await browser.close();
   console.log(`\nDone. Screenshots in ${OUT}`);
