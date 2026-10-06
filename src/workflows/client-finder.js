@@ -399,6 +399,7 @@ function buildClientFinder(pack) {
     }),
   );
   wf.add(stopCheck('Anything to Save?', [6160, 300]));
+  wf.add(formEnd(wf.key, 'Show Nothing New', [6380, 480], '={{ $json.title }}', '={{ $json.message }}'));
   wf.add(sheetWrite('Save to Google Sheet', [6380, 300], 'append'));
   wf.add(
     ifNode('Create Draft?', [6600, 300], [
@@ -439,7 +440,7 @@ function buildClientFinder(pack) {
 
   wf.chain('Pitched + Skipped', 'Recheck Sheet', 'Build Sheet Rows', 'Anything to Save?');
   wf.connect('Anything to Save?', 'Save to Google Sheet', 0);
-  wf.connect('Anything to Save?', 'Show Message', 1);
+  wf.connect('Anything to Save?', 'Show Nothing New', 1);
   wf.chain('Save to Google Sheet', 'Create Draft?');
   wf.connect('Create Draft?', 'Create Gmail Draft', 0);
   wf.chain('Create Gmail Draft', 'Read Draft IDs', 'Save Draft IDs');
@@ -451,7 +452,7 @@ function buildClientFinder(pack) {
     ['Start Here', 'Step 1 Note', 'Find Clients Form', '⚙️ Settings', 'Prepare Search', 'Settings OK?', 'Search Google Maps', 'Clean Leads', 'Read Saved Leads', 'Skip Saved Leads', 'Any New Leads?', 'Show Message'],
     ['Step 2 Note', 'Has Website?', 'Fetch Website', 'Check Website', 'Recheck Needed?', 'Wait Before Recheck', 'Fetch Website Again', 'Recheck Website', 'Checked', 'Run PageSpeed?', 'PageSpeed Test', 'Read PageSpeed', 'All Leads'],
     ['Step 3 Note', 'Find Problems & Score', 'Worth a Pitch?', 'Build AI Request', 'Write Pitch with Claude', 'Read AI Pitch', 'Retry Needed?', 'Wait Before Retry', 'Retry Pitch with Claude', 'Read Retried Pitch', 'Pitched + Skipped'],
-    ['Step 4 Note', 'Recheck Sheet', 'Build Sheet Rows', 'Anything to Save?', 'Save to Google Sheet', 'Create Draft?', 'Create Gmail Draft', 'Read Draft IDs', 'Save Draft IDs', 'Saved', 'Summary', 'Show Results'],
+    ['Step 4 Note', 'Recheck Sheet', 'Build Sheet Rows', 'Anything to Save?', 'Show Nothing New', 'Save to Google Sheet', 'Create Draft?', 'Create Gmail Draft', 'Read Draft IDs', 'Save Draft IDs', 'Saved', 'Summary', 'Show Results'],
   ]);
   const json = wf.toJSON();
   json.meta.clientFinder = { tier: 'paid', niche: pack.id, product: product.productName, version: product.version };

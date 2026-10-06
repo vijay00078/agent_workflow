@@ -1075,6 +1075,24 @@
       }
     },
     {
+      "id": "a5d306a7-933c-454f-a057-223e6ca8b42a",
+      "name": "Show Nothing New",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        660,
+        2580
+      ],
+      "webhookId": "ed377f2d-6464-4c60-9490-aad47bfa3d15",
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "text",
+        "completionTitle": "={{ $json.title }}",
+        "completionMessage": "={{ $json.message }}",
+        "options": {}
+      }
+    },
+    {
       "id": "831d9697-e4d7-4c8a-bd5e-8ce45a62deb0",
       "name": "Save to Google Sheet",
       "type": "n8n-nodes-base.googleSheets",
@@ -2239,7 +2257,7 @@
         ],
         [
           {
-            "node": "Show Message",
+            "node": "Show Nothing New",
             "type": "main",
             "index": 0
           }
