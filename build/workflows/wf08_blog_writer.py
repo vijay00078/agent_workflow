@@ -23,12 +23,12 @@ def build():
 - Writes `articles_per_run` articles per day (default 1).
 - Brief: gpt-4.1-mini · Article: gpt-4.1 (≈ $0.02–0.04 per article).
 - Failed rows get Status = **Error** with the reason — set back to *Ready* to retry.
-- WordPress user? Enable **WordPress Draft** to also create a draft post.""", (-760, -340), 680, 1000, YELLOW)
+- WordPress user? Enable **WordPress Draft** to also create a draft post.""", (-760, -340), 680, None, YELLOW)
 
-    wf.sticky("### 1️⃣ Pick today's topics (Status = Ready)", (-40, 40), 920, 420, GREEN)
-    wf.sticky("### 2️⃣ SEO brief → full article", (840, 40), 900, 600, BLUE)
-    wf.sticky("### 3️⃣ Formatted Google Doc + sheet updated", (1760, 40), 900, 340, ORANGE)
-    wf.sticky("### ⚠️ If something fails\nThe row is marked **Error** with the reason.", (1760, 520), 700, 260, RED)
+    wf.section("### 1️⃣ Pick today's topics (Status = Ready)", ['Every Morning', 'Config', 'Get Ready Topics', 'Limit'], GREEN)
+    wf.section("### 2️⃣ SEO brief → full article", ['AI: SEO Brief', 'Brief Model (gpt-4.1-mini)', 'Brief Format', 'Brief OK?', 'AI: Write Article', 'Writer Model (gpt-4.1)', 'Article OK?'], BLUE)
+    wf.section("### 3️⃣ Formatted Google Doc + sheet updated", ['Build Google Doc', 'Create Google Doc', 'Done Row', 'Mark as Done', 'WordPress Draft'], ORANGE)
+    wf.section("### ⚠️ If something fails\nThe row is marked **Error** with the reason.", ['Error Row', 'Mark as Error'], RED)
 
     wf.add("Every Morning", "n8n-nodes-base.scheduleTrigger", 1.2, {
         "rule": {"interval": [{"field": "days", "triggerAtHour": 8}]},
@@ -200,4 +200,14 @@ SEO BRIEF (JSON):
     wf.ai("Brief Model (gpt-4.1-mini)", "AI: SEO Brief", "ai_languageModel")
     wf.ai("Brief Format", "AI: SEO Brief", "ai_outputParser")
     wf.ai("Writer Model (gpt-4.1)", "AI: Write Article", "ai_languageModel")
+
+    wf.place({
+        "Every Morning": (0, 240), "Config": (220, 240), "Get Ready Topics": (440, 240), "Limit": (660, 240),
+        "AI: SEO Brief": (900, 240), "Brief Model (gpt-4.1-mini)": (860, 460), "Brief Format": (1000, 460),
+        "Brief OK?": (1200, 240), "AI: Write Article": (1420, 240), "Writer Model (gpt-4.1)": (1440, 460),
+        "Article OK?": (1720, 240),
+        "Build Google Doc": (1960, 140), "Create Google Doc": (2180, 140), "Done Row": (2400, 140), "Mark as Done": (2620, 140),
+        "WordPress Draft": (2180, 340),
+        "Error Row": (2180, 700), "Mark as Error": (2400, 700),
+    })
     return wf

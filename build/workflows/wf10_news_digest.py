@@ -32,11 +32,11 @@ Works for **any industry** — just change the topics (Google News search) and f
 - Prefer Telegram? Enable **Send to Telegram** (select → **D**) and add your chat ID.
 - Change the time in **Every Morning at 7**.
 - A feed stopped working? Remove it — the digest keeps going with the others.
-- Cost: ≈ $0.003 per digest (~$0.10/month).""", (-760, -320), 680, 860, YELLOW)
+- Cost: ≈ $0.003 per digest (~$0.10/month).""", (-760, -320), 680, None, YELLOW)
 
-    wf.sticky("### 1️⃣ Collect today's news\nRSS feeds + Google News for every topic", (-40, 40), 920, 380, GREEN)
-    wf.sticky("### 2️⃣ AI editor picks what matters to YOU", (900, 40), 680, 520, BLUE)
-    wf.sticky("### 3️⃣ Beautiful briefing → inbox / Telegram", (1600, 40), 700, 520, ORANGE)
+    wf.section("### 1️⃣ Collect today's news\nRSS feeds + Google News for every topic", ['Every Morning at 7', 'Config', 'Build Feed List', 'Read Feeds', 'Clean & Rank', 'Any News?'], GREEN)
+    wf.section("### 2️⃣ AI editor picks what matters to YOU", ['AI Editor: Pick & Summarize', 'OpenAI Chat Model', 'Digest Format'], BLUE)
+    wf.section("### 3️⃣ Beautiful briefing → inbox / Telegram", ['Build Newsletter', 'Send Email Digest', 'Send to Telegram'], ORANGE)
 
     wf.add("Every Morning at 7", "n8n-nodes-base.scheduleTrigger", 1.2, {
         "rule": {"interval": [{"field": "days", "triggerAtHour": 7}]},

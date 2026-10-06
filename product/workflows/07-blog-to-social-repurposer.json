@@ -4,7 +4,7 @@
     {
       "parameters": {
         "content": "## ♻️ Blog-to-Social Content Repurposer\n**Paste one article URL → get 9 ready-to-post pieces in ~30 seconds:** LinkedIn post · X thread · Instagram caption + hashtags · carousel slides · Facebook post · newsletter blurb · Reels/TikTok script · quote cards · AI image prompt. ✨\n\nEverything is emailed to you **and** saved as drafts in a Content Calendar sheet.\n\n### ⚡ Setup (≈5 min)\n1. **OpenAI Chat Model** → your OpenAI API key\n2. **Config** → your brand, audience, voice, CTA & email\n3. **Email Me the Pack** → connect Gmail\n4. **Save to Content Calendar** → connect Google + paste your sheet URL in Config\n5. **Activate / Publish** → open the **Repurpose Form** URL and paste an article link 🔗\n\n### 🤖 Autopilot (optional)\nEnable **New Blog Post (RSS)** (select → press **D**) and put your blog's RSS feed URL in it — every new post gets repurposed automatically.\nWant to auto-publish? Enable **Post to LinkedIn** and connect LinkedIn.\n\n💡 Cost: ≈ $0.01 per article.",
-        "height": 900,
+        "height": 434,
         "width": 680,
         "color": 1
       },
@@ -20,8 +20,8 @@
     {
       "parameters": {
         "content": "### 1️⃣ Article in (form or RSS)",
-        "height": 520,
-        "width": 700,
+        "height": 460,
+        "width": 420,
         "color": 4
       },
       "id": "e4e44160-87fa-537a-94e3-73c51a4afd6a",
@@ -30,14 +30,14 @@
       "typeVersion": 1,
       "position": [
         -40,
-        20
+        95
       ]
     },
     {
       "parameters": {
         "content": "### 2️⃣ Read the article + AI writes 9 posts",
-        "height": 520,
-        "width": 900,
+        "height": 430,
+        "width": 784,
         "color": 5
       },
       "id": "fc502e13-c95c-596b-ae5f-308b56602a63",
@@ -45,15 +45,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        680,
-        20
+        420,
+        205
       ]
     },
     {
       "parameters": {
         "content": "### 3️⃣ Deliver: email + content calendar",
-        "height": 760,
-        "width": 700,
+        "height": 680,
+        "width": 400,
         "color": 2
       },
       "id": "f9d1e542-2e18-52ef-b72d-4f5bc26835b6",
@@ -61,8 +61,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1600,
-        -140
+        1620,
+        15
       ]
     },
     {

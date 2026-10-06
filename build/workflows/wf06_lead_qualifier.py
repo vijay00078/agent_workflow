@@ -24,11 +24,11 @@ Leads contacted within 5 minutes are far more likely to convert than leads conta
 ### 💡 Good to know
 - Spam & sales pitches are detected and never get a reply.
 - Set `auto_reply` to false in Config to only score & log.
-- Cost: ≈ $0.002 per lead.""", (-760, -320), 680, 960, YELLOW)
+- Cost: ≈ $0.002 per lead.""", (-760, -320), 680, None, YELLOW)
 
-    wf.sticky("### 1️⃣ New lead from your form or website", (-40, 0), 920, 560, GREEN)
-    wf.sticky("### 2️⃣ Quick research + AI qualification", (920, 0), 1100, 560, BLUE)
-    wf.sticky("### 3️⃣ Log · reply · alert", (2060, -120), 700, 900, ORANGE)
+    wf.section("### 1️⃣ New lead from your form or website", ['Lead Form', 'Website Form (Webhook)', 'Normalize Lead', 'Config'], GREEN)
+    wf.section("### 2️⃣ Quick research + AI qualification", ['Has Website?', 'Visit Website', 'Website Snippet', 'Lead Data', 'AI: Qualify & Write Reply', 'OpenAI Chat Model', 'Qualification Format', 'Lead Record'], BLUE)
+    wf.section("### 3️⃣ Log · reply · alert", ['CRM Row', 'Save to CRM Sheet', 'Send Reply?', 'Send Instant Reply', 'Hot Lead?', 'Alert Me (Email)', 'Alert Me (Telegram)'], ORANGE)
 
     wf.add("Lead Form", "n8n-nodes-base.formTrigger", 2.2, {
         "formTitle": "Let's talk about your project 👋",

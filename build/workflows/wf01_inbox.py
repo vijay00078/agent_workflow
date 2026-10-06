@@ -27,13 +27,13 @@ AI/Urgent · AI/Client · AI/Lead · AI/Finance · AI/Meeting · AI/Personal · 
 - Drafts are **never sent automatically** — you stay in control.
 - Promotions & Social tabs are skipped to save AI costs (edit the trigger's *Search* filter to change this).
 - Cost: ≈ $0.001 per email with gpt-4.1-mini.
-- 📱 Want phone alerts for urgent emails? Enable the **Urgent Alert (Telegram)** node.""", (-620, -260), 560, 900, YELLOW)
+- 📱 Want phone alerts for urgent emails? Enable the **Urgent Alert (Telegram)** node.""", (-620, -260), 560, None, YELLOW)
 
-    wf.sticky("### 1️⃣ New email arrives\nChecks Gmail every minute, then strips quoted history & signatures so the AI reads only the new message.", (-40, 40), 700, 380, GREEN)
-    wf.sticky("### 2️⃣ AI triage + reply draft\nCategory, priority, 1-line summary and — if needed — a reply written in your style.", (680, 40), 300, 560, BLUE)
-    wf.sticky("### 3️⃣ Label it in Gmail\nUses `AI/<Category>` labels. Missing labels are created on the fly.", (1000, -200), 1180, 360, PURPLE)
-    wf.sticky("### 4️⃣ Save a draft reply\nOnly when a real person is waiting for an answer. Drafts land in the same thread.", (1440, 180), 560, 260, ORANGE)
-    wf.sticky("### 5️⃣ Optional: urgent alerts 📱\nSelect the Telegram node → press **D** to enable → add your bot + `telegram_chat_id` in Config.", (1440, 460), 560, 280, GRAY)
+    wf.section("### 1️⃣ New email arrives\nChecks Gmail every minute, then strips quoted history & signatures so the AI reads only the new message.", ['New Email', 'Config', 'Clean Email'], GREEN)
+    wf.section("### 2️⃣ AI triage + reply draft\nCategory, priority, 1-line summary and — if needed — a reply written in your style.", ['AI Triage & Reply', 'OpenAI Chat Model', 'Triage Format'], BLUE)
+    wf.section("### 3️⃣ Label it in Gmail\nUses `AI/<Category>` labels. Missing labels are created on the fly.", ['Label Exists?', 'Create Label', 'Add Label'], PURPLE)
+    wf.section("### 4️⃣ Save a draft reply\nOnly when a real person is waiting for an answer. Drafts land in the same thread.", ['Needs Reply?', 'Create Draft Reply'], ORANGE)
+    wf.section("### 5️⃣ Optional: urgent alerts 📱\nSelect the Telegram node → press **D** to enable → add your bot + `telegram_chat_id` in Config.", ['Urgent?', 'Urgent Alert (Telegram)'], GRAY)
 
     # ------------------------------------------------------------ nodes
     wf.add("New Email", "n8n-nodes-base.gmailTrigger", 1.2, {
@@ -179,4 +179,10 @@ EMAIL:
     wf.connect("Create Label", "Add Label")
     wf.connect("Needs Reply?", "Create Draft Reply", out=0)
     wf.connect("Urgent?", "Urgent Alert (Telegram)", out=0)
+
+    wf.place({
+        "Label Exists?": (1480, -100), "Create Label": (1720, 20), "Add Label": (1960, -100),
+        "Needs Reply?": (1480, 340), "Create Draft Reply": (1760, 340),
+        "Urgent?": (1480, 640), "Urgent Alert (Telegram)": (1760, 640),
+    })
     return wf

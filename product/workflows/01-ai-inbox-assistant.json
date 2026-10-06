@@ -4,7 +4,7 @@
     {
       "parameters": {
         "content": "## 📬 AI Inbox Assistant\n**Every new email is read by AI, labeled in Gmail, summarized — and when someone is waiting for an answer, a reply in YOUR voice is saved as a draft in the same thread.**\n\nYou open Gmail → the draft is already there → tweak & send. ✉️\n\n### ⚡ Setup (≈5 min)\n1. **New Email** trigger → connect your **Gmail** account\n2. **OpenAI Chat Model** → add your **OpenAI API key**\n3. **Config** → your name, signature & writing style\n4. Open **Get Gmail Labels**, **Create Label**, **Add Label** and **Create Draft Reply** → select the same Gmail account\n5. Click **Execute workflow** (tests on your latest email) → check Gmail → **Activate / Publish** ✅\n\n### 🏷️ Labels it creates (automatically)\nAI/Urgent · AI/Client · AI/Lead · AI/Finance · AI/Meeting · AI/Personal · AI/Newsletter · AI/Notification · AI/Spam · AI/Other\n\n### 💡 Good to know\n- Drafts are **never sent automatically** — you stay in control.\n- Promotions & Social tabs are skipped to save AI costs (edit the trigger's *Search* filter to change this).\n- Cost: ≈ $0.001 per email with gpt-4.1-mini.\n- 📱 Want phone alerts for urgent emails? Enable the **Urgent Alert (Telegram)** node.",
-        "height": 900,
+        "height": 581,
         "width": 560,
         "color": 1
       },
@@ -20,8 +20,8 @@
     {
       "parameters": {
         "content": "### 1️⃣ New email arrives\nChecks Gmail every minute, then strips quoted history & signatures so the AI reads only the new message.",
-        "height": 380,
-        "width": 700,
+        "height": 278,
+        "width": 620,
         "color": 4
       },
       "id": "15af84a6-ae7a-5094-821f-bf5d3f09f6f2",
@@ -30,14 +30,14 @@
       "typeVersion": 1,
       "position": [
         -40,
-        40
+        97
       ]
     },
     {
       "parameters": {
         "content": "### 2️⃣ AI triage + reply draft\nCategory, priority, 1-line summary and — if needed — a reply written in your style.",
-        "height": 560,
-        "width": 300,
+        "height": 478,
+        "width": 324,
         "color": 5
       },
       "id": "2b52fd64-7cbd-5d52-a9b8-44929cc08866",
@@ -45,15 +45,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        680,
-        40
+        640,
+        97
       ]
     },
     {
       "parameters": {
         "content": "### 3️⃣ Label it in Gmail\nUses `AI/<Category>` labels. Missing labels are created on the fly.",
-        "height": 360,
-        "width": 1180,
+        "height": 379,
+        "width": 660,
         "color": 6
       },
       "id": "e79a9318-a4cb-5d6f-a3a3-af7c4e2f4d4e",
@@ -61,15 +61,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1000,
-        -200
+        1440,
+        -184
       ]
     },
     {
       "parameters": {
         "content": "### 4️⃣ Save a draft reply\nOnly when a real person is waiting for an answer. Drafts land in the same thread.",
-        "height": 260,
-        "width": 560,
+        "height": 278,
+        "width": 460,
         "color": 2
       },
       "id": "ed140d7d-7368-5b76-9892-d80e83dbd749",
@@ -78,14 +78,14 @@
       "typeVersion": 1,
       "position": [
         1440,
-        180
+        237
       ]
     },
     {
       "parameters": {
         "content": "### 5️⃣ Optional: urgent alerts 📱\nSelect the Telegram node → press **D** to enable → add your bot + `telegram_chat_id` in Config.",
-        "height": 280,
-        "width": 560,
+        "height": 278,
+        "width": 460,
         "color": 7
       },
       "id": "c2a1c1f8-456f-59e5-bc77-69e1dc2475fa",
@@ -94,7 +94,7 @@
       "typeVersion": 1,
       "position": [
         1440,
-        460
+        537
       ]
     },
     {
@@ -329,7 +329,7 @@
       "typeVersion": 2.2,
       "position": [
         1480,
-        -20
+        -100
       ]
     },
     {
@@ -345,7 +345,7 @@
       "typeVersion": 2.1,
       "position": [
         1720,
-        60
+        20
       ],
       "onError": "continueRegularOutput"
     },
@@ -361,7 +361,7 @@
       "typeVersion": 2.1,
       "position": [
         1960,
-        -20
+        -100
       ],
       "onError": "continueRegularOutput"
     },
@@ -409,7 +409,7 @@
       "typeVersion": 2.2,
       "position": [
         1480,
-        300
+        340
       ]
     },
     {
@@ -429,7 +429,7 @@
       "typeVersion": 2.1,
       "position": [
         1760,
-        280
+        340
       ]
     },
     {
@@ -466,7 +466,7 @@
       "typeVersion": 2.2,
       "position": [
         1480,
-        580
+        640
       ]
     },
     {
@@ -484,7 +484,7 @@
       "typeVersion": 1.2,
       "position": [
         1760,
-        580
+        640
       ],
       "disabled": true
     }

@@ -4,7 +4,7 @@
     {
       "parameters": {
         "content": "## ✍️ AI SEO Blog Writer\n**Add topics to a Google Sheet → every morning the AI researches the angle, builds an SEO brief and writes a full, formatted article straight into Google Docs.** Then it updates the sheet with the title, meta description, slug, word count and Doc link. 📈\n\n### ⚡ Setup (≈10 min)\n1. Import `Blog Topics.csv` into a Google Sheet (File → Import) — or create these columns: **Topic · Primary Keyword · Audience · Notes · Word Count · Status**\n2. Put a few topics in it with **Status = Ready**\n3. **Config** → paste the sheet URL, your brand, audience & voice (optional: a Drive folder link for the docs)\n4. Connect **Google Sheets** (3 nodes) + **Google Drive** (*Create Google Doc*)\n5. **OpenAI** models → your OpenAI API key\n6. Click **Execute workflow** to write one now → then **Activate / Publish** for daily autopilot ☀️\n\n### 💡 Good to know\n- Writes `articles_per_run` articles per day (default 1).\n- Brief: gpt-4.1-mini · Article: gpt-4.1 (≈ $0.02–0.04 per article).\n- Failed rows get Status = **Error** with the reason — set back to *Ready* to retry.\n- WordPress user? Enable **WordPress Draft** to also create a draft post.",
-        "height": 1000,
+        "height": 465,
         "width": 680,
         "color": 1
       },
@@ -20,8 +20,8 @@
     {
       "parameters": {
         "content": "### 1️⃣ Pick today's topics (Status = Ready)",
-        "height": 420,
-        "width": 920,
+        "height": 240,
+        "width": 840,
         "color": 4
       },
       "id": "af109965-1dd1-5de1-91a0-81600d49269f",
@@ -30,14 +30,14 @@
       "typeVersion": 1,
       "position": [
         -40,
-        40
+        175
       ]
     },
     {
       "parameters": {
         "content": "### 2️⃣ SEO brief → full article",
-        "height": 600,
-        "width": 900,
+        "height": 440,
+        "width": 1040,
         "color": 5
       },
       "id": "21f68ce5-61b4-5e98-80c1-5e0464fb050e",
@@ -45,15 +45,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        840,
-        40
+        820,
+        175
       ]
     },
     {
       "parameters": {
         "content": "### 3️⃣ Formatted Google Doc + sheet updated",
-        "height": 340,
-        "width": 900,
+        "height": 440,
+        "width": 840,
         "color": 2
       },
       "id": "40f9abb7-e048-5aa7-9cbf-c36aa3d1f689",
@@ -61,15 +61,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1760,
-        40
+        1920,
+        75
       ]
     },
     {
       "parameters": {
         "content": "### ⚠️ If something fails\nThe row is marked **Error** with the reason.",
-        "height": 260,
-        "width": 700,
+        "height": 259,
+        "width": 400,
         "color": 3
       },
       "id": "a2d07cc9-6f6b-55d1-9386-f69d21ec5721",
@@ -77,8 +77,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1760,
-        520
+        2140,
+        616
       ]
     },
     {
@@ -309,7 +309,7 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        1340,
+        1420,
         240
       ],
       "onError": "continueRegularOutput"
@@ -332,7 +332,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        1340,
+        1440,
         460
       ]
     },
@@ -369,7 +369,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1120,
+        1200,
         240
       ]
     },
@@ -416,7 +416,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1560,
+        1720,
         240
       ]
     },
@@ -430,8 +430,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1780,
-        200
+        1960,
+        140
       ]
     },
     {
@@ -453,8 +453,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2000,
-        200
+        2180,
+        140
       ],
       "onError": "continueErrorOutput",
       "retryOnFail": true,
@@ -522,8 +522,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2100,
-        200
+        2400,
+        140
       ]
     },
     {
@@ -554,8 +554,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.6,
       "position": [
-        2440,
-        200
+        2620,
+        140
       ],
       "retryOnFail": true,
       "maxTries": 3,
@@ -592,8 +592,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2000,
-        600
+        2180,
+        700
       ]
     },
     {
@@ -624,8 +624,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.6,
       "position": [
-        2220,
-        600
+        2400,
+        700
       ]
     },
     {
@@ -642,8 +642,8 @@
       "type": "n8n-nodes-base.wordpress",
       "typeVersion": 1,
       "position": [
-        2000,
-        400
+        2180,
+        340
       ],
       "disabled": true,
       "notes": "Optional: also create a WordPress draft",

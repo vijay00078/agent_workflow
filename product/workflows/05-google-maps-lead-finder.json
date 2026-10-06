@@ -4,7 +4,7 @@
     {
       "parameters": {
         "content": "## 🎯 Google Maps Lead Finder + AI Openers\n**Type \"dentists in Austin\" → get up to 60 local businesses in your Google Sheet with phone, website, email, socials, a lead score and a personalised cold-email opener for each.** 🚀\n\n### ⚡ Setup (≈10 min)\n1. **Google Cloud** → enable *Places API (New)* → create an **API key** (PDF guide → *Google Maps API key*)\n2. **Search Google Maps** → credential *Header Auth*: Name `X-Goog-Api-Key`, Value = your key\n3. **OpenAI Chat Model** → your OpenAI API key\n4. Make a Google Sheet (or import `Leads.csv` from the pack) → paste its URL in **Config**\n5. **Save to Google Sheets** → connect Google\n6. **Activate / Publish** → open the form URL (Lead Search Form → *Production URL*) 🔎\n\n### 💡 Good to know\n- Re-running a search **updates** existing rows (matched by Place ID) — no duplicates.\n- Each lead gets **signals** (no online booking, outdated site, low rating…) → hyper-personal openers.\n- Google gives a monthly free allowance for Places API — see the PDF for current pricing.\n- AI cost ≈ $0.0005 per lead.\n- ⚖️ Follow anti-spam & privacy laws (CAN-SPAM, GDPR) when contacting leads.",
-        "height": 1000,
+        "height": 467,
         "width": 680,
         "color": 1
       },
@@ -20,8 +20,8 @@
     {
       "parameters": {
         "content": "### 1️⃣ Search Google Maps\nUp to 3 pages × 20 results, closed businesses skipped.",
-        "height": 400,
-        "width": 1140,
+        "height": 259,
+        "width": 1060,
         "color": 4
       },
       "id": "e119561e-f5f1-5844-b3d9-17c6a1c52ab9",
@@ -30,14 +30,14 @@
       "typeVersion": 1,
       "position": [
         -40,
-        120
+        216
       ]
     },
     {
       "parameters": {
         "content": "### 2️⃣ Visit each website\nEmails (also hidden ones), Instagram/Facebook/LinkedIn, contact page & sales signals.",
-        "height": 560,
-        "width": 1180,
+        "height": 399,
+        "width": 1060,
         "color": 6
       },
       "id": "11cd2a75-5058-594c-975e-6d78840754b3",
@@ -45,15 +45,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1140,
-        -60
+        1060,
+        76
       ]
     },
     {
       "parameters": {
         "content": "### 3️⃣ AI scores the lead & writes the opener → Google Sheet",
-        "height": 560,
-        "width": 900,
+        "height": 440,
+        "width": 960,
         "color": 5
       },
       "id": "6f8707ef-8e65-5e42-ba5e-0ad6548126f4",
@@ -61,8 +61,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        2360,
-        120
+        2160,
+        235
       ]
     },
     {

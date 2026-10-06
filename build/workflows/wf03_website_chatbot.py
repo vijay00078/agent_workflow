@@ -69,10 +69,10 @@ Enable **Save Lead (Google Sheets)** (select it → press **D**), connect Google
 ### 💡 Tips
 - Add FAQs, policies & opening hours to `extra_knowledge` — instant answers.
 - Change colours in the Chat Trigger → *Custom CSS*.
-- Cost: training ≈ $0.01 · each answer ≈ $0.001–0.002.""", (-760, -320), 680, 1100, YELLOW)
+- Cost: training ≈ $0.01 · each answer ≈ $0.001–0.002.""", (-760, -320), 680, None, YELLOW)
 
-    wf.sticky("### 📚 A — Learn the website\nSitemap → pages → clean text → AI knowledge base.\nRuns on demand, nightly and after restarts.", (-40, 520), 1960, 520, GREEN)
-    wf.sticky("### 💬 B — Answer visitors\nEvery chat message → AI agent searches the knowledge base → friendly answer with links.", (420, -300), 1240, 680, BLUE)
+    wf.section("### 📚 A — Learn the website\nSitemap → pages → clean text → AI knowledge base.\nRuns on demand, nightly and after restarts.", ['Fetch Sitemap', 'Sitemaps to Read', 'Read Sitemaps', 'Collect Page URLs', 'Download Pages', 'Extract Page Text', 'Save to Knowledge Base', 'Embeddings (learn)', 'Page Loader', 'Text Splitter'], GREEN)
+    wf.section("### 💬 B — Answer visitors\nEvery chat message → AI agent searches the knowledge base → friendly answer with links.", ['AI Support Agent', 'OpenAI Chat Model', 'Chat Memory', 'Website Knowledge Base', 'Embeddings (search)', 'Save Lead (Google Sheets)'], BLUE)
 
     # ------------------------------------------------------------ triggers
     wf.add("Chat Trigger", "@n8n/n8n-nodes-langchain.chatTrigger", 1.1, {
@@ -248,4 +248,15 @@ NEVER invent prices, discounts, availability or policies. Never give legal, medi
     wf.ai("Embeddings (learn)", "Save to Knowledge Base", "ai_embedding")
     wf.ai("Page Loader", "Save to Knowledge Base", "ai_document")
     wf.ai("Text Splitter", "Page Loader", "ai_textSplitter")
+
+    wf.place({
+        "Chat Trigger": (0, 160), "▶️ Train the bot now": (0, 640), "Every night at 3 AM": (0, 820),
+        "When n8n starts / workflow is published": (0, 1000), "Config": (340, 560), "Chat or Training?": (560, 560),
+        "AI Support Agent": (860, 200), "OpenAI Chat Model": (780, 460), "Chat Memory": (920, 460),
+        "Website Knowledge Base": (1060, 460), "Save Lead (Google Sheets)": (1380, 460), "Embeddings (search)": (1140, 660),
+        "Fetch Sitemap": (860, 1000), "Sitemaps to Read": (1080, 1000), "Read Sitemaps": (1300, 1000),
+        "Collect Page URLs": (1520, 1000), "Download Pages": (1740, 1000), "Extract Page Text": (1960, 1000),
+        "Save to Knowledge Base": (2200, 1000), "Embeddings (learn)": (2180, 1220), "Page Loader": (2320, 1220),
+        "Text Splitter": (2420, 1400),
+    })
     return wf

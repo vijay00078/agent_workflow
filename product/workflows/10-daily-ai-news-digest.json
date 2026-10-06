@@ -4,7 +4,7 @@
     {
       "parameters": {
         "content": "## ☕ Daily AI News Digest\n**Every morning an AI editor scans dozens of sources, throws out the noise and sends you a beautiful 2-minute briefing:** TL;DR, the 7 stories that matter *to you*, why each one matters, quick hits and an insight of the day. 📬\n\nWorks for **any industry** — just change the topics (Google News search) and feeds.\n\n### ⚡ Setup (≈3 min)\n1. **OpenAI Chat Model** → your OpenAI API key\n2. **Send Email Digest** → connect Gmail\n3. **Config** → your email, topics and *reader profile* (who you are & what you care about)\n4. Click **Execute workflow** → check your inbox ✨ → **Activate / Publish**\n\n### 💡 Tips\n- Prefer Telegram? Enable **Send to Telegram** (select → **D**) and add your chat ID.\n- Change the time in **Every Morning at 7**.\n- A feed stopped working? Remove it — the digest keeps going with the others.\n- Cost: ≈ $0.003 per digest (~$0.10/month).",
-        "height": 860,
+        "height": 412,
         "width": 680,
         "color": 1
       },
@@ -20,8 +20,8 @@
     {
       "parameters": {
         "content": "### 1️⃣ Collect today's news\nRSS feeds + Google News for every topic",
-        "height": 380,
-        "width": 920,
+        "height": 259,
+        "width": 1280,
         "color": 4
       },
       "id": "8a41e75d-dc3a-5d0a-bd28-4449478259b5",
@@ -30,14 +30,14 @@
       "typeVersion": 1,
       "position": [
         -40,
-        40
+        156
       ]
     },
     {
       "parameters": {
         "content": "### 2️⃣ AI editor picks what matters to YOU",
-        "height": 520,
-        "width": 680,
+        "height": 440,
+        "width": 344,
         "color": 5
       },
       "id": "4f214a8d-1109-52cb-ad70-2f544d27357b",
@@ -45,15 +45,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        900,
-        40
+        1260,
+        155
       ]
     },
     {
       "parameters": {
         "content": "### 3️⃣ Beautiful briefing → inbox / Telegram",
-        "height": 520,
-        "width": 700,
+        "height": 440,
+        "width": 420,
         "color": 2
       },
       "id": "1b57a0b2-043b-5757-b88b-c48c40a284c2",
@@ -61,8 +61,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1600,
-        40
+        1620,
+        75
       ]
     },
     {

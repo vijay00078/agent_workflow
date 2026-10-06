@@ -5,6 +5,7 @@ connections are always valid and shared conventions (Config node, sticky notes,
 OpenAI model settings) stay consistent across all workflows.
 """
 import json
+import math
 import os
 import uuid
 
@@ -15,6 +16,31 @@ CODE_DIR = os.path.join(os.path.dirname(__file__), "..", "code")
 YELLOW, ORANGE, RED, GREEN, BLUE, PURPLE, GRAY = 1, 2, 3, 4, 5, 6, 7
 
 DEFAULT_MODEL = "gpt-4.1-mini"
+
+# Rendered node sizes in the n8n 2.x canvas (zoom 1), measured in the editor
+WIDE_ROOTS = {
+    "@n8n/n8n-nodes-langchain.agent", "@n8n/n8n-nodes-langchain.chainLlm",
+    "@n8n/n8n-nodes-langchain.chatTrigger", "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+}
+WIDE_SUBS = {"@n8n/n8n-nodes-langchain.documentDefaultDataLoader"}
+STICKY_HEIGHTS_FILE = os.path.join(os.path.dirname(__file__), "..", "sticky-heights.json")
+
+
+def node_box(node):
+    """(x1, y1, x2, y2) of a node incl. its label, in canvas units."""
+    t = node["type"]
+    x, y = node["position"]
+    is_sub = t.startswith("@n8n/n8n-nodes-langchain.") and t.split(".")[-1].startswith(
+        ("lmChat", "memory", "tool", "outputParser", "embeddings", "textSplitter", "documentDefault")) or t.endswith("Tool")
+    if t == "@n8n/n8n-nodes-langchain.vectorStoreInMemory" and node["parameters"].get("mode") == "retrieve-as-tool":
+        return (x, y, x + 240, y + 80 + 55)
+    if t in WIDE_SUBS:
+        return (x, y, x + 240, y + 80 + 55)
+    if t in WIDE_ROOTS:
+        return (x, y, x + 224, y + 100 + 45)
+    if is_sub:
+        return (x, y, x + 80, y + 80 + 55)
+    return (x, y, x + 100, y + 100 + 55)
 
 
 def code(path):
@@ -68,9 +94,14 @@ class Workflow:
         self.nodes.append(node)
         return name
 
-    def sticky(self, content, pos, width, height, color=YELLOW, name=None):
+    def sticky(self, content, pos, width, height=None, color=YELLOW, name=None):
+        """A sticky note. height=None -> sized to its text (measured in the editor)."""
         self._sticky_count += 1
         name = name or f"Sticky Note {self._sticky_count}"
+        self._pending_heights = getattr(self, "_pending_heights", {})
+        if height is None:
+            self._pending_heights[name] = width
+            height = 200
         return self.add(
             name,
             "n8n-nodes-base.stickyNote",
@@ -78,6 +109,62 @@ class Workflow:
             {"content": content.strip(), "height": height, "width": width, "color": color},
             pos,
         )
+
+    def section(self, content, nodes, color, pad=40, header=None):
+        """A coloured sticky drawn behind `nodes` (resolved at export time)."""
+        self._sections = getattr(self, "_sections", [])
+        name = self.sticky(content, (0, 0), 400, 200, color)
+        self._sections.append((name, list(nodes), pad, header))
+        return name
+
+    @staticmethod
+    def _text_height(content, width):
+        """Approximate rendered height of sticky markdown (measured: ### = 29px, text line = 19px)."""
+        h = 0
+        for line in content.split("\n"):
+            if line.startswith("### "):
+                h += 29
+            elif line.startswith("## "):
+                h += 34
+            else:
+                cpl = max(20, (width - 32) / 7.0)
+                h += 19 * max(1, math.ceil(len(line) / cpl))
+        return h + 16
+
+    def _resolve_layout(self):
+        by_name = {n["name"]: n for n in self.nodes}
+        for name, members, pad, header in getattr(self, "_sections", []):
+            boxes = [node_box(by_name[m]) for m in members]
+            x1 = min(b[0] for b in boxes) - pad
+            y1 = min(b[1] for b in boxes)
+            x2 = max(b[2] for b in boxes) + pad
+            y2 = max(b[3] for b in boxes) + 20
+            content = by_name[name]["parameters"]["content"]
+            head = header if header is not None else self._text_height(content, x2 - x1)
+            sticky = by_name[name]
+            sticky["position"] = [int(x1), int(y1 - head - 20)]
+            sticky["parameters"]["width"] = int(x2 - x1)
+            sticky["parameters"]["height"] = int(y2 - y1 + head + 20)
+        measured = {}
+        if os.path.exists(STICKY_HEIGHTS_FILE):
+            with open(STICKY_HEIGHTS_FILE, encoding="utf-8") as fh:
+                measured = json.load(fh).get(self.name, {})
+        for name, width in getattr(self, "_pending_heights", {}).items():
+            node = by_name[name]
+            content_h = measured.get(name)
+            if content_h is None:  # rough estimate until measured
+                text = node["parameters"]["content"]
+                chars_per_line = max(30, width / 7.2)
+                content_h = sum(max(1, -(-len(line) // chars_per_line)) * 17 for line in text.split("\n")) + 30
+            node["parameters"]["height"] = int(content_h + 46)
+
+    def place(self, positions):
+        """Set final canvas positions by node name: {"Node": (x, y)}."""
+        by_name = {n["name"]: n for n in self.nodes}
+        for name, (x, y) in positions.items():
+            if name not in by_name:
+                raise ValueError(f"place(): unknown node {name!r} in {self.slug}")
+            by_name[name]["position"] = [int(x), int(y)]
 
     # ---------------------------------------------------------- connections
     def connect(self, src, dst, out=0, inp=0, kind="main"):
@@ -99,6 +186,7 @@ class Workflow:
 
     # --------------------------------------------------------------- export
     def to_dict(self):
+        self._resolve_layout()
         return {
             "name": self.name,
             "nodes": self.nodes,

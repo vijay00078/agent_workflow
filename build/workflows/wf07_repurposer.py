@@ -23,11 +23,11 @@ Everything is emailed to you **and** saved as drafts in a Content Calendar sheet
 Enable **New Blog Post (RSS)** (select → press **D**) and put your blog's RSS feed URL in it — every new post gets repurposed automatically.
 Want to auto-publish? Enable **Post to LinkedIn** and connect LinkedIn.
 
-💡 Cost: ≈ $0.01 per article.""", (-760, -320), 680, 900, YELLOW)
+💡 Cost: ≈ $0.01 per article.""", (-760, -320), 680, None, YELLOW)
 
-    wf.sticky("### 1️⃣ Article in (form or RSS)", (-40, 20), 700, 520, GREEN)
-    wf.sticky("### 2️⃣ Read the article + AI writes 9 posts", (680, 20), 900, 520, BLUE)
-    wf.sticky("### 3️⃣ Deliver: email + content calendar", (1600, -140), 700, 760, ORANGE)
+    wf.section("### 1️⃣ Article in (form or RSS)", ['Repurpose Form', 'New Blog Post (RSS)', 'Config'], GREEN)
+    wf.section("### 2️⃣ Read the article + AI writes 9 posts", ['Fetch Article', 'Extract Article', 'AI: Create Content Pack', 'OpenAI Chat Model', 'Content Pack Format'], BLUE)
+    wf.section("### 3️⃣ Deliver: email + content calendar", ['Build Email', 'Email Me the Pack', 'Calendar Rows', 'Save to Content Calendar', 'Post to LinkedIn'], ORANGE)
 
     wf.add("Repurpose Form", "n8n-nodes-base.formTrigger", 2.2, {
         "formTitle": "♻️ Repurpose an article",

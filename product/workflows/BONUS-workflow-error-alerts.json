@@ -4,7 +4,7 @@
     {
       "parameters": {
         "content": "## 🚨 Error Alerts with AI Fix Suggestions\n**Never miss a broken automation again.** When ANY of your workflows fails you instantly get an email (or Telegram message) with the error, a plain-English explanation and the 3 most likely fixes — plus a button to open the failed run. 🛠️\n\n### ⚡ Setup (≈3 min)\n1. **OpenAI Chat Model** → your OpenAI API key\n2. **Email Alert** → connect Gmail · put your email in **Config**\n3. **Save** this workflow (no need to activate it)\n4. Open each workflow you want to protect → **⋯ menu → Settings → Error workflow** → choose *this* workflow → Save ✅\n\n### 💡 Good to know\n- Same error repeating? You get **one alert per hour** (change `quiet_minutes`).\n- Prefer Telegram? Enable **Telegram Alert** (select → **D**).\n- Test it: open a workflow, break something on purpose (e.g. a wrong URL), run it from its trigger.",
-        "height": 760,
+        "height": 381,
         "width": 680,
         "color": 1
       },
@@ -20,8 +20,8 @@
     {
       "parameters": {
         "content": "### 1️⃣ Any workflow fails → collect the details",
-        "height": 380,
-        "width": 900,
+        "height": 240,
+        "width": 840,
         "color": 3
       },
       "id": "8b4e6baa-4cf2-5c8f-9c15-bb1860e70f89",
@@ -30,14 +30,14 @@
       "typeVersion": 1,
       "position": [
         -40,
-        40
+        175
       ]
     },
     {
       "parameters": {
         "content": "### 2️⃣ AI explains it & suggests fixes",
-        "height": 520,
-        "width": 460,
+        "height": 440,
+        "width": 304,
         "color": 5
       },
       "id": "174f0aca-83ca-5c53-8fdc-f5be6cf52398",
@@ -45,15 +45,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        900,
-        40
+        860,
+        175
       ]
     },
     {
       "parameters": {
         "content": "### 3️⃣ Alert you",
-        "height": 520,
-        "width": 700,
+        "height": 460,
+        "width": 400,
         "color": 2
       },
       "id": "1b43d83d-6926-5ecc-92b7-8f5d3e1ad352",
@@ -61,8 +61,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1380,
-        40
+        1200,
+        75
       ]
     },
     {
@@ -184,7 +184,7 @@
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.7,
       "position": [
-        920,
+        900,
         240
       ],
       "onError": "continueRegularOutput"
@@ -206,8 +206,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        920,
-        440
+        950,
+        460
       ]
     },
     {
@@ -220,7 +220,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1160,
+        1240,
         240
       ]
     },
@@ -238,8 +238,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        1420,
-        160
+        1460,
+        140
       ]
     },
     {
@@ -257,7 +257,7 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1420,
+        1460,
         360
       ],
       "disabled": true

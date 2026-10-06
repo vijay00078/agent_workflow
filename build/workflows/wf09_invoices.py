@@ -23,11 +23,11 @@ GSTIN format + checksum · state codes · intra- vs inter-state tax logic · tot
 4. **Save to Invoice Register** → connect Google Sheets
 5. **Activate / Publish** → drop a PDF into the folder or open the **Upload Form** URL 📱
 
-💡 Cost: ≈ $0.002–0.01 per document · Only use the form? Disable the Drive trigger (select → **D**).""", (-760, -340), 680, 1020, YELLOW)
+💡 Cost: ≈ $0.002–0.01 per document · Only use the form? Disable the Drive trigger (select → **D**).""", (-760, -340), 680, None, YELLOW)
 
-    wf.sticky("### 1️⃣ New file in Drive OR uploaded via the form", (-40, 0), 1120, 600, GREEN)
-    wf.sticky("### 2️⃣ AI reads the document (PDF/photo → JSON)", (1100, 100), 700, 420, BLUE)
-    wf.sticky("### 3️⃣ GST checks → Invoice register", (1820, 0), 900, 600, ORANGE)
+    wf.section("### 1️⃣ New file in Drive OR uploaded via the form", ['New File in Drive Folder', 'Upload Form', 'Config', 'From Google Drive?', 'Download File', 'Drive File Info', 'Split Uploaded Files'], GREEN)
+    wf.section("### 2️⃣ AI reads the document (PDF/photo → JSON)", ['Prepare AI Request', 'Readable?', 'AI: Read Invoice'], BLUE)
+    wf.section("### 3️⃣ GST checks → Invoice register", ['Check & Enrich (GST)', 'Invoice Row', 'Save to Invoice Register', 'Move to Processed?', 'Move to Processed Folder', 'Line Item Rows', 'Save Line Items'], ORANGE)
 
     wf.add("New File in Drive Folder", "n8n-nodes-base.googleDriveTrigger", 1, {
         "pollTimes": {"item": [{"mode": "everyMinute"}]},

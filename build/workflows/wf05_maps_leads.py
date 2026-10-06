@@ -29,11 +29,11 @@ def build():
 - Each lead gets **signals** (no online booking, outdated site, low rating…) → hyper-personal openers.
 - Google gives a monthly free allowance for Places API — see the PDF for current pricing.
 - AI cost ≈ $0.0005 per lead.
-- ⚖️ Follow anti-spam & privacy laws (CAN-SPAM, GDPR) when contacting leads.""", (-760, -320), 680, 1000, YELLOW)
+- ⚖️ Follow anti-spam & privacy laws (CAN-SPAM, GDPR) when contacting leads.""", (-760, -320), 680, None, YELLOW)
 
-    wf.sticky("### 1️⃣ Search Google Maps\nUp to 3 pages × 20 results, closed businesses skipped.", (-40, 120), 1140, 400, GREEN)
-    wf.sticky("### 2️⃣ Visit each website\nEmails (also hidden ones), Instagram/Facebook/LinkedIn, contact page & sales signals.", (1140, -60), 1180, 560, PURPLE)
-    wf.sticky("### 3️⃣ AI scores the lead & writes the opener → Google Sheet", (2360, 120), 900, 560, BLUE)
+    wf.section("### 1️⃣ Search Google Maps\nUp to 3 pages × 20 results, closed businesses skipped.", ['Lead Search Form', 'Config', 'Search Google Maps', 'Split Places', 'Prepare Lead'], GREEN)
+    wf.section("### 2️⃣ Visit each website\nEmails (also hidden ones), Instagram/Facebook/LinkedIn, contact page & sales signals.", ['Has Website?', 'Visit Website', 'Read Website', 'Visit Contact Page', 'Combine Contacts'], PURPLE)
+    wf.section("### 3️⃣ AI scores the lead & writes the opener → Google Sheet", ['Lead Data', 'AI: Score & Write Opener', 'OpenAI Chat Model', 'Lead Format', 'Format Row', 'Save to Google Sheets'], BLUE)
 
     wf.add("Lead Search Form", "n8n-nodes-base.formTrigger", 2.2, {
         "formTitle": "🔎 Find local business leads",

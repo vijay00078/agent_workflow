@@ -4,7 +4,7 @@
     {
       "parameters": {
         "content": "## ⚡ AI Lead Qualifier & Instant Reply\n**Every new lead is scored 0–100 by AI, gets a personal reply in under 60 seconds (with your booking link), lands in your CRM sheet — and hot leads ping you instantly.** 🔥\n\nLeads contacted within 5 minutes are far more likely to convert than leads contacted hours later. This makes you the fastest responder in your market — 24/7.\n\n### ⚡ Setup (≈10 min)\n1. **OpenAI Chat Model** → your OpenAI API key\n2. **Config** → what you sell, ideal customer, booking link (Calendly/Cal.com), your email\n3. **Send Instant Reply** + **Alert Me (Email)** → connect Gmail\n4. **Save to CRM Sheet** → connect Google + paste your sheet URL in Config\n5. **Activate / Publish**, then either:\n   - share the **Lead Form** URL (Production URL), or\n   - send your website form to the **Website Form (Webhook)** URL (POST JSON — see PDF guide)\n\n### 💡 Good to know\n- Spam & sales pitches are detected and never get a reply.\n- Set `auto_reply` to false in Config to only score & log.\n- Cost: ≈ $0.002 per lead.",
-        "height": 960,
+        "height": 473,
         "width": 680,
         "color": 1
       },
@@ -20,8 +20,8 @@
     {
       "parameters": {
         "content": "### 1️⃣ New lead from your form or website",
-        "height": 560,
-        "width": 920,
+        "height": 460,
+        "width": 640,
         "color": 4
       },
       "id": "ea4ea373-8d03-572c-b312-2347fc3bc3b1",
@@ -30,14 +30,14 @@
       "typeVersion": 1,
       "position": [
         -40,
-        0
+        95
       ]
     },
     {
       "parameters": {
         "content": "### 2️⃣ Quick research + AI qualification",
         "height": 560,
-        "width": 1100,
+        "width": 1380,
         "color": 5
       },
       "id": "5c2ee2ae-f854-586b-a339-096c06fa8df2",
@@ -45,15 +45,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        920,
-        0
+        640,
+        75
       ]
     },
     {
       "parameters": {
         "content": "### 3️⃣ Log · reply · alert",
-        "height": 900,
-        "width": 700,
+        "height": 880,
+        "width": 400,
         "color": 2
       },
       "id": "c1499cc0-f483-5acf-91a4-3c972d4cf449",
@@ -61,8 +61,8 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        2060,
-        -120
+        2080,
+        -5
       ]
     },
     {

@@ -19,11 +19,11 @@ def build():
 ### 💡 Good to know
 - Same error repeating? You get **one alert per hour** (change `quiet_minutes`).
 - Prefer Telegram? Enable **Telegram Alert** (select → **D**).
-- Test it: open a workflow, break something on purpose (e.g. a wrong URL), run it from its trigger.""", (-760, -300), 680, 760, YELLOW)
+- Test it: open a workflow, break something on purpose (e.g. a wrong URL), run it from its trigger.""", (-760, -300), 680, None, YELLOW)
 
-    wf.sticky("### 1️⃣ Any workflow fails → collect the details", (-40, 40), 900, 380, RED)
-    wf.sticky("### 2️⃣ AI explains it & suggests fixes", (900, 40), 460, 520, BLUE)
-    wf.sticky("### 3️⃣ Alert you", (1380, 40), 700, 520, ORANGE)
+    wf.section("### 1️⃣ Any workflow fails → collect the details", ['When Any Workflow Fails', 'Config', 'Error Details', 'New Error?'], RED)
+    wf.section("### 2️⃣ AI explains it & suggests fixes", ['AI: Explain & Suggest Fixes', 'OpenAI Chat Model'], BLUE)
+    wf.section("### 3️⃣ Alert you", ['Build Alert', 'Email Alert', 'Telegram Alert'], ORANGE)
 
     wf.add("When Any Workflow Fails", "n8n-nodes-base.errorTrigger", 1, {}, (0, 240))
     wf.add("Config", "n8n-nodes-base.set", 3.4, set_fields(wf, [
@@ -68,4 +68,10 @@ STACK (first lines): {{ $json.stack || '-' }}"""
     wf.connect("Build Alert", "Email Alert")
     wf.connect("Build Alert", "Telegram Alert")
     wf.ai("OpenAI Chat Model", "AI: Explain & Suggest Fixes", "ai_languageModel")
+
+    wf.place({
+        "When Any Workflow Fails": (0, 240), "Config": (220, 240), "Error Details": (440, 240), "New Error?": (660, 240),
+        "AI: Explain & Suggest Fixes": (900, 240), "OpenAI Chat Model": (950, 460),
+        "Build Alert": (1240, 240), "Email Alert": (1460, 140), "Telegram Alert": (1460, 360),
+    })
     return wf

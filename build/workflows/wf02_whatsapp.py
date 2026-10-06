@@ -28,11 +28,11 @@ def build():
 ### 💡 Good to know
 - The bot only answers what's in **business_info** — no made-up prices.
 - Your n8n must be reachable over **HTTPS** (n8n Cloud ✅).
-- Cost: ≈ $0.001–0.003 per reply (voice notes ≈ +$0.006/min).""", (-700, -300), 620, 1020, YELLOW)
+- Cost: ≈ $0.001–0.003 per reply (voice notes ≈ +$0.006/min).""", (-700, -300), 620, None, YELLOW)
 
-    wf.sticky("### 1️⃣ Incoming WhatsApp message\nStatus updates (sent/delivered/read) are ignored so they don't use executions.", (-40, 160), 920, 340, GREEN)
-    wf.sticky("### 2️⃣ Understand any message type\n🎙️ Voice notes → transcribed · 📷 Photos → described by AI · 💬 Text → as is", (1100, 40), 900, 760, PURPLE)
-    wf.sticky("### 3️⃣ AI writes the reply\nUses your business info + the chat history with this customer.", (2040, 140), 520, 560, BLUE)
+    wf.section("### 1️⃣ Incoming WhatsApp message\nStatus updates (sent/delivered/read) are ignored so they don't use executions.", ['WhatsApp Trigger', 'Is a Message?', 'Config', 'Extract Message'], GREEN)
+    wf.section("### 2️⃣ Understand any message type\n🎙️ Voice notes → transcribed · 📷 Photos → described by AI · 💬 Text → as is", ['Text Message', 'Get Voice File', 'Download Voice', 'Transcribe Voice', 'Voice Message', 'Get Image File', 'Download Image', 'Describe Image', 'Image Message', 'Reply: Unsupported Type'], PURPLE)
+    wf.section("### 3️⃣ AI writes the reply\nUses your business info + the chat history with this customer.", ['AI Agent', 'OpenAI Chat Model', 'Conversation Memory', 'Calculator', 'Send WhatsApp Reply'], BLUE)
 
     # ------------------------------------------------------------ nodes
     wf.add("WhatsApp Trigger", "n8n-nodes-base.whatsAppTrigger", 1, {

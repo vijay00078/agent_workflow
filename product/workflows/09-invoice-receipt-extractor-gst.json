@@ -4,7 +4,7 @@
     {
       "parameters": {
         "content": "## 🧾 Invoice & Receipt Extractor (GST-ready)\n**Drop invoices into a Google Drive folder — or snap receipts with your phone via the upload form — and AI types everything into a clean Google Sheet register.** 📊\n\nReads **PDFs (even scanned), JPG, PNG, WEBP** · vendor, GSTIN/VAT, invoice no., dates, taxable value, **CGST / SGST / IGST**, cess, totals, HSN/SAC, line items & expense category.\n\n### 🇮🇳 Built-in GST checks\nGSTIN format + checksum · state codes · intra- vs inter-state tax logic · totals that don't add up · duplicate invoices · purchase vs. sales (set `your_gstin`).\n🌍 Works for VAT / sales tax invoices worldwide too.\n\n### ⚡ Setup (≈10 min)\n1. **OpenAI** credential on **AI: Read Invoice** (uses your OpenAI key)\n2. **New File in Drive Folder** → connect Google Drive → pick your *Invoices* folder\n3. **Config** → paste your Google Sheet URL (+ your GSTIN)\n4. **Save to Invoice Register** → connect Google Sheets\n5. **Activate / Publish** → drop a PDF into the folder or open the **Upload Form** URL 📱\n\n💡 Cost: ≈ $0.002–0.01 per document · Only use the form? Disable the Drive trigger (select → **D**).",
-        "height": 1020,
+        "height": 434,
         "width": 680,
         "color": 1
       },
@@ -20,8 +20,8 @@
     {
       "parameters": {
         "content": "### 1️⃣ New file in Drive OR uploaded via the form",
-        "height": 600,
-        "width": 1120,
+        "height": 500,
+        "width": 1100,
         "color": 4
       },
       "id": "bc30829b-690c-5d71-950e-34621a1dd7d5",
@@ -30,14 +30,14 @@
       "typeVersion": 1,
       "position": [
         -40,
-        0
+        95
       ]
     },
     {
       "parameters": {
         "content": "### 2️⃣ AI reads the document (PDF/photo → JSON)",
-        "height": 420,
-        "width": 700,
+        "height": 260,
+        "width": 620,
         "color": 5
       },
       "id": "c5f88448-e4d8-5dd5-9204-3566033c2594",
@@ -45,15 +45,15 @@
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1100,
-        100
+        1120,
+        195
       ]
     },
     {
       "parameters": {
         "content": "### 3️⃣ GST checks → Invoice register",
-        "height": 600,
-        "width": 900,
+        "height": 660,
+        "width": 620,
         "color": 2
       },
       "id": "230aac6d-e5b7-5c47-9e5d-050b356009ea",
@@ -62,7 +62,7 @@
       "typeVersion": 1,
       "position": [
         1820,
-        0
+        95
       ]
     },
     {

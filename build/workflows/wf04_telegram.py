@@ -25,12 +25,12 @@ def build():
 - It **always asks before sending an email**.
 - Voice note in → voice note out (turn off with `voice_replies` in Config).
 - Don't use Gmail/Tasks? Select those tool nodes → press **D** to disable.
-- Cost: ≈ $0.002–0.01 per request.""", (-760, -300), 680, 1040, YELLOW)
+- Cost: ≈ $0.002–0.01 per request.""", (-760, -300), 680, None, YELLOW)
 
-    wf.sticky("### 1️⃣ Message in → 🔒 only you\nUnknown chats are ignored. First message ever? You get your chat ID.", (-40, 140), 900, 420, GREEN)
-    wf.sticky("### 2️⃣ Voice, photo or text\n🎙️ transcribed · 📷 read by AI · 💬 as is", (1100, 40), 900, 800, PURPLE)
-    wf.sticky("### 3️⃣ The brain + its tools 🧰\nCalendar · Gmail · Tasks · Calculator · memory of your chat", (2060, 40), 1240, 820, BLUE)
-    wf.sticky("### 4️⃣ Reply (text + optional voice)", (3340, 120), 700, 500, ORANGE)
+    wf.section("### 1️⃣ Message in → 🔒 only you\nUnknown chats are ignored. First message ever? You get your chat ID.", ['Telegram Trigger', 'Config', 'Who is it?', 'Send Your Chat ID', 'Typing…'], GREEN)
+    wf.section("### 2️⃣ Voice, photo or text\n🎙️ transcribed · 📷 read by AI · 💬 as is", ['Message Type', 'Download Voice', 'Transcribe Voice', 'Voice Input', 'Download Photo', 'Read Photo', 'Photo Input', 'Text Input', 'Reply: Unsupported'], PURPLE)
+    wf.section("### 3️⃣ The brain + its tools 🧰\nCalendar · Gmail · Tasks · Calculator · memory of your chat", ['AI Assistant', 'OpenAI Chat Model', 'Chat Memory', 'Calendar – Get Events', 'Calendar – Create Event', 'Gmail – Search Emails', 'Gmail – Send Email', 'Tasks – Add Task', 'Tasks – List Tasks', 'Tasks – Complete Task', 'Calculator'], BLUE)
+    wf.section("### 4️⃣ Reply (text + optional voice)", ['Format Reply', 'Send Reply', 'Voice Reply?', 'Text to Speech', 'Send Voice Reply'], ORANGE)
 
     # ------------------------------------------------------------ input
     wf.add("Telegram Trigger", "n8n-nodes-base.telegramTrigger", 1.2, {
@@ -271,4 +271,14 @@ RULES
     for tool in ("Calendar – Get Events", "Calendar – Create Event", "Gmail – Search Emails", "Gmail – Send Email",
                  "Tasks – Add Task", "Tasks – List Tasks", "Tasks – Complete Task", "Calculator"):
         wf.ai(tool, "AI Assistant", "ai_tool")
+
+    wf.place({
+        "AI Assistant": (2330, 520), "OpenAI Chat Model": (2080, 760), "Chat Memory": (2220, 760),
+        "Calendar – Get Events": (2380, 760), "Calendar – Create Event": (2540, 760),
+        "Gmail – Search Emails": (2700, 760), "Gmail – Send Email": (2860, 760),
+        "Tasks – Add Task": (2380, 950), "Tasks – List Tasks": (2540, 950),
+        "Tasks – Complete Task": (2700, 950), "Calculator": (2860, 950),
+        "Format Reply": (3060, 520), "Send Reply": (3280, 520), "Voice Reply?": (3500, 520),
+        "Text to Speech": (3720, 420), "Send Voice Reply": (3940, 420),
+    })
     return wf
