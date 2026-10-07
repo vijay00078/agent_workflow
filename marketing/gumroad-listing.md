@@ -45,11 +45,12 @@ Gumroad's description box is a rich-text editor. It does not understand Markdown
 - No income claims. No promised number of leads, clients, replies or meetings.
 - No fake reviews, fake testimonials, fake download counts or fake "as seen on" logos.
 - The workflows never send email. They create Gmail drafts that the buyer reads and sends.
-- The workflows use Google's official Places API. They do not scrape Google Maps.
+- The workflows use Google's official Places API with the buyer's own key, not a scraper. Never present that as proof that every use of the data is allowed. Use this wording, or something close: "It uses Google's official Places API with your own key, not a scraper. Google's Maps Platform Terms (section 3.2.3) restrict storing Places content such as business names and addresses outside Google's services (Place IDs may be kept), so read the terms, treat your sheet as a working list and delete leads you don't pursue."
 - Emails are found only when a business publishes one on its homepage. Never claim full email coverage.
+- Never claim the checks are always right. They are conservative and skip anything they can't verify, but the buyer reads every draft before sending.
 - Example data in this file comes from the test businesses in `tests/fixtures/businesses.js` (for example "Sunrise Family Dental" in Austin, TX). These businesses are made up. Always label them as example data.
 - When you have real results, add them only in the places marked `[ADD LATER: ...]`, with numbers you measured yourself and quotes you have written permission to use.
-- Do not write that the product is "compliant with Google's terms". Google Maps Platform terms limit how Places data may be stored and used. Read them yourself and word any claim carefully.
+- Do not write that the product is "compliant with Google's terms", and never answer a terms question with "it does not scrape Google Maps". Google Maps Platform terms limit how Places data may be stored and used. Read them yourself and word any claim carefully.
 - Do not suggest that Google, n8n, Anthropic or Meta made, approved or endorse the product. Naming them to say what the product uses is fine.
 - Do not call the outreach "legal everywhere" or "compliant". The opt-out line and address field help, but the buyer is responsible for the rules where they send.
 
@@ -97,12 +98,12 @@ Looking for local businesses that might need a website? Searching Google Maps by
 You type a business type (for example `dentists`) and a city (for example `Austin, TX`) into a simple web form. The workflow searches Google Maps through Google's official Places API and downloads a CSV file (a simple spreadsheet file) with up to 60 businesses.
 
 - Businesses with **no website** come first.
-- A listing that only links to a Facebook page, an Instagram profile or a booking page counts as "no website of their own". The CSV shows it, for example "NO (Facebook page only)".
-- Every row has the phone number, website, category, Google rating, number of reviews, address and Google Maps link.
+- A listing that only links to a Facebook page, an Instagram profile, or a booking, delivery or directory page counts as "no website of their own". The CSV shows it, for example "NO (Facebook page only)".
+- Every row has the phone number, website, category, Google rating, number of reviews, address and Google Maps link. A phone number such as "+1 512…" gets an apostrophe in front, so spreadsheet apps don't treat it as a formula.
 - Closed businesses and duplicates are removed.
 - It never contacts anyone. You decide what to do with the list.
 
-It does not scrape Google Maps. It uses the Places API, Google's official service for Maps data, with your own Google API key.
+It uses Google's official Places API with your own key, not a scraper. Google's Maps Platform Terms (section 3.2.3) restrict storing Places content such as business names and addresses outside Google's services (Place IDs may be kept), so read the terms, treat your CSV as a working list and delete leads you don't pursue.
 
 **What you get**
 
@@ -189,7 +190,7 @@ Paste this into Gumroad's custom receipt message for the product. If you do not 
 > 4. In n8n, create a Header Auth credential with the name `X-Goog-Api-Key` and your key as the value.
 > 5. Turn the workflow on, open the form and try a small search first (20 businesses).
 >
-> Keep the form's address private: anyone who has it can run searches on your Google account.
+> Keep the form's address private: anyone who has it can run searches on your Google account. To lock it, open *Find Leads Form* → **Authentication** → **Basic Auth**, or change the form path to something hard to guess.
 >
 > Stuck? Most error pages tell you what to fix. If you still need help, email {{supportEmail}} with your n8n version and the exact message. Never send your API key.
 >
@@ -236,7 +237,7 @@ Set up two versions on the same product.
 
 **Pro ($99)**
 
-> Everything in Starter, plus 4 more niches (Local SEO, Google Reviews, Social Media & Ads, AI Chatbots & Booking) and the Follow-up Autopilot, which checks Gmail every morning, marks replies and drafts follow-ups in the same thread. Includes the Pro guide, outreach playbook and message templates.
+> Everything in Starter, plus 4 more niches (Local SEO, Google Reviews, Social Media & Ads, AI Chatbots & Booking) and the Follow-up Autopilot, which checks Gmail every morning, marks replies and bounced emails, and drafts follow-ups in the same thread. Includes the Pro guide, outreach playbook and message templates.
 
 ### Upgrades from Starter to Pro (your decision)
 
@@ -260,7 +261,7 @@ Copy everything between the two lines below.
 
 **Find local businesses with a problem you can fix. See the proof. Get a pitch for the best ones.**
 
-You type a business type and a city. Client Finder Agent finds up to 60 local businesses through Google's official Places API. It checks each one for a problem your service can fix, and it shows you the evidence, for example: "Google PageSpeed scores the mobile site 23/100". Then Claude, an AI model, writes a short pitch based on those verified facts.
+You type a business type and a city. Client Finder Agent finds up to 60 local businesses through Google's official Places API. It checks each one for a problem your service can fix, and it shows you the evidence, for example: "In Google's PageSpeed mobile test (a simulated phone on a 4G connection) the homepage scored 23/100 and the main content took 9.8 s to appear." Then Claude, an AI model, writes a short pitch based on those verified facts.
 
 Every lead is saved to your Google Sheet. Pitches for businesses with a public email become Gmail drafts. Nothing is sent until you read it and click **Send**.
 
@@ -273,29 +274,29 @@ This is example data from our test set. Sunrise Family Dental is a made-up busin
 - **Business:** Sunrise Family Dental, PLLC, Austin, TX
 - **Score:** 50 out of 100 (Warm)
 - **Problems found:** Slow on mobile, Outdated website
-- **Evidence:** "Google PageSpeed scores the mobile site 23/100; the main content takes 9.8 s to appear on a phone. Real-visitor data from Chrome also rates it slow." And: "The website footer still says © 2019, which suggests it hasn't been updated in about 7 years."
+- **Evidence:** "In Google's PageSpeed mobile test (a simulated phone on a 4G connection) the homepage scored 23/100 and the main content took 9.8 s to appear. Chrome's data from real visitors also rates the site slow." And: "The footer of their homepage still shows © 2019, which suggests the site hasn't been updated in about 7 years."
 - **Email:** found on the homepage, so a Gmail draft was created. Status: **Draft ready**.
 
 In the example draft, Claude opens with the slow mobile site, says in one sentence what that can cost the business, offers your next step (by default "a free 2-minute video showing exactly what I would fix") and ends with one yes/no question. Your signature and an opt-out line are added automatically.
 
 **How it works: 4 steps**
 
-1. **Find businesses.** Fill in a short form: business type, city or area, and how many businesses (20, 40 or 60). The agent searches Google Maps through the official Places API. It removes duplicates, closed businesses and every business that is already in your sheet, so nobody is pitched twice.
-2. **Check their website.** It opens each homepage. In the Web Design and Local SEO workflows it also runs Google's PageSpeed test on mobile. It looks for the contact email, booking and chat tools, social media links and more. In Web Design, a site that does not load is flagged as a problem. If a site blocks automated visits, its checks are skipped, never guessed.
+1. **Find businesses.** Fill in a short form: business type, city or area, and how many businesses (20, 40 or 60). The agent searches Google Maps through the official Places API, including service-area businesses without a storefront (plumbers, cleaners, mobile trades). It removes duplicates, closed businesses and every business that is already in your sheet. A business that shares an email address or website with a lead already in your sheet, or with a better lead in the same search (a chain location or a duplicate listing), is saved but not pitched again, so nobody is pitched twice.
+2. **Check their website.** It opens each homepage. In the Web Design and Local SEO workflows it also runs Google's PageSpeed test on mobile. It looks for the contact email, booking and chat tools, social media links and more. In Web Design, a site is flagged as down only when it fails to load twice, 15 seconds apart. If a site blocks automated visits, or its page is built entirely by JavaScript, the checks that need its code are skipped, never guessed, and the sheet says so in Notes.
 3. **Score and write pitches.** It applies the checks for your niche and scores every lead from 0 to 100: **Hot** is 60 or more, **Warm** 30-59, **Low** 1-29. For each lead at or above your minimum score, Claude writes a short email, a DM version and a phone-call opener. Claude gets only the verified facts and is told never to invent numbers or claims. If the AI is busy, the agent waits 15 seconds and tries once more. If it still fails, a ready-made template pitch is used, and the sheet says why.
-4. **Save and draft.** Every lead goes to your Google Sheet, which works as a simple CRM (a list of contacts and where each one stands). Leads with a public email get a Gmail draft. You read, edit and send. A run takes about 2-8 minutes, and a results page shows what was found.
+4. **Save and draft.** Every lead is saved first to your Google Sheet, which works as a simple CRM (a list of contacts and where each one stands). Then leads with a public email get a Gmail draft. You read, edit and send. A run takes about 2-8 minutes, and a results page shows what was found. Start one search at a time.
 
 **What it checks, per niche**
 
 Starter includes the Web Design workflow. Pro includes all five. Each problem is worth points, and the points add up to the lead's score (maximum 100).
 
-- **Web Design:** no website, website down, security certificate error, placeholder ("coming soon") website, slow on mobile, not mobile-friendly, not secure (no HTTPS), outdated website, weak SEO basics. Example search: dentists in Austin, TX.
+- **Web Design:** no website, website down (or a broken website link), security certificate error, placeholder ("coming soon") website, slow on mobile, not mobile-friendly, not secure (no HTTPS), outdated website, weak SEO basics. Example search: dentists in Austin, TX.
 - **Local SEO:** weak SEO basics, slow on mobile, no schema markup (the hidden labels that help Google show hours and reviews), few Google reviews compared with nearby competitors, not mobile-friendly, no HTTPS, no website, outdated website. Example search: plumbers in Denver, CO.
 - **Google Reviews & Reputation:** low Google rating, far fewer reviews than competitors in the same search, no website. These checks use only Google Maps data. Example search: hair salons in Manchester, UK.
-- **Social Media & Ads:** no social media links on the website, no analytics or ad pixel (the code that lets a business measure visitors and show them ads later), no website, few Google reviews, outdated website. Example search: gyms in Pune, India.
+- **Social Media & Ads:** no social media links on the website, no analytics or ad pixel (the code that lets a business show ads to people who already visited its website), no website, few Google reviews, outdated website. Example search: gyms in Pune, India.
 - **AI Chatbots & Booking:** no online booking, no chat or WhatsApp button, limited opening hours, no website. Example search: physiotherapy clinics in Bangalore, India.
 
-Each niche also gives Claude its own angle and a default offer you can change. For example, the Local SEO default offer is "a free mini SEO audit with the 3 fixes that would help them most".
+Each niche also gives Claude its own angle and a default offer you can change. For example, the Local SEO default offer is "a free mini SEO audit with the 3 fixes that would help you most".
 
 **What's included**
 
@@ -308,7 +309,7 @@ Each niche also gives Claude its own angle and a default offer you can change. F
 | Pitch written by Claude: email, DM and call opener | Yes | Yes |
 | Gmail drafts (never sent automatically) | Yes | Yes |
 | Google Sheet CRM template | Yes | Yes |
-| Skips businesses already in your sheet | Yes | Yes |
+| Nobody pitched twice (same Place ID, email or website) | Yes | Yes |
 | Follow-up Autopilot | No | Yes |
 | Guides | Start here, setup guide, pitch and prompt guide | Everything in Starter, plus the Pro guide (with how to build your own niche), outreach playbook and message templates |
 
@@ -319,12 +320,15 @@ The same comparison as a list:
 
 **About the Follow-up Autopilot (Pro)**
 
-It runs every morning at 9:00 (in your n8n time zone). For every lead with an email address, it looks in your Gmail for the pitch you sent and for replies:
+It runs every morning at 9:00 (in your n8n time zone). For every lead with an email address, it reads your Gmail: the pitch you sent, replies from that address, and every message in the Gmail thread your pitch was sent in.
 
-- If the business replied, it sets the status to **Replied** and never follows up with them again.
+- If anyone replied after your first email, it sets the status to **Replied** and never follows up with them again. A reply from a colleague or the owner's personal address in the same thread counts too (Notes says who replied). Out-of-office auto-replies don't count.
+- If the email bounced (a delivery failure in the thread), it sets the status to **Bounced**.
 - If you sent the pitch and got no reply after 3 days, it drafts follow-up #1 in the same Gmail thread.
 - If you sent that follow-up and still have no reply 7 days later, it drafts a short, polite last note. Then it stops.
-- It never touches leads marked Replied, Meeting booked, Won, Lost or Do not contact.
+- Every follow-up ends with a short opt-out line, which you can change in the settings.
+- It never touches leads marked Replied, Meeting booked, Won, Lost, Do not contact, Not interested or Bounced, and it never emails that address from another row.
+- If Gmail can't be read that morning, it stops with an error and drafts nothing. It tries again the next day.
 
 Like everything else, follow-ups are drafts. You read them and send them yourself.
 
@@ -370,9 +374,9 @@ Every workflow uses only node versions that exist in n8n 1.123 and newer. Before
 **What it does not do**
 
 - It does not send email. You send every message yourself.
-- It does not scrape Google Maps. It uses Google's official Places API with your own key.
+- It does not replace reading Google's terms. It uses Google's official Places API with your own key, not a scraper. Google's Maps Platform Terms (section 3.2.3) restrict storing Places content such as business names and addresses outside Google's services (Place IDs may be kept), so read the terms, treat your sheet as a working list and delete leads you don't pursue.
 - It does not find an email for every business. Leads without a public email that score high enough get a DM message and a phone opener instead.
-- It does not guess. If a check cannot be verified, the problem is not claimed.
+- It does not guess. If a check cannot be verified, the problem is not claimed. The checks are conservative, not perfect, so read every draft before you send it.
 - It does not promise results. How many good leads you find depends on your niche, your area and your offer.
 
 **Results**
@@ -386,14 +390,14 @@ Every workflow uses only node versions that exist in n8n 1.123 and newer. Before
 **Does it send emails automatically?**
 No. It creates Gmail drafts. You open each one, check it against the evidence in your sheet, change anything you like and click Send. The Follow-up Autopilot in Pro also only creates drafts.
 
-**Is it scraping Google Maps?**
-No. It uses the Places API, Google's official service for Google Maps data, through your own Google API key. You can see how many requests you made in your own Google Cloud console.
+**Where does the data come from, and can I keep it?**
+It uses Google's official Places API with your own key, not a scraper. You can see how many requests you made in your own Google Cloud console. Using the official API does not mean every use of the data is allowed: Google's Maps Platform Terms (section 3.2.3) restrict storing Places content such as business names and addresses outside Google's services (Place IDs may be kept), so read the terms, treat your sheet as a working list and delete leads you don't pursue. This is not legal advice.
 
 **How many leads do I get?**
-Up to 60 businesses per search. That is the most Google's Places API gives for one search (3 pages of 20). You can run as many searches as you like: a nearby area, another part of the city or a related business type. Every new run skips businesses that are already in your sheet. How many leads have a problem worth pitching depends on the area and the niche, so we cannot promise a number.
+Up to 60 businesses per search. That is the most Google's Places API gives for one search (3 pages of 20). You can run as many searches as you like, one at a time: a nearby area, another part of the city or a related business type. Every new run skips businesses that are already in your sheet, and never pitches an email address or website that is already in your sheet. How many leads have a problem worth pitching depends on the area and the niche, so we cannot promise a number.
 
 **Will it find an email for every business?**
-No. It finds an email only when the business publishes one on its homepage. Leads without a public email that score high enough still get a pitch, a short DM message and a phone-call opener in the sheet, with the status **Pitch ready**.
+No. It finds an email only when the business publishes one on its homepage. It never uses a web designer's "Website by…" address or a booking platform's support address. Leads without a public email that score high enough still get a pitch, a short DM message and a phone-call opener in the sheet, with the status **Pitch ready**.
 
 **Do I need to know n8n or how to code?**
 No coding. You import a file, connect four accounts (Google API key, Anthropic API key, Google Sheets, Gmail) and type your details into one settings box. The setup guide shows every click. Plan about 30-45 minutes the first time, a bit longer on self-hosted n8n.
@@ -402,10 +406,10 @@ No coding. You import a file, connect four accounts (Google API key, Anthropic A
 Apart from your n8n plan, you pay Google and Anthropic directly. With the default AI model, one pitch costs roughly 1-2 US cents. Google gives a free monthly usage allowance for Maps searches, then charges per request; set a budget alert. PageSpeed tests are free. See "Honest running costs" above.
 
 **Does it work outside the US, and in other languages?**
-Yes. It works wherever Google Maps lists businesses. You can set the country and language of the search, and Claude can write the pitch in any language it writes, for example English, Spanish or Hindi. A few fixed parts are not translated for you ("Thanks," before your signature, the opt-out line you type and the backup template pitch), so check each draft. The rules for business email are different in every country; check the ones that apply to you.
+Yes. It works wherever Google Maps lists businesses. You can set the country and language of the search, and Claude can write the pitch in any language it writes, for example English, Spanish or Hindi. A few parts are not translated for you: the sign-off before your name ("Thanks," by default) and the opt-out line are settings you type in your own language, and the backup template pitch is in English. Check each draft. The rules for business email are different in every country; check the ones that apply to you.
 
 **Is cold email allowed?**
-That depends on where you and the business are. This is not legal advice. The workflow gives you tools that help: every first email ends with an opt-out line, there is a field for your postal address (required in commercial email in the US), you can mark a lead **Do not contact**, and nobody in your sheet is pitched twice. These tools do not make every email legal everywhere. In some places, for example Canada, Australia, Germany, or UK sole traders, you may need consent first or must meet extra conditions. Pro includes an outreach playbook with a plain-English overview of the main rules. You review and send every message, so you are responsible for what you send.
+That depends on where you and the business are. This is not legal advice. The workflow gives you tools that help: every first email ends with an opt-out line (and in Pro, every follow-up too), there is a field for your postal address (required in commercial email in the US, and the results page reminds you while it is empty), you can mark a lead **Do not contact** or **Not interested**, and nobody in your sheet is pitched twice, by Place ID, email address or website. These tools do not make every email legal everywhere. In some places, for example Canada, Australia, Germany, or UK sole traders, you may need consent first or must meet extra conditions. Pro includes an outreach playbook with a plain-English overview of the main rules. You review and send every message, so you are responsible for what you send.
 
 **Starter or Pro? Can I upgrade later?**
 Choose Starter if you only sell web design. Choose Pro if you sell another service from the list, more than one service, or you want follow-ups drafted for you. If you upgrade later, you keep your Starter workflow, accounts and sheet. [YOUR UPGRADE POLICY, for example: "Email {{supportEmail}} with your Starter receipt and we will send you a code, so you pay only the difference."]
@@ -507,11 +511,11 @@ Paste this into Gumroad's custom receipt message for the product. If you do not 
 > 1. Download your zip file and unzip it.
 > 2. Open **START-HERE.pdf**. It tells you what is in your download and plans your first hour.
 > 3. Follow **SETUP-GUIDE.pdf** from start to finish. It takes about 30-45 minutes the first time. You will set up Google Cloud, your Anthropic API key, your Google Sheet and four credentials in n8n.
-> 4. In the *⚙️ Settings* node, put your real name in **yourName** and your sheet's address in **googleSheetUrl**. The workflow will not run until both are filled in.
-> 5. Run your first search with **20** businesses. Keep the browser tab open; a run takes a few minutes.
-> 6. Read every Gmail draft before you send it. Start with a small number of emails a day from your own inbox.
+> 4. In the *⚙️ Settings* node, put your real name in **yourName** and your sheet's address in **googleSheetUrl**. The workflow will not run until both are filled in. If you email US businesses, add your postal address in **yourAddress**.
+> 5. Run your first search with **20** businesses. Keep the browser tab open; a run takes a few minutes. Don't start another search until it has finished.
+> 6. Read every Gmail draft before you send it. The checks are careful, but you are the final check. Start with a small number of emails a day from your own inbox.
 >
-> Keep the form's address private: anyone who has it can run searches on your Google and Anthropic accounts and add leads and drafts to your sheet and Gmail.
+> Keep the form's address private: anyone who has it can run searches on your Google and Anthropic accounts and add leads and drafts to your sheet and Gmail. To lock it, open *Find Clients Form* → **Authentication** → **Basic Auth**, or change the form path to something hard to guess.
 >
 > **Pro buyers:** set up one niche first. Then use PRO-GUIDE.pdf to add the other niches and the Follow-up Autopilot.
 >
@@ -535,3 +539,4 @@ Paste this into Gumroad's custom receipt message for the product. If you do not 
 7. The refund policy in Gumroad matches the FAQ answer.
 8. Nothing on either page promises income, clients, replies or a number of leads, and there are no reviews or numbers you did not collect yourself.
 9. Nothing suggests that Google, n8n, Anthropic or Meta endorse the product, and nothing calls the outreach "legal" or "compliant".
+10. No "it does not scrape Google Maps" or "official API, so it's allowed" answers anywhere. Use the Places API wording from the honesty rules, and never say the checks are always right.

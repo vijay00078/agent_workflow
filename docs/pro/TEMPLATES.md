@@ -11,7 +11,7 @@ tier: Pro
 
 Use them when:
 
-- a draft needs a rewrite, or its **AI Status** column says "Template used";
+- a draft needs a rewrite, or its **AI Status** column says "Template used" (the backup pitch starts "I was looking at how [Short name] shows up online, and one thing stood out:" and quotes the top evidence);
 - a lead is **Pitch ready** (no public email), so you call or send a DM (direct message);
 - the owner gives you an email address on the phone;
 - you contacted someone by DM or phone, because the Autopilot only follows up emails;
@@ -29,19 +29,19 @@ Copy a template, replace every bracket, read it once out loud, and send it yours
 | [Business] | The full business name | **Business** column |
 | [Short name] | The name without "LLC", "Ltd" or "Pvt Ltd" | "Sunrise Family Dental", not "Sunrise Family Dental, PLLC" |
 | [Business type] and [City] | What you searched for, and where | **Search** column, for example "dentists in Austin, TX" |
-| [Evidence] | One true fact about their problem, in plain words | **Evidence** column. Each niche below shows how to rewrite it. |
+| [Evidence] | One true fact about their problem, in plain words | **Evidence** column (numbered, top problem first). Each niche below shows how to rewrite it. |
 | [Evidence, short] | The same fact in 5-10 words, for DMs, calls and voicemails | For example "your website is very slow on phones" |
-| [Your offer] | Your free first step, written to them ("your website", not "their website") | **yourOffer** in *⚙️ Settings* |
+| [Your offer] | Your free first step, written to them ("your website", not "their website"). The default offers already do this. | **yourOffer** in *⚙️ Settings* |
 | [Your service] | What you sell | **yourService** in *⚙️ Settings* |
 | [Your name], [Your business], [Your phone] | You | Your signature |
 | [Their name] | The name they sign with when they reply | Their reply. If there is none, write "Hi [Short name] team". |
 | [Day and time] | Real times when you are free | Your calendar |
 
-> **Important:** Check the evidence yourself before you send anything: open the website, look at the Google listing, or run the test again. If you can't see the problem, don't mention it. One wrong fact makes the whole message look like spam.
+> **Important:** Check the evidence yourself before you send anything: open the website, look at the Google listing, or run the test again. The checks are careful and skip what they can't verify (the **Notes** column often says why), but they can still be wrong. If you can't see the problem, don't mention it. One wrong fact makes the whole message look like spam.
 
 ### The ending of every email
 
-The first emails the workflow drafts already end with your signature and the opt-out line. When you write an email by hand, end it the same way:
+The first emails the workflow drafts already end with your **signOff** (`Thanks,` unless you change it in *⚙️ Settings*), your signature and the opt-out line. When you write an email by hand, end it the same way:
 
 ```text
 Thanks,
@@ -53,7 +53,9 @@ Thanks,
 P.S. If this isn't useful, just reply "no thanks" and I won't email again.
 ```
 
-Below, this ending is shown as [Signature]. Autopilot follow-up drafts include your signature but not the P.S. line, so add a short opt-out sentence before you send them. In the US, the CAN-SPAM law expects a postal address and a clear way to opt out in every commercial email.
+Below, this ending is shown as [Signature]. Follow-ups end a little differently: Autopilot follow-up drafts already end with your signature and the **followUpOptOutLine** from the Autopilot's *⚙️ Settings*: "If you'd rather I didn't follow up, just reply and I'll stop." You don't need to add one. In the follow-up templates below, [Signature] means your signature plus that line, instead of the P.S. If you empty **followUpOptOutLine**, write your own opt-out sentence into each follow-up.
+
+In the US, the CAN-SPAM law expects a postal address and a clear way to opt out in every commercial email. **yourAddress** is optional in *⚙️ Settings*, but the results page reminds you while it is empty.
 
 ### Five rules that keep these templates working
 
@@ -75,7 +77,7 @@ Below, this ending is shown as [Signature]. Autopilot follow-up drafts include y
 
 ### Follow-ups
 
-The Autopilot drafts follow-up #1 in the same Gmail thread 3 or more days after your first email, and follow-up #2 7 or more days after that. Then it stops. Use the templates to edit its drafts, or to follow up by hand after a DM or call. Each follow-up #1 adds one new angle; each follow-up #2 makes it easy to say no.
+The Autopilot drafts follow-up #1 in the same Gmail thread 3 or more days after your first email, and follow-up #2 7 or more days after that. Then it stops. Each draft already ends with your signature and the follow-up opt-out line. It never drafts a follow-up once someone has replied or the email bounced. Use the templates to edit its drafts, or to follow up by hand after a DM or call. Each follow-up #1 adds one new angle; each follow-up #2 makes it easy to say no.
 
 ## Web design
 
@@ -109,19 +111,20 @@ Would that be useful?
 
 | Top Problem | Write [Evidence] like this |
 |---|---|
-| Slow on mobile | Google's own speed test (PageSpeed) scores it [Score] out of 100 on phones, and the main content takes about [Seconds] seconds to appear. |
+| Slow on mobile | In Google's PageSpeed test for phones (a simulated phone on a 4G connection), your homepage scored [Score] out of 100, and the main content took about [Seconds] seconds to appear. |
 | Not mobile-friendly | On a phone it shows as a tiny desktop page, so people have to pinch and zoom to read it. |
-| Not secure (no HTTPS) | Chrome shows "Not secure" next to your web address. |
-| Outdated website | The footer still says © [Year], so it looks as if the site hasn't been updated since then. |
+| Not secure (no HTTPS) | Your website loads without HTTPS, so Chrome shows "Not secure" next to your web address. |
+| Outdated website | The footer of your homepage still shows © [Year], which suggests the site hasn't been updated for a while. |
 | Weak SEO basics | The homepage has no [page title / description / main heading], which Google uses to understand the page. |
-| Website down | The website on your Google listing didn't load when I tried it. |
-| Security certificate error | Browsers show a "your connection is not private" warning before your page opens. |
+| Website down | The website on your Google listing didn't load when I tried it twice: [the reason from the **Evidence** column, for example "the domain doesn't seem to work any more"]. |
+| Broken website link | The website link on your Google listing ([the exact link from the **Evidence** column]) leads to a "page not found" error. |
+| Security certificate error | Browsers show a "Your connection is not private" warning instead of your website. |
 | Placeholder website | The website on your Google listing only shows a "coming soon" page. |
-| No website | Your Google listing has no website, so people who find you on Maps can't see your services or book. |
+| No website | Your Google listing has no website, so people who find you on Maps can't see your services or book. If the listing links to a Facebook, booking or delivery page instead: Your Google listing links to your [Facebook page / booking page], not to a website of your own. |
 
-> **Example:** Example data. For Sunrise Family Dental in Austin, TX, the **Evidence** column says: "Google PageSpeed scores the mobile site 23/100; the main content takes 9.8 s to appear on a phone." In your email, write: "Google's own speed test scores it 23 out of 100 on phones, and the main content takes almost 10 seconds to appear."
+> **Example:** Example data. For Sunrise Family Dental in Austin, TX, the **Evidence** column starts: "In Google's PageSpeed mobile test (a simulated phone on a 4G connection) the homepage scored 23/100 and the main content took 9.8 s to appear. Chrome's data from real visitors also rates the site slow." In your email, write: "In Google's speed test for phones, your homepage scored 23 out of 100, and the main content took almost 10 seconds to appear."
 
-> **Tip:** Leads with no website, a site that is down, a certificate error or a placeholder page usually have no email in the sheet, because emails come only from a homepage that loads. Call or DM them.
+> **Tip:** Leads with no website, a site that is down, a certificate error or a placeholder page usually have no email in the sheet, because emails come only from a homepage that loads. Call or DM them. A site that is down or has a certificate error may be fixed by the time you call, so open it yourself first.
 
 ### DM for Instagram, WhatsApp or Facebook
 
@@ -167,7 +170,7 @@ I don't want to fill your inbox, so this is my last note. If the website becomes
 
 ## Local SEO
 
-For leads from the Local SEO workflow. *SEO* (search engine optimisation) means helping a business show up in Google Search and Maps. Owners rarely use the word, so write "showing up on Google". The default offer is a free mini SEO audit; in **yourOffer** you could write "a free mini audit with the 3 fixes that would help you most".
+For leads from the Local SEO workflow. *SEO* (search engine optimisation) means helping a business show up in Google Search and Maps. Owners rarely use the word, so write "showing up on Google". The default offer is "a free mini SEO audit with the 3 fixes that would help you most". To drop the word SEO, change **yourOffer** to "a free mini audit with the 3 fixes that would help you most".
 
 ### First email
 
@@ -198,7 +201,7 @@ Would you like me to send it?
 | Top Problem | Write [Evidence] like this |
 |---|---|
 | Weak SEO basics | Your homepage has no page title, which Google often uses as your headline in search results. Or: Google's free Lighthouse check (a website test) scores your homepage [Score] out of 100 for search basics. |
-| Slow on mobile | Google's own speed test scores your site [Score] out of 100 on phones. |
+| Slow on mobile | In Google's PageSpeed test for phones (a simulated phone), your homepage scored [Score] out of 100. |
 | No schema markup | Your homepage is missing "structured data", a small piece of hidden code that tells Google your hours, address and services. |
 | Few Google reviews | You have [Number] Google reviews, while the typical [Business type] in the same search has about [Median]. |
 | Not mobile-friendly, Not secure (no HTTPS), Outdated website | Use the lines from the Web design table. |
@@ -248,7 +251,7 @@ This is my last note. If showing up higher on Google becomes a priority, just re
 
 ## Google reviews & reputation
 
-For leads from the Google Reviews & Reputation workflow. Its checks use only Google data: the rating and review count, compared with the other businesses in the same search. The default offer is a free one-page plan to get more reviews from customers they already have.
+For leads from the Google Reviews & Reputation workflow. Its checks use only Google data: the rating and review count, compared with the other businesses in the same search. The default offer is "a free one-page plan to get more reviews from customers you already have".
 
 > **Warning:** Google's review rules forbid fake reviews, paying or rewarding people for reviews, and asking only happy customers. Never offer any of these. Never promise a specific rating, a number of reviews, or to remove bad reviews. Read Google's current policy before you sell a review service.
 
@@ -330,9 +333,9 @@ I'll leave it here so I don't fill your inbox. If more reviews become a priority
 
 ## Social media & ads
 
-For leads from the Social Media & Ads workflow. The default offer is 3 ready-to-post content ideas for their Instagram, free.
+For leads from the Social Media & Ads workflow. The default offer is "3 ready-to-post content ideas for your Instagram, free".
 
-> **Tip:** The workflow checks for social links on the website, not for the accounts. Search Instagram and Facebook for the business first. If an account exists but isn't linked, write "your website doesn't link to your Instagram". Never say they have no Instagram unless you checked.
+> **Tip:** The workflow checks for social links on the homepage, not for the accounts. Search Instagram and Facebook for the business first. If an account exists but isn't linked, write "your website doesn't link to your Instagram". Never say they have no Instagram unless you checked.
 
 ### First email
 
@@ -352,7 +355,7 @@ Want me to send them over?
 [Signature]
 ```
 
-If the **Top Problem** is "No analytics or ad pixel", change the second paragraph to: "Without it, you can't see how many people visit your website, or show ads later to people who already looked at it."
+If the **Top Problem** is "No analytics or ad pixel", change the second paragraph to: "Without a pixel, you likely can't show Instagram or Facebook ads later to people who already looked at your website."
 
 ### Other subject lines
 
@@ -364,12 +367,12 @@ If the **Top Problem** is "No analytics or ad pixel", change the second paragrap
 
 | Top Problem | Write [Evidence] like this |
 |---|---|
-| No social media links | Your website doesn't link to an Instagram, Facebook or TikTok account. |
-| No analytics or ad pixel | Your website has no Google Analytics or Meta Pixel. These are small pieces of code that count your visitors and let you show ads to them later. |
+| No social media links | Your homepage doesn't link to an Instagram, Facebook or TikTok account. |
+| No analytics or ad pixel | I couldn't find a Google Analytics tag or a Meta Pixel in your homepage's code. These are small pieces of code that count your visitors and let you show ads to them later. |
 | Few Google reviews, Outdated website | Use the lines from the Local SEO and Web design tables. |
 | No website | Your Google listing has no website. Call or DM these leads. |
 
-> **Example:** Example data. For Bright Smile Studio in Austin, TX, the **Evidence** column says: "bright-smile.test doesn't link to any Instagram, Facebook or TikTok account." In your email, write: "Your website doesn't link to an Instagram, Facebook or TikTok account." (The .test address is made up.)
+> **Example:** Example data. For Bright Smile Studio in Austin, TX, the **Evidence** column starts: "Their homepage (bright-smile.test) doesn't link to an Instagram, Facebook or TikTok account." In your email, write: "Your homepage doesn't link to an Instagram, Facebook or TikTok account." (The .test address is made up.)
 
 ### DM for Instagram, WhatsApp or Facebook
 
@@ -411,7 +414,7 @@ This is my last note. If social media moves up your list, just reply and I'll se
 
 ## AI chatbots & booking
 
-For leads from the AI Chatbots & Booking workflow. The default offer is a free 5-minute demo of an AI assistant trained on their own website. Never say the assistant replaces staff, and don't promise that no enquiry will ever be missed. Say it helps answer enquiries when nobody is free.
+For leads from the AI Chatbots & Booking workflow. The default offer is "a free 5-minute demo of an AI assistant trained on your own website". Never say the assistant replaces staff, and don't promise that no enquiry will ever be missed. Say it helps answer enquiries when nobody is free.
 
 ### First email
 
@@ -422,7 +425,7 @@ Hi [Short name] team,
 
 I was looking at [Business type] in [City] and visited your website. [Evidence]
 
-That means a question that arrives after hours, or while your team is busy, has to wait. Some people book with whoever answers first.
+So a question that arrives after hours, or while your team is busy, may have to wait. Some people book with whoever answers first.
 
 I build AI assistants that answer questions and take bookings at any hour. They don't replace your staff; they answer when nobody is free to reply. I could make you [Your offer].
 
@@ -441,12 +444,14 @@ Would you like to see it?
 
 | Top Problem | Write [Evidence] like this |
 |---|---|
-| No online booking | There's no way to book online on your website, so people have to call during opening hours. |
-| No chat or WhatsApp | Your website has no chat or WhatsApp button, so questions after hours wait until you open. |
-| Limited opening hours | Google shows that you close before 6 pm on [Number] weekdays. Or: Google shows that you are closed all weekend. Use the one the **Evidence** column shows, or both. |
+| No online booking | I couldn't find an online booking button or booking widget on your homepage. |
+| No chat or WhatsApp | I didn't see a live chat, chatbot or WhatsApp button on your homepage. |
+| Limited opening hours | According to your Google listing, you close before 6pm on [Number] weekdays. Or: According to your Google listing, you're closed all weekend. Use the one the **Evidence** column shows, or both. |
 | No website | Your Google listing has no website. Call or DM these leads. |
 
-> **Example:** Example data. For Westlake Dental Studio in Austin, TX, the **Evidence** column starts: "There's no way to book online on westlake-dental.test; customers have to call during opening hours." Two more problems follow. Use the first one only: "There's no way to book online on your website, so people have to call during opening hours."
+> **Tip:** The checks read only the homepage's code, so a booking button or chat that sits on another page can be missed. Open the site and look for a "Book" button or a chat bubble yourself before you send.
+
+> **Example:** Example data. For Westlake Dental Studio in Austin, TX, the **Evidence** column starts: "We couldn't find an online booking button or booking widget on their homepage (westlake-dental.test)." Two more problems follow. Use the first one only: "I couldn't find an online booking button on your homepage."
 
 ### DM for Instagram, WhatsApp or Facebook
 
@@ -488,7 +493,7 @@ I'll stop here so I don't crowd your inbox. If after-hours enquiries ever become
 
 ## Replies
 
-Answer every reply within one working day. Keep it short and human. Links are fine now, because they wrote to you. Then update the **Status** in your sheet as shown. The Autopilot marks a lead **Replied** when it sees a reply from the same address, and never follows it up again.
+Answer every reply within one working day. Keep it short and human. Links are fine now, because they wrote to you. Then update the **Status** in your sheet as shown. The Autopilot marks a lead **Replied** when it sees a reply in your pitch's Gmail thread (even from another address, such as a colleague or the owner's personal email; **Notes** then says who replied) or an email from the lead's address. Out-of-office auto-replies don't count. It never follows up a **Replied** lead again. If your email bounced, it sets **Bounced** instead: try a call or DM.
 
 ### Interested
 
@@ -578,7 +583,7 @@ Do these the same day, before anything else:
 
 1. Set **Status** to **Do not contact**.
 2. In Gmail, open **Drafts** and delete any follow-up waiting for them.
-3. Keep the row: it stops future searches from adding the business again. If they also ask you to delete their details, clear their **Email** and other personal details, but keep the **Place ID** and the status.
+3. Keep the row: its **Place ID** stops future searches from adding the business again, and its final status stops every workflow from pitching or following up that email address or website, even under another listing. If they also ask you to delete their details, clear their **Email** and other personal details, but keep the **Place ID**, the **Website** and the status.
 
 ### "We already have someone"
 
@@ -592,7 +597,7 @@ If you ever want a second opinion on [the topic, for example your website], you 
 [Signature]
 ```
 
-**Status:** **Lost**, with `Has a provider` in **Notes**.
+**Status:** **Not interested**, with `Has a provider` in **Notes**.
 
 ## Video audit script (2 minutes)
 
@@ -608,7 +613,7 @@ When someone says "yes, send it", record and send the video within 24-48 hours, 
 
 What to show live in each niche:
 
-- **Web design:** the site on your phone, and Google's PageSpeed test run live, so the result is not just your opinion.
+- **Web design:** the site on your phone, and Google's PageSpeed test run live, so the result is not just your opinion. The score changes a few points between runs, so describe it as Google's simulated phone test.
 - **Local SEO:** a normal Google search for their business type and area, and what the top results have that they lack.
 - **Google reviews & reputation:** their Maps listing next to two nearby businesses, then how simple a review request can be.
 - **Social media & ads:** their website with no social links, their Instagram if they have one, and one post you would make.

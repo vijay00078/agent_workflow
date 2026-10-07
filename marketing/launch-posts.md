@@ -20,8 +20,10 @@ Every number in these posts is a placeholder in square brackets, for example `[X
 ### Facts every post must respect
 
 - The workflows never send email. They create Gmail drafts that the user reads and sends.
-- They use Google's official Places API. They do not scrape Google Maps.
+- They use Google's official Places API with the user's own key, not a scraper. Never present that as proof that every use of the data is allowed. If someone asks about Google's terms, answer like this: "It uses Google's official Places API with your own key, not a scraper. Google's Maps Platform Terms (section 3.2.3) restrict storing Places content such as business names and addresses outside Google's services (Place IDs may be kept), so read the terms, treat your sheet as a working list and delete leads you don't pursue."
 - They find an email only when a business publishes one on its homepage.
+- The checks are conservative and skip anything they can't verify, but they are not always right. The user reads every draft before sending.
+- Nobody is pitched twice: a business already in the sheet is skipped, and a lead with the same email address or website as one already in the sheet (a chain location or duplicate listing) is saved but not pitched again.
 - Up to 60 businesses per search. Lite gives a CSV; Starter and Pro check websites, score leads, write pitches with Claude and save to a Google Sheet.
 - Prices: Lite free, Starter $49 (Web Design only), Pro $99 (5 niches and the Follow-up Autopilot).
 - It works on n8n 1.123 or newer, including n8n 2.x, Cloud or self-hosted.
@@ -63,9 +65,9 @@ Every number in these posts is a placeholder in square brackets, for example `[X
 > **What it does**
 >
 > - A form asks for a business type, a city and how many results (20, 40 or 60).
-> - It calls Google's Places API (New) Text Search with your own API key. No scraping.
+> - It calls Google's official Places API (New) Text Search with your own API key, so it's not a scraper.
 > - It removes closed businesses and duplicates.
-> - It flags businesses with no website, including listings whose "website" is only a Facebook page, Instagram profile, Linktree or booking page.
+> - It flags businesses with no website, including listings whose "website" is only a Facebook page, Instagram profile, Linktree, booking page or delivery app.
 > - It returns a CSV that downloads right in the browser, with the no-website businesses at the top.
 >
 > **The nodes**
@@ -80,11 +82,13 @@ Every number in these posts is a placeholder in square brackets, for example `[X
 > 4. Google needs a billing account on the Cloud project for Maps services, even inside the free monthly usage. Without it you get a billing error.
 > 5. Many Google listings link to Facebook, Linktree or a booking site as their "website". I treat those as "no website of their own".
 > 6. The Form Trigger responds when the workflow finishes, and the last node is a Form node (page type "Form Ending") that returns the CSV as a binary file. So the file downloads right after you submit the form.
-> 7. I turn Google's error replies (API not enabled, key rejected, billing missing, key restriction, quota) into a plain message on the form page, so non-technical users know what to fix.
+> 7. I turn Google's error replies (API not enabled, key rejected, billing missing, key restricted to other APIs, application restriction, quota) into a plain message on the form page, so non-technical users know what to fix.
+> 8. Phone numbers like "+1 512…" start with "+", so spreadsheet apps try to run them as formulas. The CSV puts an apostrophe in front of any value that starts with = + - or @.
+> 9. Using the official API doesn't mean you can store everything. Google's Maps Platform Terms (section 3.2.3) restrict storing Places content such as business names and addresses outside Google's services (Place IDs may be kept). Read the terms, treat the CSV as a working list and delete leads you don't pursue.
 >
 > **Setup (about 10 minutes, guide included)**
 >
-> Create a Google Cloud project, turn on billing and set a budget alert, enable **Places API (New)**, create and restrict an API key, add it in n8n as a Header Auth credential, import the JSON, then activate (n8n 1.x) or publish (n8n 2.x) and open the form's Production URL. It works on n8n 1.123 or newer, including 2.x.
+> Create a Google Cloud project, turn on billing and set a budget alert, enable **Places API (New)**, create and restrict an API key, add it in n8n as a Header Auth credential, import the JSON, then activate (n8n 1.x) or publish (n8n 2.x) and open the form's Production URL. Keep that URL private, or lock it with the form trigger's built-in Basic Auth. It works on n8n 1.123 or newer, including 2.x.
 >
 > Cost: only Google Places API requests. One request returns up to 20 businesses, so a 60-business search is 3 requests. Google has a free monthly usage allowance; check their pricing page for current numbers.
 >
@@ -100,7 +104,7 @@ Every number in these posts is a placeholder in square brackets, for example `[X
 
 **Comment to post only if someone asks about the paid version**
 
-> The paid one goes further: it opens each website, runs Google's PageSpeed test, scores every lead from 0 to 100 with the evidence, writes a short pitch with Claude from those facts and saves everything to a Google Sheet plus Gmail drafts (nothing is sent automatically). Starter is $49 (web design), Pro is $99 (5 niches and a follow-up workflow): {{storeUrl}}. The free one above works fine on its own.
+> The paid one goes further: it opens each website, runs Google's PageSpeed test, scores every lead from 0 to 100 with the evidence, writes a short pitch with Claude from those facts and saves everything to a Google Sheet plus Gmail drafts (nothing is sent automatically). Starter is $49 (web design), Pro is $99 (5 niches and a follow-up workflow that spots replies and bounces in Gmail): {{storeUrl}}. The free one above works fine on its own.
 
 ### Shorter variant for r/automation or r/nocode
 
@@ -140,21 +144,21 @@ Seven posts. Each one is under 280 characters (X counts every link as 23 charact
 
 > 1. You type a business type and a city into a form, for example "dentists" + "Austin, TX".
 >
-> It pulls up to 60 businesses from Google's official Places API. No scraping. Closed businesses, duplicates and anyone already in your sheet are skipped.
+> It pulls up to 60 businesses from Google's official Places API. Closed businesses, duplicates and anyone already in your sheet (same listing, email or website) are never pitched.
 
 **3/**
 
 > 2. It opens each homepage and runs Google's PageSpeed test on mobile.
 >
-> It looks for: no website, site down, broken SSL, "coming soon" pages, slow on mobile, not mobile-friendly, old copyright year.
+> It looks for: no website, site down (checked twice), SSL errors, "coming soon" pages, slow on mobile, not mobile-friendly, old copyright year.
 >
-> If a site blocks bots, it skips the check. It never guesses.
+> If a site blocks bots or can't be read, it makes no claim.
 
 **4/**
 
 > 3. Every lead gets a score from 0 to 100, with evidence like:
 >
-> "Google PageSpeed scores the mobile site 23/100; the main content takes 9.8 s to appear on a phone."
+> "In Google's PageSpeed mobile test (a simulated phone on a 4G connection) the homepage scored 23/100 and the main content took 9.8 s to appear."
 >
 > (That's example data from my test set, not a real business.)
 
@@ -198,7 +202,7 @@ Seven posts. Each one is under 280 characters (X counts every link as 23 charact
 - Big on-screen text for every step: many people watch without sound.
 - Screen recordings from your own run, or the example data from the test set, labelled "example data".
 - Blur real business names, emails and phone numbers.
-- The sheet is written in one go when the run finishes, so the rows appear all at once. That is normal. Don't fake a slow fill; scroll down the new rows instead.
+- The sheet is written in one go near the end of the run (just before the Gmail drafts are created), so the rows appear all at once. That is normal. Don't fake a slow fill; scroll down the new rows instead.
 
 ### Hook options (0-2 s, text on screen)
 
@@ -215,7 +219,7 @@ Pick one:
 | 0-2 s | Your hook | Close-up of the form: `dentists`, `Austin, TX` | (none, let the text work) |
 | 2-7 s | 1. Business type + city | Type into the form, choose **20**, click **Find clients** | "I type a business type and a city." |
 | 7-11 s | 2. It checks every website (sped up) | Waiting page, then the results page: "Done: [N] new leads found" | "It finds businesses on Google Maps, opens each website and runs Google's speed test." |
-| 11-19 s | 3. A score and the proof | The Google Sheet: scroll the new rows, then zoom in on Score, Priority, Problems and Evidence, for example "PageSpeed 23/100" | "Every lead gets a score and the proof, like a mobile speed score of 23 out of 100." |
+| 11-19 s | 3. A score and the proof | The Google Sheet: scroll the new rows, then zoom in on Score, Priority, Problems and Evidence, for example the PageSpeed score of 23/100 | "Every lead gets a score and the proof, like a mobile speed score of 23 out of 100." |
 | 19-26 s | 4. A pitch draft for the best leads. You review. You send. | Gmail **Drafts**: open one, highlight the first line that names the problem, edit one word | "Claude writes a short pitch from those facts. It's only a draft. I read it and send it myself." |
 | 26-30 s | Comment CLIENT for the free version | End card with the cover image. Small text: "Free version = Google Maps list, no-website businesses first. Full agent: link in bio." | "Comment CLIENT and I'll send you the free version." |
 
@@ -278,7 +282,7 @@ Pick one:
 >
 > 1. It searches Google Maps (Google's official Places API) for a business type in a city.
 > 2. It opens every website and runs Google's mobile speed test.
-> 3. It scores each business from 0 to 100 and writes down the proof, for example (from my test data): "PageSpeed mobile score 23/100", "footer still says © 2019", "no website at all".
+> 3. It scores each business from 0 to 100 and writes down the proof, for example (from my test data): "In Google's PageSpeed mobile test (a simulated phone on a 4G connection) the homepage scored 23/100…" or "The footer of their homepage still shows © 2019…". If it can't verify something, it makes no claim.
 > 4. Claude drafts a short pitch from those facts only. It lands in Gmail as a draft. Nothing is sent until I read it.
 >
 > What I've seen so far: [ONLY REAL OBSERVATIONS, for example "[X] replies from [Y] emails over [Z] weeks". Delete this line until you have real numbers.]
@@ -297,7 +301,7 @@ Pick one:
 > Free version (n8n workflow + setup guide): [LITE LINK]
 > The full agent with website checks and Gmail drafts: {{storeUrl}}
 
-> **Note:** The examples in the post ("23/100", "© 2019") come from the made-up test business Sunrise Family Dental. If you prefer, replace them with evidence from your own run, without naming the business.
+> **Note:** The examples in the post ("23/100", "© 2019") come from the made-up test business Sunrise Family Dental. If you prefer, replace them with evidence from your own run, copied word for word from the Evidence column, without naming the business.
 
 ---
 

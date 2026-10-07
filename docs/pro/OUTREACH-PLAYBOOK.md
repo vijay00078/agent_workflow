@@ -26,7 +26,7 @@ The process has eight steps. The workflow does the first three; you do the rest.
 
 Three ideas hold it together:
 
-1. **Evidence first.** Every pitch starts with one true fact about the business that anyone can check. That makes it different from generic spam.
+1. **Evidence first.** Every pitch starts with one checked fact about the business that anyone can see for themselves, and you confirm it before you send. That makes it different from generic spam.
 2. **A small first step.** The first email asks for no meeting and no money. It offers something free and useful, like a 2-minute video.
 3. **Slow and steady.** 10-20 careful emails every working day are better than 200 rushed ones. They protect your inbox and your name.
 
@@ -56,13 +56,13 @@ A business can only pay you well if a new customer is worth a lot to it. Ask fou
 | Social Media & Ads | gyms, yoga studios, restaurants, bakeries, boutiques, salons, real estate agents | Visual businesses that customers check on Instagram |
 | AI Chatbots & Booking | physiotherapy clinics, dental clinics, vets, spas, salons, tutoring centres, driving schools | Appointment businesses with repeated questions and after-hours enquiries |
 
-Type the business type the way customers search: plural and simple (`physiotherapy clinics`, not `physio`). Then try close variants, such as `dentists`, `dental clinics` and `orthodontists`. The workflow always skips businesses already in your sheet.
+Type the business type the way customers search: plural and simple (`physiotherapy clinics`, not `physio`). Then try close variants, such as `dentists`, `dental clinics` and `orthodontists`. The workflow always skips businesses already in your sheet. It also never pitches an email address or website twice: another location of a chain, or a duplicate listing, is saved with a note like "Same email as …" and the **AI Status** "Skipped (already pitched)".
 
-> **Tip:** If a search returns a chain, or a business you don't want to pitch, delete its Gmail draft. Set its **Status** to **New** and write the reason in **Notes**, for example `Not pitched: chain`. Keep the row: it stops the business from being added again.
+> **Tip:** If a search returns a chain, or a business you don't want to pitch, delete its Gmail draft. Set its **Status** to **New** and write the reason in **Notes**, for example `Not pitched: chain`. Keep its **Place ID**: it stops the business from being added again.
 
 ### Big city or smaller towns?
 
-Google returns at most 60 businesses per search.
+Google returns at most 60 businesses per search. Businesses that serve an area without a shopfront, like many plumbers, cleaners and mobile trades, are included.
 
 - **Big cities:** search by neighbourhood or suburb, for example `dentists` in `Brooklyn, NY` or `Koramangala, Bangalore`. Expect competition: other agencies may already be writing to the same businesses.
 - **Smaller towns:** fewer businesses per search, so you move from town to town faster. Owners may get fewer pitches. A local angle ("I work with businesses around Leeds") can help, but only if it is true. Budgets may be smaller.
@@ -102,10 +102,10 @@ A specific offer shows that you looked. Link it to the main problem in the **Top
 
 > **Example:** Example data from the product's test businesses. Each offer names the problem the workflow found.
 >
-> - **Sunrise Family Dental** (Web Design): mobile PageSpeed score 23/100, footer says © 2019. Offer: "a 2-minute video showing why the main content of your homepage takes about 10 seconds to appear on a phone, and the 3 things I would change."
+> - **Sunrise Family Dental** (Web Design): 23/100 in Google's PageSpeed mobile test (a simulated phone), and the footer still shows © 2019. Offer: "a 2-minute video showing why the main content of your homepage takes about 10 seconds to appear on a phone, and the 3 things I would change."
 > - **Elm Street Dental** (Local SEO): no page title or meta description, and 8 Google reviews while the median nearby is 133. Offer: "a one-page mini-audit with the 3 fixes that would help you show up in local searches."
 > - **Hillcrest Family Dentistry** (Reviews): 3.6 stars from 48 reviews; similar businesses nearby average 4.6. Offer: "a one-page plan to get more reviews from patients you already have."
-> - **Westlake Dental Studio** (AI Chatbots & Booking): no online booking, no chat, closed all weekend. Offer: "a 5-minute demo of an assistant that answers weekend questions using your own website."
+> - **Westlake Dental Studio** (AI Chatbots & Booking): no booking button or chat found on the homepage, and closed all weekend according to Google. Offer: "a 5-minute demo of an assistant that answers weekend questions using your own website."
 
 A *median* is the middle value: half of the businesses have more reviews, and half have fewer.
 
@@ -119,7 +119,7 @@ If your emails land in spam, nothing else matters. This setup takes about an hou
 
 A *domain* is your website's name, like `pixelpine.studio` (a made-up example). An address like `asha@pixelpine.studio` looks like a real business; a free `@gmail.com` address works, but owners may take it less seriously. We suggest Google Workspace, Google's paid business version of Gmail. It looks like normal Gmail, and n8n's Gmail credential works with it. Check Google's website for prices in your country.
 
-> **Important:** Drafts appear in the Gmail account of the credential selected on *Create Gmail Draft*. If you move to a new inbox, connect it in n8n and select it on *Create Gmail Draft*, and on *Search Gmail* and *Create Follow-up Draft* in the Follow-up Autopilot. Always send from the account where the drafts were created, so the Autopilot can see what you sent.
+> **Important:** Drafts appear in the Gmail account of the credential selected on *Create Gmail Draft*. If you move to a new inbox, connect it in n8n and select it on *Create Gmail Draft*, and on *Search Gmail*, *Read Gmail Threads* and *Create Follow-up Draft* in the Follow-up Autopilot. Always send from the account where the drafts were created, so the Autopilot can see what you sent.
 
 ### Optional: a separate outreach domain
 
@@ -164,7 +164,7 @@ The workflow already creates plain-text drafts with no links. In your first emai
 
 ### A real signature and postal address
 
-The workflow adds `Thanks,` and your signature from *⚙️ Settings*: **yourName**, **yourBusinessName**, **yourWebsite**, **yourPhone** and **yourAddress**. Fill in all five. US commercial email must include a valid physical postal address (CAN-SPAM), and a real address builds trust everywhere. A real street or business address in your own country counts, even if you live outside the US. Don't want to show your home address? For CAN-SPAM, a PO box registered with the US Postal Service, or a private mailbox registered under Postal Service rules, is also accepted. Outside the US, ask a local mailbox service what is accepted where you send. Keep **optOutLine** switched on. If Gmail adds your normal signature to a draft too, remove one.
+The workflow adds your **signOff** (`Thanks,` unless you change it) and your signature from *⚙️ Settings*: **yourName**, **yourBusinessName**, **yourWebsite**, **yourPhone** and **yourAddress**. Fill in all five, in every Client Finder workflow you use and in the Follow-up Autopilot. **yourAddress** is optional in the workflow, and the results page reminds you while it is empty. But US commercial email must include a valid physical postal address (CAN-SPAM), and a real address builds trust everywhere. A real street or business address in your own country counts, even if you live outside the US. Don't want to show your home address? For CAN-SPAM, a PO box registered with the US Postal Service, or a private mailbox registered under Postal Service rules, is also accepted. Outside the US, ask a local mailbox service what is accepted where you send. Keep **optOutLine** (first emails) and the Autopilot's **followUpOptOutLine** (follow-ups) switched on. If Gmail adds your normal signature to a draft too, remove one.
 
 ## Your daily 45-minute routine
 
@@ -172,7 +172,9 @@ Do this every working day, in four blocks. Regular work matters more than volume
 
 ### 1. Start one search (5 minutes)
 
-Open your bookmarked *Find Clients Form* page. Type one business type and one area, choose 20 or 40 businesses and submit. A run takes about 2-6 minutes. Meanwhile, open Gmail: if someone replied with interest, answer them first.
+Open your bookmarked *Find Clients Form* page. Type one business type and one area, choose 20 or 40 businesses and submit. A run takes about 2-8 minutes; wait for it to finish before you submit another search. Meanwhile, open Gmail: if someone replied with interest, answer them first.
+
+> **Tip:** Keep the form's link private. The setup guide shows how to lock the form with a username and password (n8n's Basic Auth).
 
 ### 2. Review and send the best 10-20 (15 minutes)
 
@@ -189,24 +191,26 @@ Click the filter icon in the **Status** header and show only **Pitch ready**: th
 
 ### 4. Log statuses (5 minutes)
 
-Update **Status** for every lead you touched: **Contacted** after you email or call, then **Replied**, **Meeting booked**, **Won**, **Lost** or **Do not contact**. The Follow-up Autopilot sets **Contacted** and **Replied** for leads you emailed; calls and DMs are yours to log. Add short notes in **Notes**, such as `6 Oct: called, left voicemail`.
+Update **Status** for every lead you touched: **Contacted** after you email or call, then **Replied**, **Meeting booked**, **Won**, **Lost**, **Not interested** or **Do not contact**. The Follow-up Autopilot sets **Contacted**, **Follow-up drafted**, **Replied** and **Bounced** for leads you emailed; calls and DMs are yours to log. Add short notes in **Notes**, such as `6 Oct: called, left voicemail`.
 
 ## How to review a draft in 30 seconds
 
-You are the sender, and automated checks can miss things. They read only the homepage's code, so a booking button or chat that loads later, or sits on another page, can be missed. PageSpeed scores also change a little on each run. Always look before you send.
+You are the sender, and automated checks can be wrong. They are careful: when a check can't be sure, it makes no claim, and **Notes** often says why (for example "Homepage not checked in detail"). But they read only the homepage's code, so a booking button or chat that loads later, or sits on another page, can be missed. PageSpeed is a simulated phone test, and its score changes a little on each run. Always look before you send.
 
 Open the draft and the business's website side by side. Check eight things:
 
-1. **The evidence is true when you look.** Open the website on your phone. Is it really slow? Does the footer really say © 2019? Is there really no booking button? If not, delete the draft.
-2. **The business name is right.** The greeting uses a short name, like "Hi Sunrise Family Dental team,". Fix anything odd, such as a slogan in the name.
+1. **The evidence is true when you look.** The **Evidence** column says exactly what was found, for example: "The footer of their homepage still shows © 2019, which suggests the site hasn't been updated in about 7 years." Open the website on your phone. Is it really slow? Does the footer really say © 2019? Is there really no booking button? If not, delete the draft.
+2. **The name and address are right.** The greeting uses a short name, like "Hi Sunrise Family Dental team,". Fix anything odd, such as a slogan in the name. The address in **To** should look like the business's own.
 3. **One problem.** The email leads with the single biggest problem. If it lists several, cut it down.
 4. **One offer.** Your free next step, clear and small.
 5. **One question.** It ends with one simple yes/no question.
 6. **The tone fits.** Polite, plain, no pressure. Change any word you would not say.
 7. **The signature is complete.** Your name, business, website, phone and postal address.
-8. **The opt-out line is there.** The "P.S." line stays.
+8. **The opt-out line is there.** The "P.S." line stays in first emails. Follow-ups end with "If you'd rather I didn't follow up, just reply and I'll stop."
 
 If the facts are wrong, delete the draft. Never "fix" evidence by guessing.
+
+If **AI Status** says "Template used (AI error: …)", Claude couldn't write that pitch, and the draft is the niche's template ("I was looking at how … shows up online, and one thing stood out: …"). Check it the same way, and make it sound like you.
 
 ![An example pitch in Gmail Drafts](img/draft-example.png)
 *Example data: a first email to the example business Sunrise Family Dental. Fill in **yourPhone** and **yourAddress** so your own signature shows them too.*
@@ -244,7 +248,7 @@ End your reply with the same next step as the video: a short call.
 
 ## Calls and DMs for leads without email
 
-**Pitch ready** leads have a pitch but no Gmail draft, usually because their homepage shows no email address. Many have no website at all (**Notes** says "No website: call or DM instead."). Don't skip them: for a web designer, a busy business with no website may be the clearest need of all. If a **Pitch ready** lead does have an **Email** (the draft failed, or drafts are off), copy the **Email Body** into a new Gmail message instead.
+**Pitch ready** leads have a pitch but no Gmail draft, usually because their homepage shows no email address. Many have no website at all (**Notes** says "No website: call or DM instead."), or Google links only to a Facebook, booking or delivery page (**Notes** says which). Don't skip them: for a web designer, a busy business with no website may be the clearest need of all. If a **Pitch ready** lead does have an **Email** (the draft failed, or drafts are off), copy the **Email Body** into a new Gmail message instead.
 
 ### Phone calls
 
@@ -253,9 +257,9 @@ End your reply with the same next step as the video: a short call.
 3. Ask permission: "Have you got 30 seconds?" If not, ask when to call back.
 4. Say the one problem, then the offer. Then stop and listen.
 5. Interested? Ask for the best email address and send the free offer the same day.
-6. A no? Thank them, set **Do not contact** and move on.
+6. A no? Thank them, set **Not interested** and move on. If they ask you never to contact them again, set **Do not contact**.
 
-> **Example:** Example data. Lakeside Dental Care has 4.8 stars from 340 reviews but no website. Call opener: "Hi, this is Asha from Pixel & Pine Studio. Lakeside Dental Care has great reviews on Google Maps but no website, so people can't learn more or book. Is the owner or practice manager around?"
+> **Example:** Example data. Lakeside Dental Care has 4.8 stars from 340 reviews but no website on its Google listing. Call opener: "Hi, this is Asha from Pixel & Pine Studio. Lakeside Dental Care has great reviews on Google Maps but no website on its listing, so people can't learn more or book. Is the owner or practice manager around?"
 
 ### Voicemail
 
@@ -284,30 +288,32 @@ Busy owners miss emails. One or two polite follow-ups give them a second chance.
 
 ### What the Follow-up Autopilot does
 
-The Follow-up Autopilot runs every morning at 9:00 in your n8n time zone (the *Every Morning* node), or when you run it by hand (the *Run Now* node). For every lead with an email address, it reads your Gmail from the last 120 days:
+The Follow-up Autopilot runs every morning at 9:00 in your n8n time zone (the *Every Morning* node), or when you run it by hand (the *Run Now* node). For every lead with an email address, it reads your Gmail from the last 120 days: what you sent to that address, what came from that address (even archived, deleted or in spam), and every message in the Gmail threads your pitches were sent in.
 
-- **They replied** after your first email: **Status** becomes **Replied**, and they never get a follow-up.
+- **Someone replied** after your first email: **Status** becomes **Replied**, and they never get a follow-up. A reply in your pitch's thread counts even from another address, such as a colleague or the owner's personal email; **Notes** then says who replied. Out-of-office auto-replies don't count.
+- **Your email bounced** (a delivery failure came back in the thread): **Status** becomes **Bounced**, and that address is never emailed again.
 - **You never sent the draft:** nothing happens.
 - **You sent it and 3 or more days passed with no reply:** it drafts follow-up #1 in the same Gmail thread ("Re: ...").
 - **You sent follow-up #1 and 7 or more days passed with no reply:** it drafts follow-up #2, a short, polite last note.
 - **Then it stops**, because **maxFollowUps** is 2.
 
-An unsent follow-up draft blocks new ones, so you never get duplicates. Leads with the status **Replied**, **Meeting booked**, **Won**, **Lost** or **Do not contact** are never touched. PRO-GUIDE.pdf explains the setup.
+Every follow-up ends with your signature and **followUpOptOutLine**: "If you'd rather I didn't follow up, just reply and I'll stop." An unsent follow-up draft blocks new ones, so you never get duplicates. Leads with the status **Replied**, **Meeting booked**, **Won**, **Lost**, **Do not contact**, **Not interested** or **Bounced** are never touched, and an address with one of those statuses on any row is never emailed from another row. If Gmail can't be read (a search or thread read fails), the run stops with an error and drafts nothing that day; the next run tries again. PRO-GUIDE.pdf explains the setup.
 
 ![The Follow-up Autopilot workflow in n8n](img/followup-canvas.png)
 *The Follow-up Autopilot. It only creates drafts; you send them.*
 
 ### What to check yourself
 
-- **Add an opt-out line.** Follow-up drafts do not repeat your **optOutLine**, so add a short line, such as "If you'd rather not hear from me, just say so." In the US, CAN-SPAM expects an opt-out in every commercial email.
-- **Bounces.** The Autopilot cannot see bounces. When an email comes back undelivered, set **Status** to **Lost** and write `Bounced` in **Notes**, so no follow-up is drafted. Then try a call or DM.
-- **Auto-replies count as replies.** An out-of-office message marks the lead **Replied**. Follow up by hand later.
-- **Replies from another address** can't be linked. Set **Replied** yourself.
+- **Keep the opt-out line.** It is added for you. If you empty **followUpOptOutLine**, write your own line into each follow-up: in the US, CAN-SPAM expects an opt-out in every commercial email.
+- **Bounces.** Most bounces come back in the same Gmail thread, and the Autopilot marks those **Bounced**. If you see one it missed, set **Bounced** yourself. Then try a call or DM.
+- **Other automatic answers.** Out-of-office replies with a usual subject ("Automatic reply", "Out of office") are ignored. Other automatic messages, like "Thanks, we got your email", can still mark a lead **Replied**. Open the thread, and follow up by hand later if it makes sense.
+- **A new email from another address** (not a reply in your thread) can't be linked. Set **Replied** yourself.
+- **Failed drafts.** If Gmail refuses a follow-up draft, a dated note goes at the front of **Notes** (your own notes are kept), and the next run tries again.
 - **Calls and DMs** are not followed up for you. Do it by hand, once.
 
 ### When to stop
 
-Stop after the first email and two follow-ups. With no answer about two weeks after the last one, set **Status** to **Lost**. Never follow up after a no, and don't restart the same pitch with a "fresh" email.
+Stop after the first email and two follow-ups. With no answer about two weeks after the last one, set **Status** to **Lost**. Never follow up after a no (set **Not interested**), and don't restart the same pitch with a "fresh" email.
 
 ## Handling replies
 
@@ -320,7 +326,9 @@ Answer every reply within one working day. Short, human and honest beats clever.
 | "Send more info" | Send the free offer, 2-3 lines about you and one real example of your work (never invent one) | **Replied** |
 | "Not now" | Thank them and ask if you may check in later | **Replied** or **Lost**, with a date in **Notes** |
 | "Who are you? How did you get my email?" | Explain honestly | Depends on their answer |
+| "No, we're not interested" | Thank them in one line and stop | **Not interested** |
 | "Stop", "Unsubscribe" or "No thanks" | Stop the same day | **Do not contact** |
+| A delivery failure (bounce) | Look for another way to reach them: a call or DM | **Bounced** (the Autopilot sets it for bounces in the thread) |
 
 ### Interested: book a call
 
@@ -338,13 +346,13 @@ Don't dodge. Give an honest range from your real prices, say what changes the pr
 
 Be honest and calm. The true answer is simple and fair:
 
-"Fair question. I'm Asha, a web designer at Pixel & Pine Studio. I found Sunrise Family Dental on Google Maps, and your email address is published on your website's homepage. I wrote because your site loads slowly on phones. If you'd rather not hear from me, I won't email again."
+"Fair question. I'm Asha, a web designer at Pixel & Pine Studio. I found Sunrise Family Dental on Google Maps, and your email address is published on your website's homepage. I wrote because your homepage scored low in Google's mobile speed test. If you'd rather not hear from me, I won't email again."
 
 The **Website**, **Google Maps** and **Search** columns show where each lead came from. If they ask you to stop, set **Do not contact**.
 
 ### Unsubscribe requests
 
-Set **Status** to **Do not contact** the same day, before anything else, and delete any follow-up waiting for them in Gmail **Drafts**. Keep the row: it stops future searches from adding the business again, and it records that you honored the request. A one-line reply is polite but optional: "Done, you won't hear from me again. Sorry for the bother."
+Set **Status** to **Do not contact** the same day, before anything else, and delete any follow-up waiting for them in Gmail **Drafts** (the Autopilot never deletes drafts). From then on, the Autopilot never emails that address again, and Client Finder never pitches that address or website again, even from another row or listing. Keep the row, or at least its **Place ID**, **Email** and **Status**: it stops future searches from adding the business again, and it records that you honored the request. A one-line reply is polite but optional: "Done, you won't hear from me again. Sorry for the bother."
 
 ## Turning a reply into a paying client
 
@@ -397,7 +405,7 @@ Send it within 48 hours of the call, then follow up once after 2-3 days.
 
 ## Metrics to track with the Pipeline tab
 
-The **Pipeline** tab counts your leads per status and per priority, updated from the **Leads** tab. Its **Reply rate** row shows leads marked **Replied**, **Meeting booked** or **Won**, divided by all leads you contacted (**Contacted**, **Follow-up drafted**, **Replied**, **Meeting booked**, **Won** and **Lost**). **Do not contact** leads are not counted. Treat it as a rough guide: it is only as accurate as your statuses.
+The **Pipeline** tab counts your leads per status and per priority, updated from the **Leads** tab. Its **Reply rate** row shows leads marked **Replied**, **Meeting booked** or **Won**, divided by all leads you contacted (**Contacted**, **Follow-up drafted**, **Replied**, **Meeting booked**, **Won** and **Lost**). **Do not contact**, **Not interested** and **Bounced** leads are not counted. Treat it as a rough guide: it is only as accurate as your statuses.
 
 ### Four numbers to write down every Friday
 
@@ -436,7 +444,7 @@ CAN-SPAM covers all commercial email, including email from one business to anoth
 - Identify yourself and include a valid physical postal address.
 - Include a working way to opt out, keep it working for at least 30 days after you send, and honor opt-outs within 10 business days. You can't charge for opting out or ask for more than a reply email or a visit to one web page.
 
-Your signature (with **yourAddress**) and **optOutLine** cover the address and opt-out in first emails. Add an opt-out line to follow-ups yourself.
+Your signature goes on every first email and follow-up, so fill in **yourAddress** before you email US businesses (it is optional in the workflow, but the results page reminds you while it is empty). The opt-out is automatic: **optOutLine** ends every first email, and **followUpOptOutLine** ends every follow-up. Keep both on, and set **Do not contact** the same day someone opts out.
 
 ### United Kingdom: PECR and UK GDPR
 
@@ -464,8 +472,9 @@ India has no specific anti-spam law for email. The Digital Personal Data Protect
 
 - Write to businesses about their business, and be honest about who you are and why you write.
 - Honor every opt-out at once: set **Do not contact** the same day.
-- Keep records. The sheet shows where each lead came from (**Search** and **Google Maps**) and when you found it (**Found On**).
-- Keep the rows of people who opted out. The row is your record that you honored the request, and it stops the business from being added again.
+- Keep records for the leads you contact. The sheet shows where each lead came from (**Search** and **Google Maps**) and when you found it (**Found On**).
+- Treat your sheet as a working list. {{productName}} uses Google's official Places API with your own key, not a scraper. Google's Maps Platform Terms (section 3.2.3) restrict storing Places content such as business names and addresses outside Google's services (Place IDs may be kept), so read the terms and delete leads you don't pursue. To delete one and still keep it from coming back, clear its other cells and keep only **Place ID**, **Email** and **Status**.
+- Keep the **Place ID**, **Email** and **Status** of people who opted out. That is your record that you honored the request, and it stops the business from being added again.
 - If someone asks you to delete their details (a right under GDPR and similar laws), clear their **Email** and other personal details, but keep the **Place ID** and the **Do not contact** status, so they are never added or contacted again.
 
 ## A 30-day launch plan
@@ -499,7 +508,7 @@ By day 30 you will have a working routine and real numbers from your own market.
 4. **Hype and promises.** "Guaranteed first page" or "triple your bookings" damages trust.
 5. **Ignoring calls and DMs.** **Pitch ready** leads can be the businesses that need you most.
 6. **Slow replies.** A "yes" that waits three days can go cold.
-7. **Deleting rows.** The business can come back in a future search, and you lose your record of opt-outs.
+7. **Deleting whole rows.** Clear a lead you won't pursue, but keep its **Place ID**, **Email** and **Status**. Without them, the business can come back in a future search, and you lose your record of opt-outs.
 8. **Giving up after one week.** The first week is mostly setup and learning.
 
 Questions about the workflows? Email {{supportEmail}}. Never send your API keys.
