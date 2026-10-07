@@ -378,7 +378,7 @@ function stepSummary(rows, draftUpdates, job, info) {
   if (noEmail) lines.push(`${noEmail} pitched ${noEmail === 1 ? 'business has' : 'businesses have'} no public email: use the DM message or call opener in the sheet.`);
   if (duplicates) lines.push(`${plural(duplicates, 'business', 'businesses')} share an email or website with a lead you already have, so ${duplicates === 1 ? 'it was' : 'they were'} not pitched again.`);
   if (extra.savedElsewhere) lines.push(`${plural(extra.savedElsewhere, 'business', 'businesses')} had just been saved by another run and ${extra.savedElsewhere === 1 ? 'was' : 'were'} skipped.`);
-  if (pitched && !str(job.settings.yourAddress)) lines.push('Tip: add your postal address (yourAddress in Settings). US law (CAN-SPAM) requires one in commercial emails.');
+  if (!str(job.settings.yourAddress)) lines.push('Tip: add your postal address (yourAddress in Settings). US law (CAN-SPAM) requires one in commercial emails.');
   return {
     title: `Done: ${plural(total, 'new lead')} found`,
     message: lines.join('\n'),

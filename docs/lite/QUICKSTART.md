@@ -112,6 +112,9 @@ If n8n refuses, look for a node with a red warning icon. Usually *Search Google 
 
 ### 4.3 Fill in the form
 
+![The Client Finder Lite form](img/lite-form.png)
+*The form you fill in for every search.*
+
 1. **Business type**: for example `dentists` or `hair salons`.
 2. **City or area**: for example `Austin, TX`, `Manchester, UK` or `Pune, India`.
 3. **How many businesses?**: choose **20**, **40** or **60**.

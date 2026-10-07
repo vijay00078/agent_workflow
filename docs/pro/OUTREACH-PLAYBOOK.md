@@ -475,7 +475,7 @@ India has no specific anti-spam law for email. The Digital Personal Data Protect
 - Keep records for the leads you contact. The sheet shows where each lead came from (**Search** and **Google Maps**) and when you found it (**Found On**).
 - Treat your sheet as a working list. {{productName}} uses Google's official Places API with your own key, not a scraper. Google's Maps Platform Terms (section 3.2.3) restrict storing Places content such as business names and addresses outside Google's services (Place IDs may be kept), so read the terms and delete leads you don't pursue. To delete one and still keep it from coming back, clear its other cells and keep only **Place ID**, **Email** and **Status**.
 - Keep the **Place ID**, **Email** and **Status** of people who opted out. That is your record that you honored the request, and it stops the business from being added again.
-- If someone asks you to delete their details (a right under GDPR and similar laws), clear their **Email** and other personal details, but keep the **Place ID** and the **Do not contact** status, so they are never added or contacted again.
+- If someone asks you to delete their details (a right under GDPR and similar laws), clear everything except the **Place ID**, the **Email** and the **Do not contact** status. The business is then not added again and that address is never emailed again; keeping just the address on a do-not-contact list is the usual way to honour the request (regulators such as the UK ICO accept this kind of suppression record).
 
 ## A 30-day launch plan
 

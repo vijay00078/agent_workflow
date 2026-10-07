@@ -583,7 +583,7 @@ Do these the same day, before anything else:
 
 1. Set **Status** to **Do not contact**.
 2. In Gmail, open **Drafts** and delete any follow-up waiting for them.
-3. Keep the row: its **Place ID** stops future searches from adding the business again, and its final status stops every workflow from pitching or following up that email address or website, even under another listing. If they also ask you to delete their details, clear their **Email** and other personal details, but keep the **Place ID**, the **Website** and the status.
+3. Keep the row: its **Place ID** stops future searches from adding the business again, and its final status means no workflow emails that address again, and Client Finder never pitches that address or website again, even under another listing. If they also ask you to delete their details, clear everything except the **Place ID**, the **Email** and the **Do not contact** status. Keeping just their address on a do-not-contact list is how you make sure you never email them again (regulators such as the UK ICO accept this kind of suppression record).
 
 ### "We already have someone"
 
