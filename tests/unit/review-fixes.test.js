@@ -416,3 +416,11 @@ test('follow-up draft failures add a dated note and keep the buyer\'s notes (rep
   const report = steps.stepFollowUpReport([u, { 'Place ID': 'q', Status: 'Bounced' }, { 'Place ID': 'r', Status: 'Follow-up drafted' }]);
   assert.equal(report.summary, '1 follow-up draft created, 0 leads marked Replied, 1 lead marked Bounced, 0 leads marked Contacted, 1 draft failed (see the Notes column).');
 });
+
+test('"Website down" is never claimed after a single failed load (e.g. a custom pack without the recheck nodes)', () => {
+  const once = steps.stepCheckWebsite(baseLead(), { statusCode: 404, html: '' }, NOW);
+  const custom = Object.assign({}, pack('social-media'), { weights: Object.assign({ site_down: 45 }, pack('social-media').weights) });
+  assert.deepEqual(problems.detectProblems({ lead: once, site: once.site, analysis: null, psi: null, market: once.market, now: NOW }, custom).map((p) => p.id), []);
+  const twice = steps.stepRecheckWebsite(once, { statusCode: 404, html: '' }, NOW);
+  assert.deepEqual(problems.detectProblems({ lead: twice, site: twice.site, analysis: null, psi: null, market: twice.market, now: NOW }, custom).map((p) => p.id), ['site_down']);
+});

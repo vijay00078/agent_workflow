@@ -79,7 +79,9 @@ const PROBLEMS = {
     label: 'Website down',
     detect: (ctx) => {
       const site = ctx.site;
-      if (!ctx.lead.website || !site || !DOWN_STATUSES.includes(site.status)) return null;
+      // Only after the second load 15 s later failed too (the "Recheck Website" step). A custom pack that adds this
+      // check to a workflow built without the recheck nodes never claims it after a single failed load.
+      if (!ctx.lead.website || !site || !DOWN_STATUSES.includes(site.status) || !site.rechecked) return null;
       if (site.status === 'not-found' && !isHomepage(ctx.lead)) {
         return { label: 'Broken website link', evidence: `The website link on their Google listing (${listedLink(ctx.lead)}) leads to a "page not found" error (404).` };
       }
