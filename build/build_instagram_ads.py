@@ -150,11 +150,38 @@ def story_leads():
     return doc(body, 540, 960, css)
 
 
+def story_best():
+    pills = "".join(f'<div class="pill" style="--r:{r}deg">{t}</div>' for t, r in (
+        ("💬 WhatsApp bot", -3), ("🌐 Website chatbot", 2), ("🎯 Lead finder", -2), ("📬 AI email replies", 3), ("➕ 6 more agents", -1)))
+    css = BASE_CSS + """
+    .top { position: absolute; left: 34px; right: 34px; top: 128px; }
+    h1 { font-size: 50px; margin-top: 14px; line-height: 1.0; }
+    .pills { position: absolute; left: 30px; top: 360px; display: grid; gap: 14px; }
+    .pill { transform: rotate(var(--r)); background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3);
+            font-weight: 700; font-size: 16px; padding: 10px 14px; border-radius: 12px; white-space: nowrap;
+            box-shadow: 0 10px 24px rgba(10,5,40,0.25); width: max-content; }
+    .phone { position: absolute; right: 26px; top: 336px; width: 214px; transform: rotate(4deg); }
+    .tag { position: absolute; left: 34px; right: 34px; top: 694px; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.85); }
+    .foot { top: 730px; }
+    .price { font-size: 19px; padding: 11px 18px; }
+    .cta { font-size: 16px; }
+    """
+    body = f"""
+    <div class="top"><span class="kicker">n8n AI agents · starter pack</span>
+      <h1 class="display">10 AI agents that work <span class="grad-text">while you sleep</span></h1></div>
+    <div class="pills">{pills}</div>
+    <div class="card phone"><img src="{SHOTS}/chat/chat-answer.png"></div>
+    <div class="tag">Ready-made n8n templates · No coding · Setup guide included</div>
+    <div class="foot"><span class="price">Only $9</span><span class="cta">Get it below ↓</span></div>
+    """
+    return doc(body, 540, 960, css)
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     shot = os.path.join(HERE, "lib", "shot.js")
     feeds = {"feed-1-website-chatbot": feed_chatbot(), "feed-2-ten-agents": feed_bundle(), "feed-3-lead-replies": feed_leads()}
-    stories = {"story-1-ten-agents": story_bundle(), "story-2-lead-finder": story_leads()}
+    stories = {"story-0-best": story_best(), "story-1-ten-agents": story_bundle(), "story-2-lead-finder": story_leads()}
     for size, pages in (("675", feeds), ("960", stories)):
         jobs = []
         for name, html in pages.items():
