@@ -418,7 +418,7 @@ Closed the tab by mistake? The run usually continues; check your sheet later, an
 | **Not interested** | They said no | You |
 | **Bounced** | The email bounced | Pro's Autopilot (or you) |
 
-Pick statuses from the dropdown. **Replied**, **Meeting booked**, **Won**, **Lost**, **Do not contact**, **Not interested** and **Bounced** are final: that email address is never emailed again by any workflow, and the Client Finder never pitches that address or website again, even from another row or listing.
+Pick statuses from the dropdown. **Replied**, **Meeting booked**, **Won**, **Lost**, **Do not contact**, **Not interested** and **Bounced** are final: that email address is never emailed again by any workflow, and the Client Finder never pitches that address or website again, even from another row or listing. A status you type yourself that isn't in the list (for example "Call back") is treated the same way: hands off.
 
 Don't delete a row for a "no": its **Place ID** stops future searches from adding that business again, and its **Email** and **Status** stop the workflows from emailing that address again. Treat the sheet as a working list, though. For a lead you won't pursue, you can clear the other cells (business name, phone, address and so on) and keep **Place ID**, **Email** and **Status**. See "Is it legal?" below.
 

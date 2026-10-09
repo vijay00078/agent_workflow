@@ -119,7 +119,7 @@ def build(path):
         ("3. Every run adds new businesses at the bottom. A business that is already in the sheet is never added twice, and an email address or website that is already here is never pitched again.", False),
         ("4. Statuses: New = no pitch (score too low, or already pitched under another listing) · Pitch ready = pitch written, no email found or the draft failed (call/DM) · Draft ready = a Gmail draft is waiting for you.", False),
         ("   After you send: Contacted · Follow-up drafted (Pro) · Replied · Meeting booked · Won · Lost · Do not contact · Not interested · Bounced (Pro sets it when an email bounces).", False),
-        ("5. Pro follow-ups read Gmail to see what you actually sent and who replied (from any address in the thread). You can also set Status and Last Contacted by hand.", False),
+        ("5. Pro follow-ups read Gmail to see what you actually sent and who replied (from any address in the thread). You can also set Status and Last Contacted by hand; a status that isn't in the list means hands off.", False),
         ("6. Set Status to \"Do not contact\" (or \"Not interested\") for anyone who asks you to stop. That email address is never emailed again by any workflow, and the Client Finder never pitches that address or website again, even under another listing.", False),
         ("7. Add your own columns to the right of Notes if you like: the workflows ignore them.", False),
         ("8. Business details come from Google Maps (source: Google Maps). Google's Maps Platform Terms limit storing them long term, so treat this tab as a working list and delete leads you don't pursue.", False),

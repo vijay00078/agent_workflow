@@ -77,7 +77,7 @@ In the US, the CAN-SPAM law expects a postal address and a clear way to opt out 
 
 ### Follow-ups
 
-The Autopilot drafts follow-up #1 in the same Gmail thread 3 or more days after your first email, and follow-up #2 7 or more days after that. Then it stops. Each draft already ends with your signature and the follow-up opt-out line. It never drafts a follow-up once someone has replied or the email bounced. Use the templates to edit its drafts, or to follow up by hand after a DM or call. Each follow-up #1 adds one new angle; each follow-up #2 makes it easy to say no.
+The Autopilot drafts follow-up #1 in the same Gmail thread 3 or more days after your first email, and follow-up #2 7 or more days after that. Then it stops (with the default **maxFollowUps** of 2). Each draft already ends with your signature and the follow-up opt-out line. It never drafts a follow-up once someone has replied or the email bounced. Use the templates to edit its drafts, or to follow up by hand after a DM or call. Each follow-up #1 adds one new angle; each follow-up #2 makes it easy to say no.
 
 ## Web design
 

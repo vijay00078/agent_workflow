@@ -122,21 +122,22 @@ Separate sheets? Import the Autopilot once per sheet, each copy with its own **g
 
 ### What it does
 
-The Autopilot runs every morning at 9:00 in your n8n instance's time zone, and whenever you start it by hand. It looks at every lead in your **Leads** sheet that has an email address. It never changes the final statuses **Replied**, **Meeting booked**, **Won**, **Lost**, **Do not contact**, **Not interested** and **Bounced**. An address with one of those statuses on **any** row is never emailed from another row.
+The Autopilot runs every morning at 9:00 in your n8n instance's time zone, and whenever you start it by hand. It looks at every lead in your **Leads** sheet that has an email address. It only acts on rows whose **Status** is empty, **New**, **Pitch ready**, **Draft ready**, **Contacted** or **Follow-up drafted**. Any other status means hands off: the final statuses **Replied**, **Meeting booked**, **Won**, **Lost**, **Do not contact**, **Not interested** and **Bounced**, and anything you type yourself, such as "Unsubscribed" or "Call back". An address with a hands-off status on **any** row is never emailed from another row.
 
 For each lead it searches your Gmail for the last 120 days: emails you **sent** to that address, and emails **from** that address, even archived, deleted or in spam. It also reads **every message in the Gmail threads your pitches were sent in**, so it sees a reply from a colleague or the owner's personal address, and a bounce. Then:
 
 - **Someone replied after your first email:** Status becomes **Replied**. No more follow-ups, ever. If the reply came from another address, **Notes** says who. Out-of-office auto-replies don't count.
-- **Your email bounced** (a delivery failure from mailer-daemon or "Delivery Status Notification" in the thread): Status becomes **Bounced**. That address is never emailed again.
+- **Your email bounced** (a delivery failure from mailer-daemon or "Delivery Status Notification" in the thread): Status becomes **Bounced**. That address is never emailed again. A "delivery delayed" notice doesn't count, and if you re-sent the email later and it went through, the old failure no longer counts.
+- **They replied or it bounced while a follow-up draft was waiting:** the status changes as above, and **Notes** says "a follow-up draft is still in Gmail Drafts: delete it, don't send it". Delete that draft.
 - **Your pitch is still a draft:** nothing happens until you send it.
 - **You sent it, but it is too early:** Status becomes **Contacted**, and **Last Contacted** gets Gmail's send date.
-- **You sent it, no reply, 3 or more days since your last email:** it drafts follow-up #1 in the same Gmail thread, with "Re: " before your pitch's subject.
-- **7 or more days after you sent follow-up #1:** it drafts follow-up #2, a short and polite last note. Then it stops (**maxFollowUps** is 2).
+- **You sent it, no reply, 3 or more days since your last email:** it drafts follow-up #1 in the same Gmail thread, with "Re: " before the subject of the email you actually sent. If you only typed a **Last Contacted** date (the pitch wasn't sent from this Gmail), it drafts a new email instead, with the pitch's subject.
+- **7 or more days after you sent follow-up #1:** it drafts follow-up #2, a short and polite last note. Then it stops (**maxFollowUps** is 2). If you raise **maxFollowUps**, the follow-ups in between each add one new angle, and only the last one says it is the last note.
 - **A follow-up draft is waiting and you have not sent it:** nothing. It never creates a second draft while one is waiting.
 
 Each follow-up uses the angle of the niche that found the lead (the **Niche** column) and builds on your original email. Claude is asked for 2-4 sentences in #1 and 2-3 in #2. Your **signOff** and signature are added, then **followUpOptOutLine**: "If you'd rather I didn't follow up, just reply and I'll stop." It goes on every follow-up. Leave it on; an empty value turns it off.
 
-There is one action per address and per Place ID. Two rows with the same email address get one follow-up, not two. If a row is in the sheet twice, only the first copy is read and updated, so delete the extra copy. It writes only the columns that change.
+There is one action per address and per Place ID. Two rows with the same email address get one follow-up, not two. If a Place ID is on two rows, only the first of them is ever read and updated, whatever its status, so delete the extra copy (to try a second address for a business, change the **Email** on the first row instead). It writes only the columns that change.
 
 If a Gmail search or thread read fails, the run stops with an error and drafts nothing that day. Without a full picture of who replied, a follow-up could reach someone who said no. The next run tries again.
 
@@ -235,7 +236,7 @@ Pick a final status from the **Status** dropdown: **Do not contact** (they asked
 
 ### What the Report node shows
 
-Open **Executions**, click a run, then click *Report*. It shows five numbers (**followUpsDrafted**, **markedReplied**, **markedBounced**, **markedContacted**, **draftsFailed**) and one line:
+Open **Executions**, click a run, then click *Report*. It shows six numbers (**followUpsDrafted**, **markedReplied**, **markedBounced**, **markedContacted**, **draftsFailed**, **draftsToDelete**) and one line:
 
 > **Example:** `1 follow-up draft created, 0 leads marked Replied, 1 lead marked Bounced, 0 leads marked Contacted, 1 draft failed (see the Notes column).` This comes from our test data.
 

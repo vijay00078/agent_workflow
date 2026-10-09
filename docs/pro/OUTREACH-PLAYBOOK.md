@@ -291,13 +291,14 @@ Busy owners miss emails. One or two polite follow-ups give them a second chance.
 The Follow-up Autopilot runs every morning at 9:00 in your n8n time zone (the *Every Morning* node), or when you run it by hand (the *Run Now* node). For every lead with an email address, it reads your Gmail from the last 120 days: what you sent to that address, what came from that address (even archived, deleted or in spam), and every message in the Gmail threads your pitches were sent in.
 
 - **Someone replied** after your first email: **Status** becomes **Replied**, and they never get a follow-up. A reply in your pitch's thread counts even from another address, such as a colleague or the owner's personal email; **Notes** then says who replied. Out-of-office auto-replies don't count.
-- **Your email bounced** (a delivery failure came back in the thread): **Status** becomes **Bounced**, and that address is never emailed again.
+- **Your email bounced** (a delivery failure came back in the thread): **Status** becomes **Bounced**, and that address is never emailed again. "Delivery delayed" notices don't count.
+- **They replied or it bounced while a follow-up draft was waiting:** **Notes** tells you to delete that draft. Do it before your next send.
 - **You never sent the draft:** nothing happens.
 - **You sent it and 3 or more days passed with no reply:** it drafts follow-up #1 in the same Gmail thread ("Re: ...").
 - **You sent follow-up #1 and 7 or more days passed with no reply:** it drafts follow-up #2, a short, polite last note.
-- **Then it stops**, because **maxFollowUps** is 2.
+- **Then it stops**, because **maxFollowUps** is 2. (Raise it and the extra follow-ups each add a new angle; only the last one closes the loop.)
 
-Every follow-up ends with your signature and **followUpOptOutLine**: "If you'd rather I didn't follow up, just reply and I'll stop." An unsent follow-up draft blocks new ones, so you never get duplicates. Leads with the status **Replied**, **Meeting booked**, **Won**, **Lost**, **Do not contact**, **Not interested** or **Bounced** are never touched, and an address with one of those statuses on any row is never emailed from another row. If Gmail can't be read (a search or thread read fails), the run stops with an error and drafts nothing that day; the next run tries again. PRO-GUIDE.pdf explains the setup.
+Every follow-up ends with your signature and **followUpOptOutLine**: "If you'd rather I didn't follow up, just reply and I'll stop." An unsent follow-up draft blocks new ones, so you never get duplicates. Leads with the status **Replied**, **Meeting booked**, **Won**, **Lost**, **Do not contact**, **Not interested** or **Bounced**, or any status you typed yourself, are never touched, and an address with one of those statuses on any row is never emailed from another row. If Gmail can't be read (a search or thread read fails), the run stops with an error and drafts nothing that day; the next run tries again. PRO-GUIDE.pdf explains the setup.
 
 ![The Follow-up Autopilot workflow in n8n](img/followup-canvas.png)
 *The Follow-up Autopilot. It only creates drafts; you send them.*
