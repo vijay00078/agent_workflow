@@ -9,7 +9,7 @@ const { parsePageSpeed, pageSpeedUrl } = require('./pagespeed');
 const { detectProblems, scoreProblems, priorityFor, rankLeads } = require('./problems');
 const { buildPitchRequest, parsePitchResponse, fallbackPitch, finalEmailBody, buildFollowUpRequest, parseFollowUpResponse, fallbackFollowUp } = require('./ai');
 const { STATUS, toSheetRow, existingPlaceIds } = require('./sheet');
-const { buildGmailQueries, indexGmail, threadsToCheck, decideFollowUps, candidateRows, emailsIn, followUpSubject, isFinalStatus, appendNote } = require('./followup');
+const { buildGmailQueries, indexGmail, threadsToCheck, decideFollowUps, candidateRows, emailsIn, followUpSubject, isFinalStatus, isHandsOff, appendNote, effectiveMaxFollowUps } = require('./followup');
 // @node-only-end
 
 const SETTING_KEYS = [
@@ -235,6 +235,10 @@ function savedContacts(rows) {
   const sites = new Map();
   for (const r of rows || []) {
     if (!r || r.error) continue;
+    // A row that was never pitched (saved as "New", no subject, never contacted) doesn't block another listing.
+    const status = str(r.Status);
+    const pitched = str(r['Email Subject']) || str(r['Last Contacted']) || [STATUS.PITCH_READY, STATUS.DRAFT_READY, STATUS.CONTACTED, STATUS.FOLLOW_UP_DRAFTED].includes(status);
+    if (!pitched && !isHandsOff(status)) continue;
     for (const e of emailsIn(r.Email)) if (!emails.has(e) || isFinalStatus(r.Status)) emails.set(e, r);
     const key = siteKey(r.Website);
     if (!key) continue;
@@ -533,7 +537,9 @@ function stepDecideFollowUps(rows, messages, threadMessages, settings, now) {
     action: a.action,
     email: a.email,
     threadId: a.threadId || '',
+    sentSubject: a.sentSubject || '',
     followUpNumber: a.followUpNumber || 0,
+    maxFollowUps: a.maxFollowUps || effectiveMaxFollowUps(settings),
     row: a.row,
     update: a.update,
   }));
@@ -542,17 +548,19 @@ function stepDecideFollowUps(rows, messages, threadMessages, settings, now) {
 function stepBuildFollowUpRequest(action, job) {
   const pack = packForRow(action.row, job.packs);
   const settings = pickSettings(job.settings, pack);
-  return Object.assign({}, action, { aiRequest: buildFollowUpRequest(action.row, settings, pack, action.followUpNumber) });
+  const options = { maxFollowUps: action.maxFollowUps || effectiveMaxFollowUps(job.settings), newThread: !action.threadId };
+  return Object.assign({}, action, { aiRequest: buildFollowUpRequest(action.row, settings, pack, action.followUpNumber, options) });
 }
 
 function stepReadFollowUp(action, response, job) {
   const pack = packForRow(action.row, job.packs);
   const settings = pickSettings(job.settings, pack);
   const parsed = parseFollowUpResponse(response);
-  const body = parsed.ok ? parsed.body : fallbackFollowUp(action.row, settings, pack, action.followUpNumber);
+  const options = { maxFollowUps: action.maxFollowUps || effectiveMaxFollowUps(job.settings), newThread: !action.threadId };
+  const body = parsed.ok ? parsed.body : fallbackFollowUp(action.row, settings, pack, action.followUpNumber, options);
   const optOut = settings.followUpOptOutLine === undefined ? FOLLOW_UP_OPT_OUT : str(settings.followUpOptOutLine);
   const out = Object.assign({}, action, {
-    followUp: { subject: followUpSubject(action.row), body: finalEmailBody(body, Object.assign({}, settings, { optOutLine: optOut })) },
+    followUp: { subject: followUpSubject(action.row, action.sentSubject, !action.threadId), body: finalEmailBody(body, Object.assign({}, settings, { optOutLine: optOut })) },
     aiStatus: parsed.ok ? 'AI' : `Template (AI error: ${parsed.error})`,
   });
   delete out.aiRequest;
@@ -569,6 +577,7 @@ function stepReadFollowUpDraft(action, draftResponse, now) {
     return { 'Place ID': update['Place ID'], Notes: appendNote(old, `${isoDate(now || new Date())} follow-up draft failed: ${msg}`) };
   }
   if (r.message && r.message.threadId) update['Thread ID'] = str(r.message.threadId);
+  update['Draft ID'] = str(r.id); // so a later reply can point at the waiting draft
   return update;
 }
 
@@ -583,6 +592,7 @@ function stepFollowUpReport(updates) {
   const list = (updates || []).filter((u) => u && u['Place ID']);
   const count = (status) => list.filter((u) => u.Status === status).length;
   const failed = list.filter((u) => !u.Status && u.Notes).length;
+  const toDelete = list.filter((u) => [STATUS.REPLIED, STATUS.BOUNCED].includes(u.Status) && /follow-up draft is still in Gmail Drafts/.test(str(u.Notes).split(' | ')[0])).length;
   const parts = [
     plural(count(STATUS.FOLLOW_UP_DRAFTED), 'follow-up draft') + ' created',
     `${plural(count(STATUS.REPLIED), 'lead')} marked Replied`,
@@ -590,12 +600,14 @@ function stepFollowUpReport(updates) {
     `${plural(count(STATUS.CONTACTED), 'lead')} marked Contacted`,
   ];
   if (failed) parts.push(`${plural(failed, 'draft')} failed (see the Notes column)`);
+  if (toDelete) parts.push(`${plural(toDelete, 'waiting follow-up draft')} to delete in Gmail Drafts (they replied or bounced; see Notes)`);
   return {
     followUpsDrafted: count(STATUS.FOLLOW_UP_DRAFTED),
     markedReplied: count(STATUS.REPLIED),
     markedBounced: count(STATUS.BOUNCED),
     markedContacted: count(STATUS.CONTACTED),
     draftsFailed: failed,
+    draftsToDelete: toDelete,
     summary: parts.join(', ') + '.',
   };
 }

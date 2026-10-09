@@ -303,7 +303,7 @@ test('one address or website is pitched once: same email or site in the sheet or
 test('overlapping runs: a business another run saved meanwhile is dropped; its email gets no second draft', () => {
   const job = { settings: { createGmailDrafts: true, minScoreToPitch: 20 }, nicheTitle: 'Web Design', search: { textQuery: 'q' } };
   const pitched = (id, email) => ({ placeId: id, name: id, email, website: '', reviewCount: 1, score: 50, problems: [{ id: 'no_website', label: 'No website', evidence: 'e', points: 45 }], pitch: { subject: 's', body: 'b', fullBody: 'b' } });
-  const rows = steps.stepSheetRows([pitched('a', 'a@a.test'), pitched('b', 'b@b.test'), pitched('c', 'shared@c.test')], job, NOW, [{ 'Place ID': 'a' }, { 'Place ID': 'zz', Email: 'shared@c.test' }]);
+  const rows = steps.stepSheetRows([pitched('a', 'a@a.test'), pitched('b', 'b@b.test'), pitched('c', 'shared@c.test')], job, NOW, [{ 'Place ID': 'a' }, { 'Place ID': 'zz', Email: 'shared@c.test', Status: 'Draft ready', 'Email Subject': 's' }]);
   assert.deepEqual(rows.map((r) => [r['Place ID'], r.Status]), [['b', 'Draft ready'], ['c', 'Pitch ready']]);
   const summary = steps.stepSummary(rows, [], Object.assign({}, job, { settings: Object.assign({}, job.settings, { googleSheetUrl: 'x' }) }), { savedElsewhere: 1 });
   assert.match(summary.message, /1 business had just been saved by another run and was skipped/);
@@ -501,4 +501,79 @@ test('shared ordering, booking and directory hosts (Clover, Mindbody, BBB...) co
   assert.equal(places.websitePlatform('https://www.bbb.org/us/tx/austin/profile/x'), 'directory listing');
   assert.equal(steps.siteKey('https://www.clover.com/online-ordering/joes-pizza-austin'), '');
   assert.equal(steps.siteKey('smiledental.test'), 'smiledental.test');
+});
+
+// ---------- second review round: follow-ups ----------
+
+test('duplicate Place ID: only the first sheet row (the one n8n updates) is ever decided, even if it is final or has no email', () => {
+  const rows = [row({ 'Place ID': 'ChIJ1', Email: 'info@smile.test', Status: 'Do not contact' }), row({ 'Place ID': 'ChIJ1', Email: 'dr@smile.test', Status: 'Contacted', 'Last Contacted': '2026-10-05' })];
+  assert.equal(decide(rows, [sent('dr@smile.test', '2026-10-05')])[0].title, 'Nothing to do today');
+  const noEmailFirst = [row({ 'Place ID': 'ChIJ2', Email: '', Status: 'Pitch ready' }), row({ 'Place ID': 'ChIJ2', Email: 'typed@smile.test', Status: 'Contacted', 'Last Contacted': '2026-10-05' })];
+  assert.equal(decide(noEmailFirst, [sent('typed@smile.test', '2026-10-05')])[0].title, 'Nothing to do today');
+});
+
+test('a reply or bounce while a follow-up draft waits adds a note to delete that draft, and the report counts it', () => {
+  const waiting = row({ Status: 'Follow-up drafted', 'Follow-ups': 1, 'Last Draft On': '2026-10-19', 'Last Contacted': '2026-10-02' });
+  const a = decide([waiting], [sent('info@smiledental.test', '2026-10-02')], [incoming('info@smiledental.test', '2026-10-19')]);
+  assert.equal(a[0].action, 'replied');
+  assert.match(a[0].update.Notes, /^2026-10-20: a follow-up draft is still in Gmail Drafts: delete it, don't send it/);
+  assert.match(steps.stepFollowUpReport([a[0].update]).summary, /1 waiting follow-up draft to delete in Gmail Drafts/);
+  const upd = steps.stepReadFollowUpDraft({ row: row(), update: { 'Place ID': 'p', Status: 'Follow-up drafted' } }, { id: 'r-77', message: { threadId: 'T1' } }, fNow);
+  assert.equal(upd['Draft ID'], 'r-77');
+});
+
+test('one pitch sent To + Cc two lead addresses: a reply from a third address protects both', () => {
+  const rows = [row({ 'Place ID': 'a', Email: 'austin@bright.test' }), row({ 'Place ID': 'b', Email: 'roundrock@bright.test' })];
+  const pitch = Object.assign(sent('austin@bright.test', '2026-10-02'), { Cc: 'roundrock@bright.test' });
+  const acts = decide(rows, [pitch], [pitch, incoming('owner@bright.test', '2026-10-04')]);
+  assert.deepEqual(acts.map((x) => x.action).sort(), ['replied', 'replied']);
+});
+
+test('statuses typed by hand that are not workflow statuses ("Unsubscribed", "DNC", "Call back") mean hands off', () => {
+  for (const st of ['Unsubscribed', 'Opted out', 'DNC', 'Call back']) {
+    const rows = [row({ Status: st, 'Last Contacted': '2026-10-01' })];
+    assert.equal(decide(rows, [sent('info@smiledental.test', '2026-10-01')])[0].title, 'Nothing to do today', st);
+  }
+  assert.equal(fu.isHandsOff('Contacted'), false);
+  assert.equal(fu.isHandsOff('unsubscribed'), true);
+});
+
+test('delivery-delay notices are not bounces, and a successful re-send after a failure clears it', () => {
+  const delay = decide([row()], [sent('info@smiledental.test', '2026-10-02')], [incoming('Mail Delivery Subsystem <mailer-daemon@googlemail.com>', '2026-10-02', 'T1', 'Delivery Status Notification (Delay)')]);
+  assert.equal(delay[0].action, 'follow-up');
+  const resent = decide([row()], [sent('info@smiledental.test', '2026-10-02'), sent('info@smiledental.test', '2026-10-05')], [incoming('Mail Delivery Subsystem <mailer-daemon@googlemail.com>', '2026-10-02', 'T1', 'Delivery Status Notification (Failure)')]);
+  assert.notEqual(resent[0].action, 'bounced');
+});
+
+test("follow-up subject follows the email really sent; without a thread it is a new email (no Re:, prompt says so)", () => {
+  const messages = [Object.assign(sent('info@smiledental.test', '2026-10-02', 'T9'), { Subject: 'Quick idea for Smile Dental' })];
+  const a = decide([row({ 'Email Subject': 'Your site loads slowly on phones' })], messages);
+  const job = steps.stepPrepareFollowUpJob({ yourName: 'Asha', googleSheetUrl: 'https://docs.google.com/spreadsheets/d/1AbCdEfGhIjKlMnOpQrStUvWxYz0123456789/edit', followUpDays: '3,7', maxFollowUps: 2 }, packs);
+  const read = steps.stepReadFollowUp(steps.stepBuildFollowUpRequest(a[0], job), { error: { message: 'x' } }, job);
+  assert.equal(read.followUp.subject, 'Re: Quick idea for Smile Dental');
+  const typed = decide([row({ Status: 'Contacted', 'Last Contacted': '10/1/2026', 'Last Draft On': '', 'Email Subject': 'Your site loads slowly on phones' })], []);
+  const req = steps.stepBuildFollowUpRequest(typed[0], job);
+  assert.match(req.aiRequest.body.system, /sent as a new email \(not a reply\)/);
+  assert.equal(steps.stepReadFollowUp(req, { error: { message: 'x' } }, job).followUp.subject, 'Your site loads slowly on phones');
+});
+
+test('with more than two follow-ups only the last one says it is the last note', () => {
+  const ai = require('../../src/lib/ai');
+  const p = pack('web-design');
+  const r = { Business: 'Smile', 'Top Problem': 'Slow on mobile' };
+  assert.doesNotMatch(ai.fallbackFollowUp(r, {}, p, 2, { maxFollowUps: 4 }), /last note/);
+  assert.doesNotMatch(ai.fallbackFollowUp(r, {}, p, 3, { maxFollowUps: 4 }), /last note/);
+  assert.match(ai.fallbackFollowUp(r, {}, p, 4, { maxFollowUps: 4 }), /last note/);
+  assert.match(ai.fallbackFollowUp(r, {}, p, 2, { maxFollowUps: 2 }), /last note/);
+  assert.match(ai.buildFollowUpRequest(r, {}, p, 2, { maxFollowUps: 4 }).body.system, /later follow-up, not the last one/);
+  assert.match(ai.buildFollowUpRequest(r, {}, p, 4, { maxFollowUps: 4 }).body.system, /final, polite "closing the loop"/);
+});
+
+test('a saved row that was never pitched does not block another listing with the same email', () => {
+  const job = steps.stepPrepareJob({ 'Business type': 'salons', 'City or area': 'Manchester', yourName: 'Asha', googleSheetUrl: 'https://docs.google.com/spreadsheets/d/1AbCdEfGhIjKlMnOpQrStUvWxYz0123456789/edit' }, pack('reviews'), { requireSheet: true });
+  const lead = { placeId: 'salford', name: 'Glow Hair Salford', email: 'hello@glowhair.test', website: '', rating: 3.1, reviewCount: 40, market: { count: 9, medianReviews: 200, medianRating: 4.6 }, hours: { known: false } };
+  const unpitched = [{ 'Place ID': 'deansgate', Business: 'Glow Hair Deansgate', Email: 'hello@glowhair.test', Status: 'New', 'Email Subject': '' }];
+  assert.equal(steps.stepScoreLeads([lead], job, NOW, unpitched)[0].wantsPitch, true);
+  const pitched = [Object.assign({}, unpitched[0], { Status: 'Contacted', 'Email Subject': 'Your reviews' })];
+  assert.equal(steps.stepScoreLeads([lead], job, NOW, pitched)[0].wantsPitch, false);
 });

@@ -9,6 +9,7 @@ const { STATUS, FINAL_STATUSES } = require('./sheet');
 const EMAIL_RE = /[a-z0-9._%+-]{1,64}@[a-z0-9.-]{1,253}\.[a-z]{2,24}/gi;
 const BOUNCE_FROM = /mailer-daemon|postmaster@|mail delivery (subsystem|system)/i;
 const BOUNCE_SUBJECT = /delivery status notification|undeliverable|undelivered mail|mail delivery failed|delivery failure|returned mail|failure notice|address not found|delivery has failed/i;
+const DELAY_SUBJECT = /\(delay\)|delivery delayed|delayed mail|has been delayed|will retry|warning/i;
 const AUTO_REPLY_SUBJECT = /^\s*(automatic reply|auto[- ]?reply|autoreply|out of (the )?office|abwesenheit|réponse automatique|respuesta automática|risposta automatica|afwezig)/i;
 
 function emailsIn(header) {
@@ -28,12 +29,26 @@ function isFinalStatus(status) {
   return FINAL_STATUSES.some((f) => f.toLowerCase() === s);
 }
 
-// Addresses that must never be emailed again because some row with that address has a final status
-// (Replied, Do not contact, Bounced...), even if another row (another listing of the same business) does not.
+// The only statuses the workflows act on. Anything else, final or typed by hand ("Unsubscribed", "DNC",
+// "Call back"...), means hands off.
+const ACTIVE_STATUSES = ['', STATUS.NEW, STATUS.PITCH_READY, STATUS.DRAFT_READY, STATUS.CONTACTED, STATUS.FOLLOW_UP_DRAFTED].map((x) => x.toLowerCase());
+
+function isHandsOff(status) {
+  return isFinalStatus(status) || !ACTIVE_STATUSES.includes(str(status).toLowerCase());
+}
+
+// Addresses that must never be emailed again because some row with that address is hands-off
+// (Replied, Do not contact, Bounced, a status typed by hand...), even if another row (another listing) is not.
 function suppressedEmails(rows) {
   const out = new Set();
-  for (const r of rows || []) if (r && isFinalStatus(r.Status)) for (const e of emailsIn(r.Email)) out.add(e);
+  for (const r of rows || []) if (r && isHandsOff(r.Status)) for (const e of emailsIn(r.Email)) out.add(e);
   return out;
+}
+
+// followUpDays + maxFollowUps → how many follow-ups a lead gets (0-5).
+function effectiveMaxFollowUps(settings) {
+  const s = settings || {};
+  return Math.max(0, Math.min(5, int(s.maxFollowUps, parseFollowUpDays(s.followUpDays).length)));
 }
 
 // Rows that may need a follow-up: an address, a Place ID, not final, and pitched (by the workflow or by hand).
@@ -41,7 +56,7 @@ function candidateRows(rows) {
   const suppressed = suppressedEmails(rows);
   return (rows || []).filter((r) => {
     const email = emailsIn(r && r.Email)[0];
-    if (!email || !str(r['Place ID']) || isFinalStatus(r.Status) || suppressed.has(email)) return false;
+    if (!email || !str(r['Place ID']) || isHandsOff(r.Status) || suppressed.has(email)) return false;
     const pitched = str(r['Email Subject']) || str(r['Last Contacted']) || [STATUS.CONTACTED, STATUS.FOLLOW_UP_DRAFTED, STATUS.DRAFT_READY, STATUS.PITCH_READY].includes(str(r.Status));
     return Boolean(pitched);
   });
@@ -104,24 +119,34 @@ function indexGmail(messages, leadEmails, threadMessages) {
     if (isSentMessage(m)) {
       for (const to of [...emailsIn(m.To), ...emailsIn(m.Cc)]) {
         if (!wanted.has(to)) continue;
-        const s = track(sent, to, t, { threadId: str(m.threadId), threads: [] });
-        if (t >= s.last) s.threadId = str(m.threadId) || s.threadId;
+        const s = track(sent, to, t, { threadId: str(m.threadId), threads: [], subject: '' });
+        if (t >= s.last) {
+          s.threadId = str(m.threadId) || s.threadId;
+          s.subject = str(m.Subject) || s.subject;
+        }
         if (m.threadId && !s.threads.includes(str(m.threadId))) s.threads.push(str(m.threadId));
       }
     }
   }
   // Thread check: any incoming message in a thread we sent to a lead counts, whoever wrote it.
-  const threadLead = {};
-  for (const [email, s] of Object.entries(sent)) for (const id of s.threads) threadLead[id] = email;
+  // One pitch can go to two lead addresses (To + Cc), so a thread maps to every address it was sent to.
+  const threadLeads = {};
+  for (const [email, s] of Object.entries(sent)) for (const id of s.threads) (threadLeads[id] = threadLeads[id] || []).push(email);
   for (const m of threadMessages || []) {
     if (!m || m.error || !m.threadId) continue;
-    const email = threadLead[str(m.threadId)];
-    if (!email || isSentMessage(m) || hasLabel(m, 'DRAFT')) continue;
+    const leads = threadLeads[str(m.threadId)];
+    if (!leads || isSentMessage(m) || hasLabel(m, 'DRAFT')) continue;
     const t = messageTime(m);
-    if (!t || t < sent[email].first) continue;
+    if (!t) continue;
     const from = emailsIn(m.From)[0] || str(m.From);
-    if (BOUNCE_FROM.test(str(m.From)) || BOUNCE_SUBJECT.test(str(m.Subject))) track(bounces, email, t);
-    else if (!AUTO_REPLY_SUBJECT.test(str(m.Subject))) track(replies, email, t, { from });
+    const subject = str(m.Subject);
+    const isNotice = BOUNCE_FROM.test(str(m.From)) || BOUNCE_SUBJECT.test(subject);
+    if (isNotice && DELAY_SUBJECT.test(subject)) continue; // "delivery delayed, still trying": not a bounce
+    for (const email of leads) {
+      if (t < sent[email].first) continue;
+      if (isNotice) track(bounces, email, t);
+      else if (!AUTO_REPLY_SUBJECT.test(subject)) track(replies, email, t, { from });
+    }
   }
   return { sent, replies, bounces };
 }
@@ -147,12 +172,17 @@ function appendNote(existing, note) {
 // Picks one row per address. Rows sharing a Place ID: only the first one counts (n8n's "Update" writes to the first
 // matching row, so later copies would never be updated). Rows sharing an address: the one the pitch belongs to.
 function rowsToDecide(rows, idx) {
-  const seenPlace = new Set();
+  // n8n's "Update" writes to the first sheet row with a Place ID, whatever its status, so only that row may be
+  // decided on. A later copy (a second address tried by hand, a duplicate) is never acted on.
+  const firstByPlace = new Map();
+  for (const r of rows || []) {
+    const id = str(r && r['Place ID']);
+    if (id && !firstByPlace.has(id)) firstByPlace.set(id, r);
+  }
   const byEmail = new Map();
   for (const row of candidateRows(rows)) {
     const placeId = str(row['Place ID']);
-    if (seenPlace.has(placeId)) continue;
-    seenPlace.add(placeId);
+    if (firstByPlace.get(placeId) !== row) continue;
     const email = emailsIn(row.Email)[0];
     if (!byEmail.has(email)) byEmail.set(email, []);
     byEmail.get(email).push(row);
@@ -187,27 +217,33 @@ function decideFollowUps(rows, gmailIndex, settings, now) {
     // Only Gmail's own send date is written back, and only when it is newer than what the sheet says.
     const contactedUpdate = gmailLast && (!sheetContacted || gmailLast > sheetContacted) && isoDate(gmailLast) !== str(row['Last Contacted']) ? { 'Last Contacted': isoDate(gmailLast) } : {};
 
+    const lastDraft = parseDate(row['Last Draft On']);
+    const draftWaiting = Boolean(lastSent && lastDraft && lastDraft > startOfUtcDay(lastSent));
+    // A follow-up draft made earlier is still unsent in Gmail: it must not go out after a reply or a bounce.
+    const draftNote = (notes) => (draftWaiting && status === STATUS.FOLLOW_UP_DRAFTED ? appendNote(notes, `${isoDate(today)}: a follow-up draft is still in Gmail Drafts: delete it, don't send it`) : notes);
+
+    // Bounced only if the newest failure is not older than the newest send (a later successful re-send clears it).
     const bounce = idx.bounces[email];
-    if (bounce && firstSent && bounce.last >= firstSent) {
+    const latestSend = sentInfo ? sentInfo.last : firstSent;
+    if (bounce && latestSend && bounce.last >= latestSend) {
       actions.push({
         action: 'bounced',
         row,
         email,
-        update: Object.assign(base, contactedUpdate, { Status: STATUS.BOUNCED, Notes: appendNote(row.Notes, `${isoDate(bounce.last)}: email bounced (address not reachable)`) }),
+        update: Object.assign(base, contactedUpdate, { Status: STATUS.BOUNCED, Notes: draftNote(appendNote(row.Notes, `${isoDate(bounce.last)}: email bounced (address not reachable)`)) }),
       });
       continue;
     }
     const reply = idx.replies[email];
     if (reply && firstSent && reply.last >= firstSent) {
-      const other = reply.from && reply.from !== email ? appendNote(row.Notes, `Reply came from ${reply.from}`) : null;
-      actions.push({ action: 'replied', row, email, update: Object.assign(base, contactedUpdate, { Status: STATUS.REPLIED }, other !== null ? { Notes: other } : {}) });
+      let notes = reply.from && reply.from !== email ? appendNote(row.Notes, `Reply came from ${reply.from}`) : str(row.Notes);
+      notes = draftNote(notes);
+      actions.push({ action: 'replied', row, email, update: Object.assign(base, contactedUpdate, { Status: STATUS.REPLIED }, notes !== str(row.Notes) ? { Notes: notes } : {}) });
       continue;
     }
     if (!lastSent) continue; // the first email was never sent: nothing to follow up yet
 
     const followUps = Math.max(0, int(row['Follow-ups'], 0));
-    const lastDraft = parseDate(row['Last Draft On']);
-    const draftWaiting = Boolean(lastDraft && lastDraft > startOfUtcDay(lastSent));
     const needsContactedStatus = [STATUS.DRAFT_READY, STATUS.PITCH_READY, STATUS.FOLLOW_UP_DRAFTED, STATUS.NEW, ''].includes(status) && !draftWaiting;
     const gap = gaps[Math.min(followUps, gaps.length - 1)];
     const due = followUps < maxFollowUps && !draftWaiting && daysBetween(lastSent, today) >= gap;
@@ -220,7 +256,9 @@ function decideFollowUps(rows, gmailIndex, settings, now) {
         row,
         email,
         threadId,
+        sentSubject: (sentInfo && sentInfo.subject) || '',
         followUpNumber: followUps + 1,
+        maxFollowUps,
         update: Object.assign(base, contactedUpdate, {
           Status: STATUS.FOLLOW_UP_DRAFTED,
           'Follow-ups': followUps + 1,
@@ -235,9 +273,12 @@ function decideFollowUps(rows, gmailIndex, settings, now) {
   return actions;
 }
 
-function followUpSubject(row) {
-  const subject = str(row['Email Subject']);
+// The subject of the email really sent (Gmail threads a reply only when the subject matches), else the sheet's.
+// Without a thread (the pitch was sent outside this Gmail account) it is a new email: no "Re:".
+function followUpSubject(row, sentSubject, newThread) {
+  const subject = str(sentSubject) || str(row['Email Subject']);
   if (!subject) return `Following up — ${str(row.Business)}`;
+  if (newThread) return subject.replace(/^(re:\s*)+/i, '') || subject;
   return /^re:/i.test(subject) ? subject : `Re: ${subject}`;
 }
 
@@ -246,7 +287,10 @@ module.exports = {
   emailsIn,
   parseFollowUpDays,
   isFinalStatus,
+  ACTIVE_STATUSES,
+  isHandsOff,
   suppressedEmails,
+  effectiveMaxFollowUps,
   candidateRows,
   buildGmailQueries,
   isSentMessage,
