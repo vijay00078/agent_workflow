@@ -2,7 +2,7 @@
 // so the whole pipeline can be unit-tested without n8n (see tests/unit/pipeline.test.js).
 
 // @node-only-start
-const { str, int, truthy, plural, hostOf, parseUrl, resolveUrl, isoDate } = require('./util');
+const { str, int, truthy, plural, hostOf, parseUrl, normalizeUrl, resolveUrl, isoDate, shortBusinessName } = require('./util');
 const { buildSearch, normalizePlaces, marketStats, errorSummary, errorText, websitePlatform } = require('./places');
 const { classifyFetch, analyzeHtml, RECHECK_STATUSES } = require('./website');
 const { parsePageSpeed, pageSpeedUrl } = require('./pagespeed');
@@ -147,12 +147,39 @@ function stepSkipSaved(leads, savedRows, job) {
 // One key per website, so two Google listings of the same business (chain locations, duplicate listings) are
 // recognised. Multi-tenant hosts (Google Sites, Wix free sites) also need the first part of the path.
 function siteKey(url) {
-  const u = parseUrl(url);
+  const full = normalizeUrl(url); // the sheet may hold "smiledental.com" typed by hand
+  const u = parseUrl(full);
   if (!u) return '';
   const host = u.hostname.replace(/^www\./, '');
-  if (websitePlatform(url)) return '';
+  if (websitePlatform(full)) return '';
   if (/^sites\.google\.com$|(^|\.)wixsite\.com$/.test(host)) return host + u.pathname.split('/').slice(0, 3).join('/').toLowerCase();
   return host;
+}
+
+function firstNameWord(name) {
+  const m = shortBusinessName(name)
+    .toLowerCase()
+    .replace(/^(the|dr\.?)\s+/, '')
+    .match(/[a-z0-9\u00c0-\uffff']{2,}/);
+  return m ? m[0] : '';
+}
+
+// Two listings with the same website key are the same business when it is the same page, one of them is the
+// homepage, or their names start the same ("Bright Smiles Austin" / "Bright Smiles Round Rock"). Unrelated
+// businesses on a shared host the platform list doesn't know ("Joe's Pizza" / "Mario's Trattoria") are not.
+function sameBusinessSite(a, b) {
+  const key = siteKey(a.url);
+  if (!key || key !== siteKey(b.url)) return false;
+  if (key.includes('/')) return true; // Google Sites / Wix free sites: the key already includes the site's own path
+  const path = (url) => {
+    const u = parseUrl(normalizeUrl(url));
+    return u ? u.pathname.replace(/\/+$/, '').toLowerCase() : '';
+  };
+  const pa = path(a.url);
+  const pb = path(b.url);
+  if (pa === pb || !pa || !pb) return true;
+  const fa = firstNameWord(a.name);
+  return Boolean(fa && fa === firstNameWord(b.name));
 }
 
 // "Check Website": reads the homepage fetch result for one lead.
@@ -202,6 +229,7 @@ function stepReadPageSpeed(lead, psiResponse) {
 }
 
 // Addresses and websites already in the sheet: { emails: Map(email → row), sites: Map(siteKey → row) }.
+// Addresses and websites already in the sheet: { emails: Map(email → row), sites: Map(siteKey → rows) }.
 function savedContacts(rows) {
   const emails = new Map();
   const sites = new Map();
@@ -209,9 +237,18 @@ function savedContacts(rows) {
     if (!r || r.error) continue;
     for (const e of emailsIn(r.Email)) if (!emails.has(e) || isFinalStatus(r.Status)) emails.set(e, r);
     const key = siteKey(r.Website);
-    if (key && (!sites.has(key) || isFinalStatus(r.Status))) sites.set(key, r);
+    if (!key) continue;
+    if (!sites.has(key)) sites.set(key, []);
+    sites.get(key).push(r);
   }
   return { emails, sites };
+}
+
+// The saved row (final statuses first) or earlier lead with the same business website, if any.
+function siteMatch(map, lead, urlOf, nameOf) {
+  const list = map.get(siteKey(lead.website)) || [];
+  const same = list.filter((x) => sameBusinessSite({ url: urlOf(x), name: nameOf(x) }, { url: lead.website, name: lead.name }));
+  return same.find((x) => isFinalStatus(x.Status)) || same[0] || null;
 }
 
 function describeRow(r) {
@@ -237,8 +274,8 @@ function stepScoreLeads(leads, job, now, savedRows) {
   for (const lead of ranked) {
     const email = str(lead.email).toLowerCase();
     const key = siteKey(lead.website);
-    const savedRow = (email && saved.emails.get(email)) || (key && saved.sites.get(key));
-    const earlier = (email && runEmails.get(email)) || (key && runSites.get(key));
+    const savedRow = (email && saved.emails.get(email)) || (key && siteMatch(saved.sites, lead, (r) => r.Website, (r) => r.Business));
+    const earlier = (email && runEmails.get(email)) || (key && siteMatch(runSites, lead, (l) => l.website, (l) => l.name));
     if (savedRow) {
       lead.duplicateOf = describeRow(savedRow);
       lead.duplicateNote = isFinalStatus(savedRow.Status)
@@ -251,7 +288,7 @@ function stepScoreLeads(leads, job, now, savedRows) {
     if (lead.duplicateOf) lead.wantsPitch = false;
     else {
       if (email) runEmails.set(email, lead);
-      if (key) runSites.set(key, lead);
+      if (key) runSites.set(key, (runSites.get(key) || []).concat([lead]));
     }
   }
   return ranked;
@@ -575,6 +612,7 @@ module.exports = {
   stepCleanLeads,
   stepSkipSaved,
   siteKey,
+  sameBusinessSite,
   stepCheckWebsite,
   stepRecheckWebsite,
   stepReadPageSpeed,

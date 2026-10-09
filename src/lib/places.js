@@ -148,13 +148,13 @@ const PLATFORM_HOSTS = [
   ['Tripadvisor page', /(^|\.)tripadvisor\.[a-z.]{2,6}$/],
   [
     'directory listing',
-    /(^|\.)(justdial\.com|sulekha\.com|indiamart\.com|yell\.com|yellowpages\.[a-z.]{2,6}|checkatrade\.com|trustatrade\.com|bark\.com|thumbtack\.com|houzz\.[a-z.]{2,6}|angi\.com|homeadvisor\.com|nextdoor\.com|healthgrades\.com|jameda\.de|lybrate\.com|urbancompany\.com|booking\.com|airbnb\.[a-z.]{2,6})$/,
+    /(^|\.)(justdial\.com|sulekha\.com|indiamart\.com|yell\.com|yellowpages\.[a-z.]{2,6}|checkatrade\.com|trustatrade\.com|bark\.com|thumbtack\.com|houzz\.[a-z.]{2,6}|angi\.com|homeadvisor\.com|nextdoor\.com|healthgrades\.com|jameda\.de|lybrate\.com|urbancompany\.com|booking\.com|airbnb\.[a-z.]{2,6}|bbb\.org|manta\.com|mapquest\.com)$/,
   ],
   [
     'booking page',
-    /(^|\.)(calendly\.com|booksy\.com|fresha\.com|vagaro\.com|setmore\.com|squareup\.com|zocdoc\.com|practo\.com|opentable\.[a-z.]{2,6}|resy\.com|treatwell\.[a-z.]{2,6}|mindbodyonline\.com|schedulicity\.com|acuityscheduling\.com|styleseat\.com|glossgenius\.com|joinblvd\.com|phorest\.com|gettimely\.com|zenoti\.com|planity\.com|doctolib\.[a-z.]{2,6}|exploretock\.com|sevenrooms\.com|thefork\.[a-z.]{2,6}|quandoo\.[a-z.]{2,6}|simplybook\.(me|it)|janeapp\.com|cliniko\.com|setmore\.com|booker\.com)$/,
+    /(^|\.)(calendly\.com|booksy\.com|fresha\.com|vagaro\.com|setmore\.com|squareup\.com|zocdoc\.com|practo\.com|opentable\.[a-z.]{2,6}|resy\.com|treatwell\.[a-z.]{2,6}|mindbodyonline\.com|schedulicity\.com|acuityscheduling\.com|styleseat\.com|glossgenius\.com|joinblvd\.com|phorest\.com|gettimely\.com|zenoti\.com|planity\.com|doctolib\.[a-z.]{2,6}|exploretock\.com|sevenrooms\.com|thefork\.[a-z.]{2,6}|quandoo\.[a-z.]{2,6}|simplybook\.(me|it)|janeapp\.com|cliniko\.com|setmore\.com|booker\.com|mindbody\.io)$/,
   ],
-  ['ordering or delivery page', /(^|\.)(toasttab\.com|order\.online|doordash\.com|ubereats\.com|grubhub\.com|chownow\.com|zomato\.com|swiggy\.com|deliveroo\.[a-z.]{2,6}|just-eat\.[a-z.]{2,6}|menufy\.com|slicelife\.com)$/],
+  ['ordering or delivery page', /(^|\.)(clover\.com|toasttab\.com|order\.online|doordash\.com|ubereats\.com|grubhub\.com|chownow\.com|zomato\.com|swiggy\.com|deliveroo\.[a-z.]{2,6}|just-eat\.[a-z.]{2,6}|menufy\.com|slicelife\.com)$/],
 ];
 
 function websitePlatform(url) {

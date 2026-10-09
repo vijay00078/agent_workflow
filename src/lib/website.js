@@ -143,7 +143,9 @@ const ASSET_SUFFIX = /\.(png|jpe?g|gif|svg|webp|avif|ico|css|js|mjs|json|woff2?|
 const ROLE_PREFIX = /^(info|contact|hello|hi|office|admin|reception|frontdesk|front\.?desk|appointments?|bookings?|enquiries|inquiries|enquiry|inquiry|team|support|sales|mail|care|clinic)$/i;
 const FREE_MAIL = /^(gmail\.com|googlemail\.com|yahoo\.[a-z.]{2,6}|ymail\.com|rocketmail\.com|outlook\.[a-z.]{2,6}|hotmail\.[a-z.]{2,6}|live\.[a-z.]{2,6}|msn\.com|icloud\.com|me\.com|mac\.com|aol\.com|proton\.me|protonmail\.com|pm\.me|gmx\.[a-z.]{2,6}|web\.de|mail\.ru|yandex\.[a-z.]{2,6}|zoho\.com|zohomail\.[a-z.]{2,6}|rediffmail\.com|qq\.com|163\.com|126\.com|comcast\.net|verizon\.net|att\.net|sbcglobal\.net|bellsouth\.net|cox\.net|charter\.net|btinternet\.com|sky\.com|virginmedia\.com|talktalk\.net|bigpond\.com|optusnet\.com\.au|shaw\.ca|rogers\.com|sympatico\.ca|orange\.fr|free\.fr|laposte\.net|libero\.it|t-online\.de)$/i;
 // Text right before an address that means it belongs to someone else (the agency that built the site, a host...).
-const CREDIT_CONTEXT = /(website|site|web ?design|web ?development|designed|developed|built|powered|hosted|maintained|created|made|marketing|seo|managed)\s{0,3}by\b[^@|•·;,]{0,40}$/i;
+// Only web-agency wording counts ("Website by…", "Designed and developed by…"), and only within the same sentence:
+// "Family owned and managed by Tom. Email tom@gmail.com" is the owner's own address.
+const CREDIT_CONTEXT = /(?:\b(?:web ?site|site|web ?design|web ?development|theme|seo|marketing)(?:\s{1,3}(?:designed|developed|built|created|made|managed|maintained|hosted|powered))?|\b(?:designed|developed|powered|hosted)(?:\s{1,3}and\s{1,3}[a-z]{1,12})?)\s{0,3}by\b(?:(?!\.\s)[^@|•·;,!?]){0,40}$/i;
 
 function isPlausibleEmail(email) {
   if (!/^[a-z0-9._%+-]{1,64}@[a-z0-9.-]{1,253}\.[a-z]{2,24}$/i.test(email)) return false;
@@ -176,7 +178,7 @@ const PLAIN_EMAIL_RE = /(?<![a-z0-9._%+-])[a-z0-9._%+-]{1,64}@[a-z0-9-]{1,63}(?:
 // Returns { emails, others }: emails = addresses we trust to belong to the business, best first
 // (their own domain, then free-mail, then other domains only when the page links to them with mailto:);
 // others = addresses seen on the page that we could not attribute to the business.
-function collectEmails(html, siteUrl) {
+function collectEmails(html, siteUrl, extraHosts) {
   const found = new Map();
   const add = (raw, weight, context) => {
     const email = decodeEntities(str(raw)).toLowerCase().replace(/^mailto:/, '').split('?')[0].replace(/[.,;:]+$/, '');
@@ -193,6 +195,8 @@ function collectEmails(html, siteUrl) {
   const before = (index) => decodeEntities(stripTags(text.slice(Math.max(0, index - 400), index))).replace(/\s+/g, ' ');
   for (const m of text.matchAll(/href\s{0,3}=\s{0,3}["']?\s{0,3}mailto:([^"'?\s>]{1,320})/gi)) add(safeDecodeUri(m[1]), 3, before(m.index));
   for (const m of text.matchAll(/data-cfemail\s{0,3}=\s{0,3}["']([0-9a-f]{4,400})["']/gi)) add(decodeCfEmail(m[1]), 3, before(m.index));
+  // Cloudflare's other form: <a href="/cdn-cgi/l/email-protection#HEX">Email us</a>
+  for (const m of text.matchAll(/email-protection#([0-9a-f]{4,400})/gi)) add(decodeCfEmail(m[1]), 3, before(m.index));
   // Visible text only: attribute values (placeholders, form defaults) are not the business's address.
   const visible = decodeEntities(stripTags(text)).replace(/\s+/g, ' ');
   for (const m of visible.matchAll(PLAIN_EMAIL_RE)) add(m[0], 1, visible.slice(Math.max(0, m.index - 120), m.index));
@@ -204,10 +208,11 @@ function collectEmails(html, siteUrl) {
     if (!/\.[a-z]{2,24}$/i.test(domain)) continue;
     add(`${m[1]}@${domain}`, 1, visible.slice(Math.max(0, m.index - 120), m.index));
   }
-  const siteHost = hostOf(siteUrl);
+  // The listed domain plus where the page says it lives (canonical URL: an old domain forwarding to a new one).
+  const siteHosts = [hostOf(siteUrl)].concat(extraHosts || []).filter(Boolean);
   const tierOf = (email, info) => {
     const domain = email.split('@')[1];
-    if (sameSite(domain, siteHost)) return 3;
+    if (siteHosts.some((h) => sameSite(domain, h))) return 3;
     if (info.credit) return 0;
     if (FREE_MAIL.test(domain)) return 2;
     return info.weight >= 3 ? 1 : 0; // another domain: only when the page links to it
@@ -277,7 +282,9 @@ const BOOKING_TEXT = new RegExp(
   ].join('|'),
   'i',
 );
-const BOOKING_HREF = /href\s{0,3}=\s{0,3}["']?[^"'\s>]{0,200}\/(?:book|booking|bookings|book-now|book-online|appointments?|request-appointment|schedule|scheduling|reserv(?:e|ation|ations)|termin|cita|rendez-vous)(?:[/?#"'\s>]|-[a-z0-9-]{1,30})/i;
+// Link targets that are clearly an online booking page (tested on href values only). "/appointments", "/schedule"
+// and "/reservations" are left out: they are often a "call us to book" page or a class timetable.
+const BOOKING_HREF = /(?:^|\/)(?:book|booking|bookings|booknow|book-now|book-online|online-booking|book-an-appointment|book-appointment|request-appointment|request-an-appointment|appointment-request|schedule-online|schedule-appointment|reserve-online|online-reservations?|termin-buchen|prendre-rendez-vous)(?:[/?#.]|$)/i;
 
 const CHAT_PATTERNS = [
   ['Tawk.to', /tawk\.to/i], ['Intercom', /intercom(cdn)?\.(io|com)|widget\.intercom/i], ['Drift', /js\.driftt\.com|drift\.com\/(include|widget)/i], ['Crisp', /crisp\.chat/i],
@@ -383,19 +390,46 @@ function resolveSameSiteUrl(href, pageUrl) {
   return url;
 }
 
-function findContactUrl(html, pageUrl) {
-  const candidates = [];
-  for (const m of str(html).matchAll(/<a\b[^>]{0,2000}?href\s{0,3}=\s{0,3}["']([^"'#][^"']{0,500})["'][^>]{0,2000}>([\s\S]{0,200}?)<\/a>/gi)) {
-    const href = m[1];
-    const label = m[2].replace(/<[^>]{0,2000}>/g, ' ');
-    if (/^(mailto|tel|javascript):/i.test(href)) continue;
-    const hit = /contact|kontakt|contacto|get-in-touch|reach-us|enquir|inquir/i;
-    if (hit.test(href) || hit.test(label)) {
-      const url = resolveSameSiteUrl(href, pageUrl);
-      if (url && url !== pageUrl) candidates.push(url);
+// Every link and button on the page as { tag, href, text }. A forward-only scan with indexOf, so even a page of
+// thousands of unclosed "<a href=" tags takes linear time.
+function clickables(html) {
+  const s = str(html);
+  const lower = s.toLowerCase();
+  const out = [];
+  const re = /<(a|button|input)\b/g;
+  const nextClose = { a: -2, button: -2 };
+  let nextGt = -2;
+  let m;
+  while ((m = re.exec(lower))) {
+    const tag = m[1];
+    const start = m.index;
+    if (nextGt !== -1 && nextGt < start) nextGt = lower.indexOf('>', start);
+    if (nextGt === -1) break; // no complete tag left on the page
+    if (nextGt - start > 3000) continue; // not a real tag
+    const attrs = tagAttributes('<x ' + s.slice(start + 1 + tag.length, nextGt) + '>');
+    re.lastIndex = nextGt + 1;
+    if (tag === 'input') {
+      if (/^(submit|button)$/i.test(str(attrs.type))) out.push({ tag, href: '', text: str(attrs.value) });
+      continue;
     }
+    if (nextClose[tag] !== -1 && nextClose[tag] < nextGt) nextClose[tag] = lower.indexOf('</' + tag, nextGt);
+    const close = nextClose[tag];
+    const inner = close !== -1 && close - nextGt <= 400 ? s.slice(nextGt + 1, close) : '';
+    const text = [decodeEntities(removeTags(inner)), str(attrs['aria-label']), str(attrs.title)].join(' ').replace(/\s+/g, ' ').trim();
+    out.push({ tag, href: str(attrs.href), text });
   }
-  return candidates[0] || '';
+  return out;
+}
+
+function findContactUrl(html, pageUrl, links) {
+  const hit = /contact|kontakt|contacto|get-in-touch|reach-us|enquir|inquir/i;
+  for (const l of links || clickables(html)) {
+    if (l.tag !== 'a' || !l.href || l.href.startsWith('#') || /^(mailto|tel|javascript):/i.test(l.href)) continue;
+    if (!hit.test(l.href) && !hit.test(l.text)) continue;
+    const url = resolveSameSiteUrl(l.href, pageUrl);
+    if (url && url !== pageUrl) return url;
+  }
+  return '';
 }
 
 // Attributes of one tag, with or without quotes: <meta name=description content="...">.
@@ -412,14 +446,37 @@ function tagsOf(html, name) {
   return [...str(html).matchAll(new RegExp(`<${name}\\b[^>]{0,3000}>`, 'gi'))].map((m) => tagAttributes(m[0]));
 }
 
+// Markers of a bot-check interstitial. Cloudflare's "JavaScript detections" script (/cdn-cgi/challenge-platform/scripts/jsd/)
+// is added to ordinary pages, so only the challenge page's own "orchestrate" script counts.
+const CHALLENGE = /sucuri_cloudproxy|sgcaptcha|cf-browser-verification|cf_chl_|challenge-platform\/(?:h\/[a-z]\/)?orchestrate|checking your browser|just a moment\.\.\.|attention required!|ddos protection by|enable javascript and cookies to continue|please wait while we verify/i;
+
+function isChallengePage(html, bodyText) {
+  return bodyText.length < 1500 && CHALLENGE.test(html); // interstitials are tiny pages
+}
+
+// Signs that the page is built by JavaScript in the browser (a page without scripts is exactly what visitors see).
+function looksClientRendered(html) {
+  return (
+    /<script\b[^>]{0,500}\bsrc\s{0,3}=/i.test(html) ||
+    /<div\b[^>]{0,300}\bid\s{0,3}=\s{0,3}["']?(?:root|app|__next|__nuxt|svelte|q-app)["'\s>]/i.test(html) ||
+    /<noscript\b[^>]{0,200}>[\s\S]{0,500}?(?:enable|requires?|need) javascript/i.test(html)
+  );
+}
+
 // Pages whose HTML is not what a visitor sees: absence checks (no booking, no chat...) must not run on them.
 function unverifiableReason(html, bodyText) {
-  if (/sucuri_cloudproxy|sgcaptcha|cf-browser-verification|cf_chl_|challenge-platform|checking your browser|just a moment\.\.\.|attention required!|ddos protection by|enable javascript and cookies to continue|please wait while we verify/i.test(html)) {
-    return 'a bot-protection page was returned instead of the site';
-  }
+  if (isChallengePage(html, bodyText)) return 'a bot-protection page was returned instead of the site';
   if (/<meta\b[^>]{0,300}http-equiv\s{0,3}=\s{0,3}["']?refresh/i.test(html) && bodyText.length < 1000) return 'the homepage redirects with a script or meta refresh';
-  if (bodyText.length < 250) return 'the page has almost no text without JavaScript (it is built in the browser)';
+  if (bodyText.length < 250 && looksClientRendered(html)) return 'the page has almost no text without JavaScript (it is built in the browser)';
   return '';
+}
+
+// "Coming soon" etc. in a title or heading only counts when that title part is just the phrase
+// ("Coming Soon", "Smile Dental | Website under construction"), not "Our new office is coming soon!".
+function isPlaceholderPhrase(text) {
+  return str(text)
+    .split(/\s[|–—:·-]\s|[|–—·]/)
+    .some((part) => /^[^a-z0-9]*(?:(?:our\s+)?(?:new\s+)?(?:web\s?)?site\s+(?:is\s+)?)?(?:coming soon|under construction|launching soon)[^a-z0-9]*$/i.test(part.trim()));
 }
 
 function analyzeHtml(rawHtml, pageUrl, now) {
@@ -437,23 +494,31 @@ function analyzeHtml(rawHtml, pageUrl, now) {
   const canonicalTag = links.find((l) => /(^|\s)canonical(\s|$)/i.test(str(l.rel)));
   const ogUrl = metaNamed('og:url');
   const bodyText = decodeEntities(stripTags(html)).replace(/\s+/g, ' ').trim();
-  const challenge = /sucuri_cloudproxy|sgcaptcha|cf-browser-verification|cf_chl_|challenge-platform|checking your browser|just a moment\.\.\./i.test(html);
+  const challenge = isChallengePage(html, bodyText);
   const strongPlaceholder =
     /(this domain (is|may be) for sale|buy this domain|domain is parked|parked (free|domain|by)|this domain has been registered|account (has been )?suspended|default web page|welcome to nginx|index of \/|future home of)/i.test(bodyText + ' ' + title) ||
     /^\s*it works!/i.test(bodyText) ||
     /^it works!?$/i.test(title);
   const weakPhrase = /(coming soon|under construction|launching soon|site is being built|website is being built)/i;
   const hasContactLinks = /href\s{0,3}=\s{0,3}["']?\s{0,3}(tel|mailto):/i.test(html);
+  const clicks = clickables(html);
+  const navLinks = clicks.filter((l) => l.tag === 'a' && l.href && !/^(tel|mailto|javascript):/i.test(l.href)).length;
   const isPlaceholder =
     !challenge &&
     bodyText.length < 2500 &&
-    (strongPlaceholder || weakPhrase.test(title) || weakPhrase.test(h1Text) || (bodyText.length < 600 && weakPhrase.test(bodyText) && !hasContactLinks));
+    (strongPlaceholder || isPlaceholderPhrase(title) || isPlaceholderPhrase(h1Text) || (bodyText.length < 600 && weakPhrase.test(bodyText) && !hasContactLinks && navLinks < 3));
   const notVerifiable = isPlaceholder ? '' : unverifiableReason(html, bodyText);
-  const booking = findFirst(BOOKING_PATTERNS, html) || (BOOKING_TEXT.test(bodyText) || BOOKING_TEXT.test(removeTags(html)) ? 'Booking button' : '') || (BOOKING_HREF.test(html) ? 'Booking page link' : '');
+  // Booking wording only counts on something you can click ("Book now" button), never in a sentence like
+  // "Call us to book an appointment", which is exactly the phone-only booking this check looks for.
+  const bookingLabel = clicks.find((l) => !/^(tel|mailto|sms):/i.test(l.href) && BOOKING_TEXT.test(l.text));
+  const bookingHref = clicks.find((l) => l.href && !/^(tel|mailto|sms):/i.test(l.href) && BOOKING_HREF.test(l.href.split(/[?#]/)[0]));
+  const booking = findFirst(BOOKING_PATTERNS, html) || (bookingLabel ? 'Booking button' : '') || (bookingHref ? 'Booking page link' : '');
   const chat = findFirst(CHAT_PATTERNS, html);
   const socials = {};
   for (const [k, re] of Object.entries(SOCIAL_PATTERNS)) socials[k] = re.test(html);
-  const { emails, others } = collectEmails(html, pageUrl);
+  const canonicalUrl = str((canonicalTag && canonicalTag.href) || (ogUrl && ogUrl.content));
+  const canonicalHost = canonicalUrl ? hostOf(resolveUrl(canonicalUrl, pageUrl)) : '';
+  const { emails, others } = collectEmails(html, pageUrl, canonicalHost ? [canonicalHost] : []);
   const builder = findFirst(BUILDER_PATTERNS, html) || (/^(wix|squarespace|shopify|weebly|duda|jimdo|strikingly|godaddy)/i.test(generator) ? generator.split(/[\s.]/)[0] : '');
   return {
     title,
@@ -481,8 +546,8 @@ function analyzeHtml(rawHtml, pageUrl, now) {
     truncated,
     emails,
     otherEmails: others,
-    contactUrl: findContactUrl(html, pageUrl),
-    canonicalUrl: str((canonicalTag && canonicalTag.href) || (ogUrl && ogUrl.content)),
+    contactUrl: findContactUrl(html, pageUrl, clicks),
+    canonicalUrl,
     textLength: bodyText.length,
   };
 }
@@ -501,6 +566,8 @@ module.exports = {
   extractEmails,
   extractCopyrightYear,
   findContactUrl,
+  clickables,
+  isPlaceholderPhrase,
   tagAttributes,
   analyzeHtml,
 };

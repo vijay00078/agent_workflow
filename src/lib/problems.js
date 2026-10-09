@@ -93,6 +93,7 @@ const PROBLEMS = {
     detect: (ctx) => {
       const site = ctx.site;
       if (!site || site.status !== 'ssl-error') return null;
+      if (ctx.psi && ctx.psi.ok) return null; // Chrome (PageSpeed) loaded the page: visitors see no warning
       const chromeAgrees = Boolean(ctx.psi && ctx.psi.certError);
       // Node rejects some certificates that Chrome accepts (a missing intermediate certificate, for example):
       // claim it only when Chrome (via PageSpeed) also refused it, or the fault is one every browser rejects.

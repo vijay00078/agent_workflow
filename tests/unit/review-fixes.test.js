@@ -286,9 +286,16 @@ test('one address or website is pitched once: same email or site in the sheet or
   assert.match(by.south.duplicateNote, /Same email as north \(found in the same search\)/);
   assert.equal(by.optout.wantsPitch, false);
   assert.match(by.optout.duplicateNote, /Same email as Other Dental, status "Do not contact" in your sheet: not pitched/);
-  // Same website, different email (chain locations sharing one site).
-  const chain = steps.stepScoreLeads([withProblems(lead('a', 'a@chain.test', 'https://chain.test/a')), withProblems(lead('b', 'b@chain.test', 'https://www.chain.test/b'))], job, NOW, []);
+  // Same website, different email (chain locations sharing one site): pitched once.
+  const named = (id, name, email, site) => Object.assign(withProblems(lead(id, email, site)), { name });
+  const chain = steps.stepScoreLeads([named('a', 'Bright Smiles Austin', 'a@chain.test', 'https://brightsmiles.test/locations/austin'), named('b', 'Bright Smiles Round Rock', 'b@chain.test', 'https://www.brightsmiles.test/locations/round-rock')], job, NOW, []);
   assert.deepEqual(chain.map((l) => l.wantsPitch).sort(), [false, true]);
+  // Different businesses on a shared host the platform list doesn't know: both pitched.
+  const shared = steps.stepScoreLeads([named('j', "Joe's Pizza", '', 'https://orders.example-host.test/joes-pizza'), named('m', "Mario's Trattoria", '', 'https://orders.example-host.test/marios')], job, NOW, []);
+  assert.deepEqual(shared.map((l) => l.wantsPitch), [true, true]);
+  // A hand-typed row without https:// still blocks a "Do not contact" website.
+  const typed = steps.stepScoreLeads([withProblems(lead('n', '', 'https://www.smiledental.test/'))], job, NOW, [{ 'Place ID': '', Business: 'Smile Dental', Email: '', Status: 'Do not contact', Website: 'smiledental.test' }]);
+  assert.equal(typed[0].wantsPitch, false);
   // Google Sites pages of two different businesses are different websites.
   assert.notEqual(steps.siteKey('https://sites.google.com/view/plumber-a'), steps.siteKey('https://sites.google.com/view/plumber-b'));
 });
@@ -423,4 +430,75 @@ test('"Website down" is never claimed after a single failed load (e.g. a custom 
   assert.deepEqual(problems.detectProblems({ lead: once, site: once.site, analysis: null, psi: null, market: once.market, now: NOW }, custom).map((p) => p.id), []);
   const twice = steps.stepRecheckWebsite(once, { statusCode: 404, html: '' }, NOW);
   assert.deepEqual(problems.detectProblems({ lead: twice, site: twice.site, analysis: null, psi: null, market: twice.market, now: NOW }, custom).map((p) => p.id), ['site_down']);
+});
+
+// ---------- second review round ----------
+
+test("Cloudflare's JavaScript-detections script on a normal page does not make it a bot-check page", () => {
+  const jsd = `<script>(function(){var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.head.appendChild(a)})();</script>`;
+  const page = `<html><head><title>Smile Dental</title>${jsd}</head><body><h1>Smile Dental</h1>${ABOUT}<footer>© 2018</footer></body></html>`;
+  assert.equal(web.analyzeHtml(page, 'https://a.test/').verifiable, true);
+  assert.deepEqual(judge('web-design', {}, { statusCode: 200, html: page }).ids.sort(), ['not_mobile_friendly', 'outdated_site', 'weak_seo']);
+  // The real interstitial is still recognised.
+  const real = '<html><head><title>Just a moment...</title></head><body><script src="/cdn-cgi/challenge-platform/h/b/orchestrate/chl_page/v1"></script></body></html>';
+  assert.equal(web.analyzeHtml(real, 'https://a.test/').verifiable, false);
+});
+
+test('booking wording only counts on a button or link, so phone-only businesses still get "No online booking"', () => {
+  for (const t of ['<p>Call us at (512) 555-0100 to book an appointment.</p>', '<p>To make an appointment, please call our office.</p>', '<p>Call today to schedule your visit</p>', '<p>For reservations call (512) 555-0100.</p>', '<p>No reservations needed - walk-ins welcome!</p>', '<p>Llame para agendar su cita.</p>', '<a href="tel:5125550100">Book an appointment</a>', '<a href="/schedule">Class schedule</a>', '<script>var t="Book now"</script>']) {
+    assert.equal(web.analyzeHtml(html(t), 'https://a.test/').hasBooking, false, t);
+  }
+  for (const t of ['<button>Book now</button>', '<a href="/contact">Book an appointment</a>', '<input type="submit" value="Request an appointment">', '<a href="/online-booking/">Go</a>']) {
+    assert.equal(web.analyzeHtml(html(t), 'https://a.test/').hasBooking, true, t);
+  }
+});
+
+test('placeholder: a phrase in the title or heading counts only when it is the whole title part', () => {
+  const real = (title, h1) => `<html><head><title>${title}</title></head><body><nav><a href="/">Home</a><a href="/about">About</a><a href="/services">Services</a></nav><h1>${h1}</h1><a href="tel:5125550100">Call</a>${ABOUT}</body></html>`;
+  assert.equal(web.analyzeHtml(real('Smile Dental | New Round Rock office coming soon', 'Smile Dental'), 'https://a.test/').isPlaceholder, false);
+  assert.equal(web.analyzeHtml(real('Smile Dental', 'Our second office in Round Rock is coming soon!'), 'https://a.test/').isPlaceholder, false);
+  assert.equal(web.isPlaceholderPhrase('Smile Dental | Coming Soon'), true);
+  assert.equal(web.isPlaceholderPhrase('Website under construction'), true);
+});
+
+test("emails: Cloudflare's link form, a canonical domain, and owner sentences that aren't agency credits", () => {
+  const hex = fx.cfEncode('info@smiledental.test', 0x22);
+  assert.deepEqual(web.extractEmails(`<a href="/cdn-cgi/l/email-protection#${hex}">Email us</a>`, 'https://smiledental.test/'), ['info@smiledental.test']);
+  const moved = `<html><head><link rel="canonical" href="https://www.smiledentalaustin.test/"></head><body><p>Email: info@smiledentalaustin.test</p>${ABOUT}</body></html>`;
+  assert.equal(web.analyzeHtml(moved, 'http://smile-dental.test/').emails[0], 'info@smiledentalaustin.test');
+  for (const [text, email] of [
+    ['Family owned and managed by Tom Jones. Email tomjonesplumbing@gmail.com', 'tomjonesplumbing@gmail.com'],
+    ['Custom homes built by Smith Construction since 1990. Email smithhomes@gmail.com', 'smithhomes@gmail.com'],
+    ['Mobile massage on site by appointment. Email relaxmassage@gmail.com', 'relaxmassage@gmail.com'],
+    ['Handmade by Anna in Austin. Orders: annamakes@gmail.com', 'annamakes@gmail.com'],
+  ]) assert.deepEqual(web.extractEmails(`<p>${text}</p>`, 'https://owner.test/'), [email], text);
+  assert.deepEqual(web.extractEmails('<footer>Website designed by PixelCraft: hello@pixelcraft.agency</footer>', 'https://owner.test/'), []);
+});
+
+test('a short page without any script is analysed normally; a short page with scripts is not', () => {
+  const plain = '<html><head><title>Joe</title></head><body><h1>Joe\'s Pizza</h1><p>12 Main St, (512) 555-0100. Open daily 11-10.</p><footer>© 2012</footer></body></html>';
+  assert.equal(web.analyzeHtml(plain, 'https://a.test/').verifiable, true);
+  assert.equal(web.analyzeHtml(plain.replace('</head>', '<script src="/app.js"></script></head>'), 'https://a.test/').verifiable, false);
+});
+
+test('a certificate error that Chrome (PageSpeed) loads fine is never claimed, even when Node called it expired', () => {
+  const expired = { error: { message: 'certificate has expired', code: 'CERT_HAS_EXPIRED' } };
+  assert.deepEqual(judge('web-design', {}, expired, psiOk({ performance: 30 })).ids, ['slow_mobile']);
+});
+
+test('link scanning stays linear on pages full of unclosed links', () => {
+  for (const page of ['<a href="x" '.repeat(50000), '<a href="x" title="'.repeat(30000), '<A HREF="mailto:x@y.co" '.repeat(30000), '<a class=y href="/contact" '.repeat(30000)]) {
+    const t = Date.now();
+    web.analyzeHtml(page, 'https://a.test/');
+    assert.ok(Date.now() - t < 2000, `${Date.now() - t} ms`);
+  }
+  assert.equal(web.findContactUrl('<nav><a class="nav" href="/contact-us/">Contact</a></nav>', 'https://a.test/'), 'https://a.test/contact-us/');
+});
+
+test('shared ordering, booking and directory hosts (Clover, Mindbody, BBB...) count as "no website" and never merge businesses', () => {
+  assert.equal(places.websitePlatform('https://www.clover.com/online-ordering/joes-pizza-austin'), 'ordering or delivery page');
+  assert.equal(places.websitePlatform('https://www.mindbody.io/locations/x'), 'booking page');
+  assert.equal(places.websitePlatform('https://www.bbb.org/us/tx/austin/profile/x'), 'directory listing');
+  assert.equal(steps.siteKey('https://www.clover.com/online-ordering/joes-pizza-austin'), '');
+  assert.equal(steps.siteKey('smiledental.test'), 'smiledental.test');
 });
