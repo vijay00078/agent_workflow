@@ -299,10 +299,21 @@ async function main() {
     else cli(vars, ['update:workflow', `--id=${p.id}`, '--active=true']);
   }
 
-  const server = startServer(vars, path.join(WORK, 'n8n.log'));
-  try {
+  // n8n 2.x occasionally fails to start its JavaScript task runner and shuts down while its HTTP server still
+  // answers for a moment; that is the test machine, not the product, so start it once more in that case.
+  let server;
+  for (let attempt = 1; ; attempt++) {
+    server = startServer(vars, path.join(WORK, 'n8n.log'));
     await waitFor(async () => (await fetch(`${BASE}/healthz`)).status === 200, 120000, 'n8n to start');
     await waitFor(async () => (await fetch(`${BASE}/form/client-finder-lite`)).status === 200, 60000, 'forms to register');
+    await new Promise((r) => setTimeout(r, 5000));
+    if (server.exitCode === null && (await fetch(`${BASE}/form/client-finder-lite`)).status === 200) break;
+    if (attempt >= 2) throw new Error('n8n exited right after starting twice; see n8n.log');
+    console.log('n8n exited right after starting (see n8n.log); starting it again');
+    if (server.exitCode === null) server.kill('SIGTERM');
+    await new Promise((r) => (server.exitCode === null ? server.on('exit', r) : r()));
+  }
+  try {
     console.log('n8n is up; running scenarios:');
     await formScenarios(mocks);
   } finally {
